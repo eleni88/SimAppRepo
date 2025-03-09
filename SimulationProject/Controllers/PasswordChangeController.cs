@@ -36,7 +36,7 @@ namespace SimulationProject.Controllers
                 return BadRequest("Password don't match.");
             }
               
-            await _usersService.UpdateUserPasswordAsync(user);
+            await _usersService.UpdateUserPasswordAsync(newpass, user);
             return Ok("Password updated successfully.");
         }
     }

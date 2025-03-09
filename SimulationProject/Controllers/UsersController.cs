@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SimulationProject.DTO;
 using SimulationProject.Models;
 using SimulationProject.Services;
 
@@ -76,31 +77,30 @@ namespace SimulationProject.Controllers
 
         // PUT /api/users/{Userid}
         [HttpPost("{Userid}")]
-        public async Task<IActionResult> UpdateUser(int Userid, User user)
+        public async Task<IActionResult> UpdateUser(int Userid, User user, RegisterForm registerForm)
         {
             if (Userid != user.Userid)
             {
                 return BadRequest();
             }
-            if (!ModelState.IsValid)
+            if (_usersService.UserNameExists(user.Username))
             {
-                return BadRequest(ModelState);
+                return BadRequest("The username is used by another user");
             }
+            if (_usersService.UserEmailExists(user.Email))
+            {
+                return BadRequest("The email is used by another user");
+            }
+
             if (!(_usersService.UserNameExists(user.Username) && _usersService.UserEmailExists(user.Email)))
             {
-                await _usersService.PutUserAsync(Userid, user);
-            }
-            else
-            {
-                if (_usersService.UserNameExists(user.Username))
+                int rowsAfected = await _usersService.PutUserAsync(Userid, user, registerForm.SecurityAnswer);
+                if (rowsAfected > 0)
                 {
-                    ModelState.AddModelError("Username", "The username is used by another user");
-                }
-                if (_usersService.UserEmailExists(user.Email))
-                {
-                    ModelState.AddModelError("Useremail", "The email is used by another user");
-                }
+                    return Ok("User updated successfully.");
+                } 
             }
+            
             return NoContent();
         }
 

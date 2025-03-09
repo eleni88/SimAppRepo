@@ -49,4 +49,14 @@ public partial class User
     [StringLength(100)]
     [Unicode(false)]
     public string? Jobtitle { get; set; }
+
+    [Column("SECURITYQUESTION")]
+    [StringLength(200)]
+    [Unicode(false)]
+    public string? Securityquestion { get; set; }
+
+    [Column("SECURITYANSWER")]
+    [StringLength(200)]
+    [Unicode(false)]
+    public string? Securityanswer { get; set; }
 }

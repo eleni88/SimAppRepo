@@ -10,5 +10,7 @@
         public int Age { get; set; }
         public string JobTitle { get; set; }
         public bool Admin { get; set; }
+        public string SecurityQuestion { get; set; }
+        public string SecurityAnswer { get; set; }
     }
 }

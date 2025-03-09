@@ -14,7 +14,7 @@ namespace SimulationProject.Services
         Task<User?> GetUserByIdAsync(int Userid);
         Task<User?> GetUserByNameAsync(string Username);
         Task CreateUserAsync(User user);
-        Task PutUserAsync(int Userid, User user);
+        Task<int> PutUserAsync(int Userid, User user, string securityanswerHash);
         Task DeleteUserAsync(User user);
         Task<User?> RegisterUserAsync(RegisterForm registerForm);
         Task<string?> LoginUserAsync(LoginForm loginform);
@@ -22,7 +22,7 @@ namespace SimulationProject.Services
         bool UserNameExists(string Username);
         bool UserEmailExists(string Email);
         string GetUserNewPassword(PasswordUpdate PasswordUpdate, string upassword, string uname);
-        Task UpdateUserPasswordAsync(User user);
+        Task UpdateUserPasswordAsync(string passwordHash, User user);
         bool PasswordValid(string password);
     }
     public class UsersService: IUsersService
@@ -86,10 +86,16 @@ namespace SimulationProject.Services
         }
 
         //put
-        public async Task PutUserAsync(int Userid, User user)
+        public async Task<int> PutUserAsync(int Userid, User user, string securityanswerHash)
         {
-            _context.Entry(user).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            int rowsAfected = 0;
+            if (user.Securityanswer != null)
+            {
+                _passwordHashService.VerifyUserPassword(securityanswerHash, user.Securityanswer);
+                _context.Entry(user).State = EntityState.Modified;
+                rowsAfected = await _context.SaveChangesAsync();
+            }
+            return rowsAfected;
         }
 
         //delete
@@ -123,9 +129,9 @@ namespace SimulationProject.Services
         }
 
         //update password
-        public async Task UpdateUserPasswordAsync(User user)
+        public async Task UpdateUserPasswordAsync(string passwordHash, User user)
         {
-            _context.Users.Update(user);
+            user.Password = passwordHash;
             await _context.SaveChangesAsync();
         }
 
@@ -133,6 +139,7 @@ namespace SimulationProject.Services
         public async Task<User?> RegisterUserAsync(RegisterForm registerForm)
         {
             string passwordHash = _passwordHashService.HashUserPassword(registerForm.Password);
+            string securityanswerHash = _passwordHashService.HashUserPassword(registerForm.SecurityAnswer);
             var user = new User
             {
                 Username = registerForm.UserName,
@@ -142,7 +149,9 @@ namespace SimulationProject.Services
                 Email = registerForm.Email,
                 Age = registerForm.Age,
                 Jobtitle = registerForm.JobTitle,
-                Admin = registerForm.Admin
+                Admin = registerForm.Admin,
+                Securityquestion = registerForm.SecurityQuestion,
+                Securityanswer = registerForm.SecurityAnswer
             };
             await CreateUserAsync(user);
             return user;
