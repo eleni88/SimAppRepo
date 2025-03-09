@@ -1,0 +1,120 @@
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using SimulationProject.Models;
+using SimulationProject.Services;
+
+namespace SimulationProject.Controllers
+{
+    [Authorize]
+    [Route("api/[controller]")]
+    [ApiController]
+    public class UsersController : ControllerBase
+    {
+        private readonly IUsersService _usersService;
+        public UsersController(IUsersService usersService)
+        {
+            _usersService = usersService;
+        }
+        // GET /api/users
+        [HttpGet]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var user = await _usersService.GetAllUsersAsync();
+            if (user == null || !user.Any())
+            {
+                return NoContent();
+            }
+            return Ok(user);
+        }
+
+        // GET /api/users/{Userid}
+        [HttpGet("{Userid}")]
+        public async Task<IActionResult> GetUser(int Userid)
+        {
+            var user = await _usersService.GetUserByIdAsync(Userid);
+            if (user == null)
+            {
+                return NotFound(new ProblemDetails
+                {
+                    Title = "User Not Found",
+                    Detail = $"No User found with ID {Userid}.",
+                    Status = 404
+                });
+            }
+            return Ok(user);
+        }
+
+        // POST /api/users
+        [HttpPost]
+        public async Task<IActionResult> CreateUser([FromBody] User user)
+        {
+            if (user == null)
+            {
+                return BadRequest();
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (!(_usersService.UserNameExists(user.Username) && _usersService.UserEmailExists(user.Email)))
+            {
+                await _usersService.CreateUserAsync(user);
+            }
+            else
+            {
+                if (_usersService.UserNameExists(user.Username))
+                {
+                    ModelState.AddModelError("Username", "The username is used by another user");
+                }
+                if (_usersService.UserEmailExists(user.Email))
+                {
+                    ModelState.AddModelError("Useremail", "The email is used by another user");
+                }
+            }
+            return CreatedAtAction(nameof(GetUser), new { Userid = user.Userid }, user);
+        }
+
+        // PUT /api/users/{Userid}
+        [HttpPost("{Userid}")]
+        public async Task<IActionResult> UpdateUser(int Userid, User user)
+        {
+            if (Userid != user.Userid)
+            {
+                return BadRequest();
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (!(_usersService.UserNameExists(user.Username) && _usersService.UserEmailExists(user.Email)))
+            {
+                await _usersService.PutUserAsync(Userid, user);
+            }
+            else
+            {
+                if (_usersService.UserNameExists(user.Username))
+                {
+                    ModelState.AddModelError("Username", "The username is used by another user");
+                }
+                if (_usersService.UserEmailExists(user.Email))
+                {
+                    ModelState.AddModelError("Useremail", "The email is used by another user");
+                }
+            }
+            return NoContent();
+        }
+
+        // DELETE /api/users/{Userid}
+        [HttpDelete("{Userid}")]
+        public async Task<IActionResult> DeleteUser(int Userid)
+        {
+            var user = await _usersService.GetUserByIdAsync(Userid);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            await _usersService.DeleteUserAsync(user);
+            return NoContent();
+        }
+    }
+}
