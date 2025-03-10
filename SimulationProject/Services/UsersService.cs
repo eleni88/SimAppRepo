@@ -21,7 +21,7 @@ namespace SimulationProject.Services
         bool UserExists(int Userid);
         bool UserNameExists(string Username);
         bool UserEmailExists(string Email);
-        string GetUserNewPassword(PasswordUpdate PasswordUpdate, string upassword, string uname);
+        string GetUserNewPassword(PasswordUpdate PasswordUpdate, User user);
         Task UpdateUserPasswordAsync(string passwordHash, User user);
         bool PasswordValid(string password);
     }
@@ -106,14 +106,15 @@ namespace SimulationProject.Services
         }
 
         //Get new password
-        public string GetUserNewPassword(PasswordUpdate PasswordUpdate, string upassword, string uname)
+        public string GetUserNewPassword(PasswordUpdate PasswordUpdate, User user)
         {
+
             string newpasswordHash = "";
-            if (((!_passwordHashService.VerifyUserPassword(upassword, PasswordUpdate.OldPassword)) || (uname != PasswordUpdate.UserName)))
+            if (((!_passwordHashService.VerifyUserPassword(user.Password, PasswordUpdate.OldPassword)) || (user.Username != PasswordUpdate.UserName)))
             {
                 newpasswordHash = "1";
             }
-            if ((_passwordHashService.VerifyUserPassword(upassword, PasswordUpdate.NewPassword)) || (!PasswordValid(PasswordUpdate.NewPassword)))
+            if ((_passwordHashService.VerifyUserPassword(user.Password, PasswordUpdate.NewPassword)) || (!PasswordValid(PasswordUpdate.NewPassword)))
             {
                 newpasswordHash = "2";
             }
@@ -132,6 +133,7 @@ namespace SimulationProject.Services
         public async Task UpdateUserPasswordAsync(string passwordHash, User user)
         {
             user.Password = passwordHash;
+            _context.Entry(user).Property(u => u.Password).IsModified = true;
             await _context.SaveChangesAsync();
         }
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SimulationProject.DTO;
 using SimulationProject.Models;
@@ -77,7 +78,7 @@ namespace SimulationProject.Controllers
 
         // PUT /api/users/{Userid}
         [HttpPost("{Userid}")]
-        public async Task<IActionResult> UpdateUser(int Userid, User user, RegisterForm registerForm)
+        public async Task<IActionResult> UpdateUser(int Userid, User user, [FromBody]RegisterForm registerForm)
         {
             if (Userid != user.Userid)
             {
@@ -91,18 +92,49 @@ namespace SimulationProject.Controllers
             {
                 return BadRequest("The email is used by another user");
             }
-
-            if (!(_usersService.UserNameExists(user.Username) && _usersService.UserEmailExists(user.Email)))
+            int rowsAfected = await _usersService.PutUserAsync(Userid, user, registerForm.SecurityAnswer);
+            if (rowsAfected > 0)
             {
-                int rowsAfected = await _usersService.PutUserAsync(Userid, user, registerForm.SecurityAnswer);
-                if (rowsAfected > 0)
-                {
-                    return Ok("User updated successfully.");
-                } 
+                return Ok("User updated successfully.");
             }
-            
+
             return NoContent();
         }
+
+        // PUT /api/users
+        [HttpPost]
+        public async Task<IActionResult> UpdateUserProfile([FromBody]RegisterForm registerForm)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userIdStr))
+            {
+                return BadRequest("Invalid user.");
+            }
+            var userId = Int32.Parse(userIdStr);
+            var user = await _usersService.GetUserByIdAsync(userId);
+            if (user == null)
+            {
+                return BadRequest("User not found.");
+            }
+            if (_usersService.UserNameExists(user.Username))
+            {
+                return BadRequest("The username is used by another user");
+            }
+            if (_usersService.UserEmailExists(user.Email))
+            {
+                return BadRequest("The email is used by another user");
+            }
+
+            int rowsAfected = await _usersService.PutUserAsync(userId, user, registerForm.SecurityAnswer);
+            if (rowsAfected > 0)
+            {
+                return Ok("User updated successfully.");
+            }
+
+            return NoContent();
+        }
+
 
         // DELETE /api/users/{Userid}
         [HttpDelete("{Userid}")]

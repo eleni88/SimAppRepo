@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SimulationProject.DTO;
 using SimulationProject.Services;
 using SimulationProject.Models;
+using System.Security.Claims;
 
 namespace SimulationProject.Controllers
 {
@@ -17,12 +18,26 @@ namespace SimulationProject.Controllers
         {
             _usersService = usersService;
         }
-        //POST /api/passwordchange/userid
+        //POST /api/passwordchange
 
-        [HttpPost("{Userid}")]
-        public async Task<IActionResult> UpdateUserPassword([FromBody] PasswordUpdate PasswordUpdate, User user)
+        [HttpPost]
+        public async Task<IActionResult> UpdateUserPassword([FromBody] PasswordUpdate PasswordUpdate)
         {
-            string newpass = _usersService.GetUserNewPassword(PasswordUpdate, user.Password, user.Username);
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            
+            if (string.IsNullOrEmpty(userIdStr))
+            {
+                return BadRequest("Invalid user.");
+            }
+
+            var userId = Int32.Parse(userIdStr);
+            var user = await _usersService.GetUserByIdAsync(userId);
+            if (user == null)
+            {
+                return BadRequest("User not found.");
+            }
+            
+            string newpass = _usersService.GetUserNewPassword(PasswordUpdate, user);
             if (newpass == "1")
             {
                 return BadRequest("Wrong credentials.");
@@ -33,7 +48,7 @@ namespace SimulationProject.Controllers
             }
             if (newpass == "3")
             {
-                return BadRequest("Password don't match.");
+                return BadRequest("Password and Confirmation don't match.");
             }
               
             await _usersService.UpdateUserPasswordAsync(newpass, user);
