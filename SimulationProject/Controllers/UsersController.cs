@@ -12,10 +12,12 @@ namespace SimulationProject.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly IUsersService _usersService;
-        public UsersController(IUsersService usersService)
+        private readonly UsersService _usersService;
+        private readonly UsersProfileService _usersProfileService;
+        public UsersController(UsersService usersService, UsersProfileService usersProfileService)
         {
             _usersService = usersService;
+            _usersProfileService = usersProfileService;
         }
         // GET /api/users
         [HttpGet]
@@ -46,95 +48,53 @@ namespace SimulationProject.Controllers
             return Ok(user);
         }
 
-        // POST /api/users
-        [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] User user)
-        {
-            if (user == null)
-            {
-                return BadRequest();
-            }
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            if (!(_usersService.UserNameExists(user.Username) && _usersService.UserEmailExists(user.Email)))
-            {
-                await _usersService.CreateUserAsync(user);
-            }
-            else
-            {
-                if (_usersService.UserNameExists(user.Username))
-                {
-                    ModelState.AddModelError("Username", "The username is used by another user");
-                }
-                if (_usersService.UserEmailExists(user.Email))
-                {
-                    ModelState.AddModelError("Useremail", "The email is used by another user");
-                }
-            }
-            return CreatedAtAction(nameof(GetUser), new { Userid = user.Userid }, user);
-        }
+        //// POST /api/users
+        //[HttpPost]
+        //public async Task<IActionResult> CreateUser([FromBody] User user)
+        //{
+        //    if (user == null)
+        //    {
+        //        return BadRequest();
+        //    }
+        //    if (!(_usersService.UserNameExists(user.Username) && _usersService.UserEmailExists(user.Email)))
+        //    {
+        //        await _usersService.CreateUserAsync(user);
+        //    }
+        //    else
+        //    {
+        //        if (_usersService.UserNameExists(user.Username))
+        //        {
+        //            ModelState.AddModelError("Username", "The username is used by another user");
+        //        }
+        //        if (_usersService.UserEmailExists(user.Email))
+        //        {
+        //            ModelState.AddModelError("Useremail", "The email is used by another user");
+        //        }
+        //    }
+        //    return CreatedAtAction(nameof(GetUser), new { Userid = user.Userid }, user);
+        //}
 
         // PUT /api/users/{Userid}
         [HttpPost("{Userid}")]
-        public async Task<IActionResult> UpdateUser(int Userid, User user, [FromBody]RegisterForm registerForm)
+        public async Task<IActionResult> UpdateUser(int Userid, [FromBody]UserDto userDto)
         {
-            if (Userid != user.Userid)
-            {
-                return BadRequest();
-            }
-            if (_usersService.UserNameExists(user.Username))
-            {
-                return BadRequest("The username is used by another user");
-            }
-            if (_usersService.UserEmailExists(user.Email))
-            {
-                return BadRequest("The email is used by another user");
-            }
-            int rowsAfected = await _usersService.PutUserAsync(Userid, user, registerForm.SecurityAnswer);
-            if (rowsAfected > 0)
-            {
-                return Ok("User updated successfully.");
-            }
-
-            return NoContent();
-        }
-
-        // PUT /api/users
-        [HttpPost]
-        public async Task<IActionResult> UpdateUserProfile([FromBody]RegisterForm registerForm)
-        {
-            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (string.IsNullOrEmpty(userIdStr))
-            {
-                return BadRequest("Invalid user.");
-            }
-            var userId = Int32.Parse(userIdStr);
-            var user = await _usersService.GetUserByIdAsync(userId);
+            var user = await _usersService.GetUserByIdAsync(Userid);
             if (user == null)
             {
                 return BadRequest("User not found.");
             }
-            if (_usersService.UserNameExists(user.Username))
+            if (_usersService.UserNameExists(userDto.UserName))
             {
                 return BadRequest("The username is used by another user");
             }
-            if (_usersService.UserEmailExists(user.Email))
+            if (_usersService.UserEmailExists(userDto.Email))
             {
                 return BadRequest("The email is used by another user");
             }
-
-            int rowsAfected = await _usersService.PutUserAsync(userId, user, registerForm.SecurityAnswer);
-            if (rowsAfected > 0)
-            {
-                return Ok("User updated successfully.");
-            }
+            await _usersService.PutUserAsync(user);
 
             return NoContent();
         }
-
 
         // DELETE /api/users/{Userid}
         [HttpDelete("{Userid}")]
@@ -145,6 +105,62 @@ namespace SimulationProject.Controllers
             {
                 return NotFound();
             }
+            await _usersService.DeleteUserAsync(user);
+            return NoContent();
+        }
+
+        //------ User Profile --------------
+        // PUT /api/users
+        [HttpPost]
+        public async Task<IActionResult> UpdateUserProfile([FromBody] UserDto userDto)
+        {
+            //extract user from token
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdStr))
+            {
+                return BadRequest("Invalid user.");
+            }
+            var userId = Int32.Parse(userIdStr);
+            var user = await _usersService.GetUserByIdAsync(userId);
+            if (user == null)
+            {
+                return BadRequest("User not found.");
+            }
+            if (_usersService.UserNameExists(userDto.UserName))
+            {
+                return BadRequest("The username is used by another user");
+            }
+            if (_usersService.UserEmailExists(userDto.Email))
+            {
+                return BadRequest("The email is used by another user");
+            }
+
+            int rowsAfected = await _usersProfileService.PutUserAsync(user, userDto);
+            if (rowsAfected > 0)
+            {
+                return Ok("User updated successfully.");
+            }
+
+            return NoContent();
+        }
+
+        // DELETE /api/users
+        [HttpDelete]
+        public async Task<IActionResult> DeleteUserProfile([FromBody]UserDto userDto)
+        {
+            //extract user from token
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdStr))
+            {
+                return BadRequest("Invalid user.");
+            }
+            var userId = Int32.Parse(userIdStr);
+            var user = await _usersService.GetUserByIdAsync(userId);
+            if (user == null)
+            {
+                return BadRequest("User not found.");
+            }
+
             await _usersService.DeleteUserAsync(user);
             return NoContent();
         }

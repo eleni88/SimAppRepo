@@ -1,10 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Azure;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.VisualBasic;
 using SimulationProject.Models;
 
 namespace SimulationProject.Services
@@ -22,10 +19,10 @@ namespace SimulationProject.Services
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.NameIdentifier, user.Userid.ToString())
             };
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetValue<string>("Appsettings:Token")!));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetValue<string>("appsettings:Token")!));
             var tokenDescriptor = new JwtSecurityToken(
-                issuer: configuration.GetValue<string>("Appsettings:Issuer"),
-                audience: configuration.GetValue<string>("Appsettings.Audience"),
+                issuer: configuration.GetValue<string>("appsettings:Issuer"),
+                audience: configuration.GetValue<string>("appsettings.Audience"),
                 claims: claims,
                 expires: DateTime.UtcNow.AddDays(1)
              );

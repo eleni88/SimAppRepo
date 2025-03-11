@@ -23,15 +23,15 @@ namespace SimulationProject.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateUserPassword([FromBody] PasswordUpdate PasswordUpdate)
         {
-            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            
+            //extract user from token
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);        
             if (string.IsNullOrEmpty(userIdStr))
             {
                 return BadRequest("Invalid user.");
             }
-
             var userId = Int32.Parse(userIdStr);
             var user = await _usersService.GetUserByIdAsync(userId);
+
             if (user == null)
             {
                 return BadRequest("User not found.");

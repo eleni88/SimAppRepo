@@ -9,9 +9,11 @@ namespace SimulationProject.Controllers
     public class RegisterController : ControllerBase
     {
         private readonly IUsersService _usersService;
-        public RegisterController(IUsersService usersService)
+        private readonly UsersProfileService _usersProfileService;
+        public RegisterController(IUsersService usersService, UsersProfileService usersProfileService)
         {
             _usersService = usersService;
+            _usersProfileService = usersProfileService;
         }
         // POST /api/register
         [HttpPost]
@@ -30,7 +32,7 @@ namespace SimulationProject.Controllers
                 return BadRequest("Invalid password. Password must be at least 10 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.");
             }
 
-            var user = await _usersService.RegisterUserAsync(registerForm);
+            var user = await _usersProfileService.RegisterUserAsync(registerForm);
             if (user is null)
             {
                 return BadRequest("User not found!");

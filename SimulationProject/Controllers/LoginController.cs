@@ -8,17 +8,17 @@ namespace SimulationProject.Controllers
     [ApiController]
     public class LoginController : ControllerBase
     {
-        private readonly IUsersService _usersService;
+        private readonly UsersProfileService _usersProfileService;
 
-        public LoginController(IUsersService usersService)
+        public LoginController(UsersProfileService usersProfileService)
         {
-            _usersService = usersService;
+            _usersProfileService = usersProfileService;
         }
         //POST /api/login
         [HttpPost]
         public async Task<IActionResult> LoginUser([FromBody] LoginForm loginform)
         {
-            var token = await _usersService.LoginUserAsync(loginform);
+            var token = await _usersProfileService.LoginUserAsync(loginform);
             if (token is null){
                 return BadRequest("Invalid username or password");   
             }

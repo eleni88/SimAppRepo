@@ -2,22 +2,22 @@
 using SimulationProject.Data;
 using Microsoft.EntityFrameworkCore;
 using SimulationProject.DTO;
-using Microsoft.AspNetCore.Http.HttpResults;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
 using System.Text.RegularExpressions;
 
 namespace SimulationProject.Services
 {
-    public interface IUsersService
+   public interface IUsersService
     {
         Task<IEnumerable<User>> GetAllUsersAsync();
-        Task<User?> GetUserByIdAsync(int Userid);
-        Task<User?> GetUserByNameAsync(string Username);
+        Task<User> GetUserByIdAsync(int Userid);
+        Task<User> GetUserByNameAsync(string Username);
         Task CreateUserAsync(User user);
-        Task<int> PutUserAsync(int Userid, User user, string securityanswerHash);
-        Task DeleteUserAsync(User user);
-        Task<User?> RegisterUserAsync(RegisterForm registerForm);
-        Task<string?> LoginUserAsync(LoginForm loginform);
+        abstract Task<int> PutUserAsync(User user, UserDto userDto);
+        //Task UpDateUserAsync(User user);
+        // Task DeleteUserAsync(User user);
+        abstract Task DeleteUserAsync(User user, UserDto userDto);
+        //Task<User?> RegisterUserAsync(RegisterForm registerForm);
+        //Task<string?> LoginUserAsync(LoginForm loginform);
         bool UserExists(int Userid);
         bool UserNameExists(string Username);
         bool UserEmailExists(string Email);
@@ -67,13 +67,13 @@ namespace SimulationProject.Services
         }
 
         //get by id
-        public async Task<User?> GetUserByIdAsync(int Userid)
+        public async Task<User> GetUserByIdAsync(int Userid)
         {
             return await _context.Users.FindAsync(Userid); 
         }
 
         // get by name
-        public async Task<User?> GetUserByNameAsync(string Username)
+        public async Task<User> GetUserByNameAsync(string Username)
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.Username == Username);
         }
@@ -86,23 +86,30 @@ namespace SimulationProject.Services
         }
 
         //put
-        public async Task<int> PutUserAsync(int Userid, User user, string securityanswerHash)
+        public virtual async Task<int> PutUserAsync(User user)
         {
             int rowsAfected = 0;
-            if (user.Securityanswer != null)
-            {
-                _passwordHashService.VerifyUserPassword(securityanswerHash, user.Securityanswer);
-                _context.Entry(user).State = EntityState.Modified;
-                rowsAfected = await _context.SaveChangesAsync();
-            }
+            _context.Entry(user).State = EntityState.Modified;
+            rowsAfected = await _context.SaveChangesAsync();
             return rowsAfected;
         }
 
+        //update user profile
+        public virtual async Task<int> PutUserAsync(User user, UserDto userDto)
+        {
+            return 0;
+        }
+
         //delete
-        public async Task DeleteUserAsync(User user)
+        public virtual async Task DeleteUserAsync(User user)
         {
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
+        }
+
+        public virtual async Task DeleteUserAsync(User user, UserDto userDto)
+        {
+            
         }
 
         //Get new password
@@ -110,11 +117,11 @@ namespace SimulationProject.Services
         {
 
             string newpasswordHash = "";
-            if (((!_passwordHashService.VerifyUserPassword(user.Password, PasswordUpdate.OldPassword)) || (user.Username != PasswordUpdate.UserName)))
+            if (((!_passwordHashService.VerifyUserPassword(PasswordUpdate.OldPassword, user.Password)) || (user.Username != PasswordUpdate.UserName)))
             {
                 newpasswordHash = "1";
             }
-            if ((_passwordHashService.VerifyUserPassword(user.Password, PasswordUpdate.NewPassword)) || (!PasswordValid(PasswordUpdate.NewPassword)))
+            if ((_passwordHashService.VerifyUserPassword(PasswordUpdate.NewPassword, user.Password)) || (!PasswordValid(PasswordUpdate.NewPassword)))
             {
                 newpasswordHash = "2";
             }
@@ -137,42 +144,6 @@ namespace SimulationProject.Services
             await _context.SaveChangesAsync();
         }
 
-        //register user
-        public async Task<User?> RegisterUserAsync(RegisterForm registerForm)
-        {
-            string passwordHash = _passwordHashService.HashUserPassword(registerForm.Password);
-            string securityanswerHash = _passwordHashService.HashUserPassword(registerForm.SecurityAnswer);
-            var user = new User
-            {
-                Username = registerForm.UserName,
-                Password = passwordHash,
-                Firstname = registerForm.FirstName,
-                Lastname = registerForm.LastName,
-                Email = registerForm.Email,
-                Age = registerForm.Age,
-                Jobtitle = registerForm.JobTitle,
-                Admin = registerForm.Admin,
-                Securityquestion = registerForm.SecurityQuestion,
-                Securityanswer = registerForm.SecurityAnswer
-            };
-            await CreateUserAsync(user);
-            return user;
-        }
-        //login user
-        public async Task<string?> LoginUserAsync(LoginForm loginform)
-        {
-            // Find user by username
-            var user = await GetUserByNameAsync(loginform.UserName);
-            if (user == null)
-            {
-                return null;
-            }
-            // Verify password
-            if (!_passwordHashService.VerifyUserPassword(user.Password, loginform.Password))
-            {
-                return null;
-            }
-            return _jwtService.CreateJWToken(user);
-        }
+        
     }
 }

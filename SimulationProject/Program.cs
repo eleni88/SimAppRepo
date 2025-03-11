@@ -17,6 +17,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IPasswordHashService, PasswordHashService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<UsersProfileService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", builder =>
@@ -38,12 +39,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
-            ValidIssuer = builder.Configuration["Appsettings:Issuer"],
+            ValidIssuer = builder.Configuration["appsettings:Issuer"],
             ValidateAudience = true,
-            ValidAudience = builder.Configuration["Appsettings:Audienve"],
+            ValidAudience = builder.Configuration["appsettings:Audience"],
             ValidateLifetime = true,
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Appsettings:Token"]!)),
+                Encoding.UTF8.GetBytes(builder.Configuration["appsettings:Token"]!)),
             ValidateIssuerSigningKey = true
         };
     });

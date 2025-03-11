@@ -2,19 +2,19 @@
 {
     public interface IPasswordHashService
     {
-        string HashUserPassword(string password);
-        bool VerifyUserPassword(string hashedPassword, string password);
+        string HashUserPassword(string plainTextPassword);
+        bool VerifyUserPassword(string plainTextPassword, string hashedPassword);
     }
     public class PasswordHashService: IPasswordHashService
     {
-        public string HashUserPassword(string password)
+        public string HashUserPassword(string plainTextPassword)
         {
-            return BCrypt.Net.BCrypt.HashPassword(password);
+            return BCrypt.Net.BCrypt.HashPassword(plainTextPassword);
         }
 
-        public bool VerifyUserPassword(string hashedPassword, string password)
+        public bool VerifyUserPassword(string plainTextPassword, string hashedPassword)
         {
-            return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
+            return BCrypt.Net.BCrypt.Verify(plainTextPassword, hashedPassword);
         }
     }
 }
