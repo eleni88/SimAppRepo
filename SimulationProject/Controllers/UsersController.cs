@@ -48,31 +48,31 @@ namespace SimulationProject.Controllers
             return Ok(user);
         }
 
-        //// POST /api/users
-        //[HttpPost]
-        //public async Task<IActionResult> CreateUser([FromBody] User user)
-        //{
-        //    if (user == null)
-        //    {
-        //        return BadRequest();
-        //    }
-        //    if (!(_usersService.UserNameExists(user.Username) && _usersService.UserEmailExists(user.Email)))
-        //    {
-        //        await _usersService.CreateUserAsync(user);
-        //    }
-        //    else
-        //    {
-        //        if (_usersService.UserNameExists(user.Username))
-        //        {
-        //            ModelState.AddModelError("Username", "The username is used by another user");
-        //        }
-        //        if (_usersService.UserEmailExists(user.Email))
-        //        {
-        //            ModelState.AddModelError("Useremail", "The email is used by another user");
-        //        }
-        //    }
-        //    return CreatedAtAction(nameof(GetUser), new { Userid = user.Userid }, user);
-        //}
+        // POST /api/users/create
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateUser([FromBody] User user)
+        {
+            if (user == null)
+            {
+                return BadRequest();
+            }
+            if (!(_usersService.UserNameExists(user.Username) && _usersService.UserEmailExists(user.Email)))
+            {
+                await _usersService.CreateUserAsync(user);
+            }
+            else
+            {
+                if (_usersService.UserNameExists(user.Username))
+                {
+                    ModelState.AddModelError("Username", "The username is used by another user");
+                }
+                if (_usersService.UserEmailExists(user.Email))
+                {
+                    ModelState.AddModelError("Useremail", "The email is used by another user");
+                }
+            }
+            return CreatedAtAction(nameof(GetUser), new { Userid = user.Userid }, user);
+        }
 
         // PUT /api/users/{Userid}
         [HttpPost("{Userid}")]

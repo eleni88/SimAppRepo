@@ -39,23 +39,23 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
-            ValidIssuer = builder.Configuration["appsettings:Issuer"],
+            ValidIssuer = builder.Configuration["Appsettings:Issuer"],
             ValidateAudience = true,
-            ValidAudience = builder.Configuration["appsettings:Audience"],
+            ValidAudience = builder.Configuration["Appsettings:Audience"],
             ValidateLifetime = true,
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["appsettings:Token"]!)),
+                Encoding.UTF8.GetBytes(builder.Configuration["Appsettings:Token"]!)),
             ValidateIssuerSigningKey = true
         };
     });
 
 // Global cookie settings (optional)
-builder.Services.ConfigureApplicationCookie(options =>
-{
-    options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-    options.Cookie.SameSite = SameSiteMode.Strict;
-});
+//builder.Services.ConfigureApplicationCookie(options =>
+//{
+//    options.Cookie.HttpOnly = true;
+//    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+//    options.Cookie.SameSite = SameSiteMode.Strict;
+//});
 
 // Add user secrets for local development
 if (builder.Environment.IsDevelopment())

@@ -35,7 +35,7 @@ namespace SimulationProject.Services
                 Jobtitle = registerForm.JobTitle,
                 Admin = registerForm.Admin,
                 Securityquestion = registerForm.SecurityQuestion,
-                Securityanswer = registerForm.SecurityAnswer
+                Securityanswer = securityanswerHash
             };
             await CreateUserAsync(user);
             return user;
@@ -50,7 +50,7 @@ namespace SimulationProject.Services
                 return null;
             }
             // Verify password
-            if (!_passwordHashService.VerifyUserPassword(user.Password, loginform.Password))
+            if (!_passwordHashService.VerifyUserPassword(loginform.Password, user.Password))
             {
                 return null;
             }
@@ -62,7 +62,7 @@ namespace SimulationProject.Services
         {
             if (user.Securityanswer != null)
             {
-                _passwordHashService.VerifyUserPassword(user.Securityanswer, userDto.SecurityAnswer);
+                _passwordHashService.VerifyUserPassword(userDto.SecurityAnswer, user.Securityanswer);
                 await base.DeleteUserAsync(user);
             }
         }
@@ -73,9 +73,13 @@ namespace SimulationProject.Services
             int rowsAfected = 0;
             if (user.Securityanswer != null)
             {
-                _passwordHashService.VerifyUserPassword(user.Securityanswer, userDto.SecurityAnswer);
-                _context.Entry(user).State = EntityState.Modified;
-                rowsAfected = await _context.SaveChangesAsync();
+                _passwordHashService.VerifyUserPassword(userDto.SecurityAnswer, user.Securityanswer);
+                user.Firstname = userDto.FirstName;
+                user.Lastname = userDto.LastName;
+                user.Email = userDto.Email;
+                user.Age = userDto.Age;
+                user.Jobtitle = userDto.JobTitle;
+                rowsAfected = await base.PutUserAsync(user);
             }
             return rowsAfected;
         }

@@ -19,10 +19,10 @@ namespace SimulationProject.Services
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.NameIdentifier, user.Userid.ToString())
             };
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetValue<string>("appsettings:Token")!));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetValue<string>("Appsettings:Token")!));
             var tokenDescriptor = new JwtSecurityToken(
-                issuer: configuration.GetValue<string>("appsettings:Issuer"),
-                audience: configuration.GetValue<string>("appsettings.Audience"),
+                issuer: configuration.GetValue<string>("Appsettings:Issuer"),
+                audience: configuration.GetValue<string>("Appsettings.Audience"),
                 claims: claims,
                 expires: DateTime.UtcNow.AddDays(1)
              );
