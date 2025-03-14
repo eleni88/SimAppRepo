@@ -1,6 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using SimulationProject.Models;
 
@@ -20,11 +21,13 @@ namespace SimulationProject.Services
                 new Claim(ClaimTypes.NameIdentifier, user.Userid.ToString())
             };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetValue<string>("Appsettings:Token")!));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
             var tokenDescriptor = new JwtSecurityToken(
                 issuer: configuration.GetValue<string>("Appsettings:Issuer"),
-                audience: configuration.GetValue<string>("Appsettings.Audience"),
+                audience: configuration.GetValue<string>("Appsettings:Audience"),
                 claims: claims,
-                expires: DateTime.UtcNow.AddDays(1)
+                expires: DateTime.UtcNow.AddDays(1),
+                signingCredentials: creds
              );
             return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
         }            

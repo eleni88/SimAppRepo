@@ -121,18 +121,21 @@ namespace SimulationProject.Services
             {
                 newpasswordHash = "1";
             }
-            if ((_passwordHashService.VerifyUserPassword(PasswordUpdate.NewPassword, user.Password)) || (!PasswordValid(PasswordUpdate.NewPassword)))
+            else
+            if ((!_passwordHashService.VerifyUserPassword(PasswordUpdate.NewPassword, user.Password)) || (!PasswordValid(PasswordUpdate.NewPassword)))
             {
                 newpasswordHash = "2";
             }
-            if (PasswordUpdate.NewPassword == PasswordUpdate.ConfirmPassword)
+            else
+            if (PasswordUpdate.NewPassword != PasswordUpdate.ConfirmPassword)
             {
                 newpasswordHash = "3";
             }
-            if (newpasswordHash == "")
+            else
             {
-                newpasswordHash = _passwordHashService.HashUserPassword(PasswordUpdate.NewPassword);                
+                newpasswordHash = _passwordHashService.HashUserPassword(PasswordUpdate.NewPassword);
             }
+                              
             return newpasswordHash;
         }
 

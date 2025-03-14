@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SimulationProject.Services;
 using SimulationProject.DTO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SimulationProject.Controllers
 {
@@ -34,6 +35,13 @@ namespace SimulationProject.Controllers
             //Response.Cookies.Append("jwtCookie", token, cookieOptions);
             
             return Ok(token);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public IActionResult AuthenticatedOnlyEndPoint()
+        {
+            return Ok("You are Authenticated!");
         }
     }
 
