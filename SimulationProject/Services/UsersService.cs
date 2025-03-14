@@ -12,10 +12,10 @@ namespace SimulationProject.Services
         Task<User> GetUserByIdAsync(int Userid);
         Task<User> GetUserByNameAsync(string Username);
         Task CreateUserAsync(User user);
-        abstract Task<int> PutUserAsync(User user, UserDto userDto);
+        abstract Task<int> PutUserAsync(User user);
         //Task UpDateUserAsync(User user);
         // Task DeleteUserAsync(User user);
-        abstract Task DeleteUserAsync(User user, UserDto userDto);
+        abstract Task DeleteUserAsync(User user);
         //Task<User?> RegisterUserAsync(RegisterForm registerForm);
         //Task<string?> LoginUserAsync(LoginForm loginform);
         bool UserExists(int Userid);
@@ -48,7 +48,7 @@ namespace SimulationProject.Services
         {
             // Regular expression for validating the password strength
             const string PasswordRegex = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^])[A-Za-z\d@$!%*?&#^]{10,}$";
-            return (!Regex.IsMatch(password, PasswordRegex));
+            return Regex.IsMatch(password, PasswordRegex);
         }
 
         public bool UserExists(int Userid)
@@ -122,7 +122,7 @@ namespace SimulationProject.Services
                 newpasswordHash = "1";
             }
             else
-            if ((!_passwordHashService.VerifyUserPassword(PasswordUpdate.NewPassword, user.Password)) || (!PasswordValid(PasswordUpdate.NewPassword)))
+            if ((_passwordHashService.VerifyUserPassword(PasswordUpdate.NewPassword, user.Password)) || (!PasswordValid(PasswordUpdate.NewPassword)))
             {
                 newpasswordHash = "2";
             }

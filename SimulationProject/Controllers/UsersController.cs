@@ -12,9 +12,9 @@ namespace SimulationProject.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly UsersService _usersService;
+        private readonly IUsersService _usersService;
         private readonly UsersProfileService _usersProfileService;
-        public UsersController(UsersService usersService, UsersProfileService usersProfileService)
+        public UsersController(IUsersService usersService, UsersProfileService usersProfileService)
         {
             _usersService = usersService;
             _usersProfileService = usersProfileService;
@@ -24,7 +24,7 @@ namespace SimulationProject.Controllers
         public async Task<IActionResult> GetAllUsers()
         {
             var user = await _usersService.GetAllUsersAsync();
-            if (user == null || !user.Any())
+            if ((user == null) || (!user.Any()))
             {
                 return NoContent();
             }
