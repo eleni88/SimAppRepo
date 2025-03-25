@@ -28,7 +28,7 @@ builder.Services.AddCors(options =>
                .AllowAnyHeader();
     });
 });
-
+builder.WebHost.UseWebRoot("wwwroot");
 // Register DbContext with SQL Server provider
 builder.Services.AddDbContext<SimSaasContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -77,7 +77,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowAll");
 
-app.UseDefaultFiles();
+var defaultFilesOptions = new DefaultFilesOptions();
+defaultFilesOptions.DefaultFileNames.Clear();
+defaultFilesOptions.DefaultFileNames.Add("Home.html");
+app.UseDefaultFiles(defaultFilesOptions);
+
 app.UseStaticFiles();
 
 app.UseHttpsRedirection();
