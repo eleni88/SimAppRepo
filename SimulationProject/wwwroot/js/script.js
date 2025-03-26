@@ -1,7 +1,8 @@
-// URL του Web API
-const apiUrlUsers = 'https://localhost:7121/api/users';  // Προσαρμόστε το URL ανάλογα με την τοποθεσία του API σας
+// URLs
+const apiUrlUsers    = 'https://localhost:7121/api/users'; 
 const apiUrlRegister = 'https://localhost:7121/api/register';
-const apiUrlHome = 'https://localhost:7121/api/home';
+const apiUrlHome     = 'https://localhost:7121/api/home';
+const apiUrlLogin    = 'https://localhost:7121/api/login';
 
 // Home
 async function fetchWelcomeMessage() {
@@ -18,6 +19,7 @@ async function fetchWelcomeMessage() {
     }
 }
 
+//Register
 document.getElementById('register-form').addEventListener('submit', async function (event) {
     event.preventDefault();
 
@@ -29,8 +31,8 @@ document.getElementById('register-form').addEventListener('submit', async functi
     const JobTitle = document.getElementById('JobTitle').value;
     const Age = document.getElementById('Age').value;
     const Admin = false;
-    const SecurityQuestion = document.getElementById('SecurityQuestion').value;
-    const SecurityAnswer = document.getElementById('SecurityAnswer').value;
+    const SecurityQuestion = document.getElementById('SecurityQuestion1').value;
+    const SecurityAnswer = document.getElementById('SecurityAnswer1').value;
 
     const registeruser = {
         firstname: FirstName,
@@ -66,24 +68,90 @@ document.getElementById('register-form').addEventListener('submit', async functi
     }
 });
 
+//Login
+document.getElementById('login-form').addEventListener('submit', async function (event) {
+    event.preventDefault();
+
+    const userName = document.getElementById('UserName').value;
+    const password = document.getElementById('Password').value;
+
+    const loginuser = {
+        UserName: userName,
+        Password: password
+    };
+
+    try {
+        const response = await fetch(apiUrlLogin, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(loginuser)
+        });
+
+        if (response.status === 204) {
+            throw new Error("No content returned from server.");
+        }
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || `HTTP error! Status: ${response.status}`);
+        }
+
+        document.getElementById('response-message').innerText = 'User loggedin successfully!';
+    } catch (error) {
+        document.getElementById('response-message').innerText = 'Error: ' + error.message;
+    }
+});
 
 
 
 // Λήψη όλων των χρηστών
-fetch(apiUrlUsers)
-    .then(response => response.json())
-    .then(data =>  {
-     const usersList = document.getElementById('users-list');
-     usersList.innerHTML = '';
+document.addEventListener("DOMContentLoaded", async function () {
+    try {
+        const response = await fetch(apiUrlUsers);
 
-     data.forEach(user => {
-         const li = document.createElement('li');
-         li.textContent = `${user.firstname}  ${user.lastname}`; 
-         usersList.appendChild(li);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const usersList = document.getElementById("users"); // Corrected (was 'users-list')
+        usersList.innerHTML = ""; //  Clear previous list
+
+        if (data.length === 0) {
+            usersList.innerHTML = "<li>No users found.</li>"; // Handle empty response
+            return;
+        }
+
+        data.forEach(user => {
+            const li = document.createElement("li");
+            li.textContent = `${user.firstname} ${user.lastname}`;
+            usersList.appendChild(li);
+        });
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        document.getElementById("users").innerHTML = "<li>Error loading users.</li>";
+    }
+});
+
+
+
+//fetch(apiUrlUsers)
+//    .then(response => response.json())
+//    .then(data =>  {
+//     const usersList = document.getElementById('users');
+//     usersList.innerHTML = '';
+
+//     data.forEach(user => {
+//         const li = document.createElement('li');
+//         li.textContent = `${user.firstname}  ${user.lastname}`; 
+//         usersList.appendChild(li);
         
-     });
-}
-);
+//     });
+//}
+//);
 
 
 

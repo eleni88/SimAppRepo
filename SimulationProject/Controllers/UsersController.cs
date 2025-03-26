@@ -26,7 +26,7 @@ namespace SimulationProject.Controllers
             var user = await _usersService.GetAllUsersAsync();
             if ((user == null) || (!user.Any()))
             {
-                return NoContent();
+                return Ok(new List<object>());
             }
             return Ok(user);
         }
@@ -110,8 +110,8 @@ namespace SimulationProject.Controllers
         }
 
         //------ User Profile --------------
-        // PUT /api/users
-        [HttpPost]
+        // PUT /api/profile
+        [HttpPost("profile")]
         public async Task<IActionResult> UpdateUserProfile([FromBody] UserDto userDto)
         {
             //extract user from token

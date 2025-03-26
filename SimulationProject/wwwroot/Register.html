@@ -13,51 +13,132 @@
         <!-- Σύνδεση με το CSS -->
         <link rel="stylesheet" href="https://localhost:7121/css/styles.css">
     </head>
-<body>
-    <div class="container">
+    <body>
+        <!--NAVBAR-->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="padding-left: 150px; padding-right: 150px; height:68px;">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="/Home.html">
+                    Simulation App
+                </a>
+                <button class="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#navbarNav"
+                        aria-controls="navbarNav"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse">
 
-        <!-- Φόρμα για εγγραφή χρήστη -->
-        <h1>Προσθήκη νέου χρήστη</h1>
-        <form id="register-form">
-            <label for="FirstName">Όνομα:</label>
-            <input type="text" id="FirstName" required>
-
-            <label for="LastName">Επίθετο:</label>
-            <input type="text" id="LastName" required>
-
-            <label for="UserName">Όνομα χρήστη:</label>
-            <input type="text" id="UserName" required>
-
-            <label for="Password">Κωδικός:</label>
-            <input type="text" id="Password" required>
-
-            <label for="Email">Email:</label>
-            <input type="text" id="Email" required>
-
-            <label for="JobTitle">Τίτλος εργασίας:</label>
-            <input type="text" id="JobTitle">
-
-            <label for="Age">Ηλικία:</label>
-            <input type="number" id="Age">
-
-            <div>
-                <p>Συμπληρώστε την απάντηση σε μία έως τρεις από τις ερωτήσεις:</p>
-                <div id="security-questions">
-
-                    <label for="SecurityQuestion" id="SecurityQuestion">Πού πήγες διακοπές;</label>
-
-                    <label for="SecurityAnswer">απάντηση:</label>
-                    <input type="text" id="SecurityAnswer">
+                    <ul class="navbar-nav" id="Home">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                Profile
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Users.html">
+                                Users
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                Simulations
+                            </a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Register.html">
+                                Sign Up
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                Login
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </div>
+        </nav>
+
+        <div class="container">
+
+            <!-- Φόρμα για εγγραφή χρήστη -->
+            <h1>Προσθήκη νέου χρήστη</h1>
+            <form id="register-form">
+                <label for="FirstName">Όνομα:</label>
+                <input type="text" id="FirstName" required>
+
+                <label for="LastName">Επίθετο:</label>
+                <input type="text" id="LastName" required>
+
+                <label for="UserName">Όνομα χρήστη:</label>
+                <input type="text" id="UserName" required>
+
+                <label for="Password">Κωδικός:</label>
+                <input type="text" id="Password" required>
+
+                <label for="Email">Email:</label>
+                <input type="text" id="Email" required>
+
+                <label for="JobTitle">Τίτλος εργασίας:</label>
+                <input type="text" id="JobTitle">
+
+                <label for="Age">Ηλικία:</label>
+                <input type="number" id="Age">
+
+                <div>
+                    <p>Συμπληρώστε την απάντηση σε μία έως τρεις από τις ερωτήσεις:</p>
+                    <div id="security-questions">
+
+                        <label for="SecurityQuestion1">Ερώτηση 1:</label>
+                        <select id="SecurityQuestion1" name="SecurityQuestion1">
+                            <option value="Πού πήγες διακοπές;">Πού πήγες διακοπές;</option>
+                            <option value="Πώς λένε το κατοικίδιό σου;">Πώς λένε το κατοικίδιό σου;</option>
+                            <option value="Ποιο είναι το αγαπημένο σου φαγητό;">Ποιο είναι το αγαπημένο σου φαγητό;</option>
+                            <option value="Πώς λένε την μαμά του καλύτερού σου φίλου;">Πώς λένε την μαμά του καλύτερού σου φίλου;</option>
+                            <option value="Τί χρώμα είναι οι πιτζάμες σου;">Τί χρώμα είναι οι πιτζάμες σου;</option>
+                        </select>
+
+                        <label for="SecurityAnswer1">απάντηση1:</label>
+                        <input type="text" id="SecurityAnswer1">
+
+                        <!--<label for="SecurityQuestio2n">Ερώτηση 2:</label>
+                    <select id="SecurityQuestion2" name="SecurityQuestion2">
+                        <option value="Πού πήγες διακοπές;">Πού πήγες διακοπές;</option>
+                        <option value="Πού πήγες διακοπές;">Πώς λένε το κατοικίδιό σου;</option>
+                        <option value="Πού πήγες διακοπές;">Ποιο είναι το αγαπημένο σου φαγητό;</option>
+                        <option value="Πού πήγες διακοπές;">Πώς λένε την μαμά του καλύτερού σου φίλου;</option>
+                        <option value="Πού πήγες διακοπές;">Τί χρώμα είναι οι πιτζάμες σου;</option>
+                    </select>
+
+                    <label for="SecurityAnswer2">απάντηση2:</label>
+                    <input type="text" id="SecurityAnswer2">
+
+                    <label for="SecurityQuestion3">Ερώτηση 3:</label>
+                    <select id="SecurityQuestion3" name="SecurityQuestion3">
+                        <option value="Πού πήγες διακοπές;">Πού πήγες διακοπές;</option>
+                        <option value="Πού πήγες διακοπές;">Πώς λένε το κατοικίδιό σου;</option>
+                        <option value="Πού πήγες διακοπές;">Ποιο είναι το αγαπημένο σου φαγητό;</option>
+                        <option value="Πού πήγες διακοπές;">Πώς λένε την μαμά του καλύτερού σου φίλου;</option>
+                        <option value="Πού πήγες διακοπές;">Τί χρώμα είναι οι πιτζάμες σου;</option>
+                    </select>
+
+                    <label for="SecurityAnswer3">απάντηση3:</label>
+                    <input type="text" id="SecurityAnswer3">-->
+                    </div>
+                </div>
 
 
-            <button type="submit">Register</button>
-        </form>
-        <div id="response-message"></div>
-    </div>
+                <button type="submit">Register</button>
+            </form>
+            <div id="response-message"></div>
+        </div>
 
-    <!-- Σύνδεση με το JavaScript --> 
-    <script src="https://localhost:7121/js/script.js"></script>    
-</body>
+        <!-- Σύνδεση με το JavaScript -->
+        <script src="https://localhost:7121/js/script.js"></script>
+    </body>
 </html>
