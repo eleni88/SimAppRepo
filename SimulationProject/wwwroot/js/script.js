@@ -89,7 +89,7 @@ document.getElementById('login-form').addEventListener('submit', async function 
             body: JSON.stringify(loginuser)
         });
 
-        if (response.status === 204) {
+        if (response.status == 204) {
             throw new Error("No content returned from server.");
         }
 
@@ -120,7 +120,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         const usersList = document.getElementById("users"); // Corrected (was 'users-list')
         usersList.innerHTML = ""; //  Clear previous list
 
-        if (data.length === 0) {
+        if (data.length == 0) {
             usersList.innerHTML = "<li>No users found.</li>"; // Handle empty response
             return;
         }

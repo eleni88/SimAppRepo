@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using SimulationProject.DTO;
 using SimulationProject.Models;
 using SimulationProject.Services;
@@ -14,10 +15,12 @@ namespace SimulationProject.Controllers
     {
         private readonly IUsersService _usersService;
         private readonly UsersProfileService _usersProfileService;
-        public UsersController(IUsersService usersService, UsersProfileService usersProfileService)
+        private readonly LinkGenerator _linkGenerator;
+        public UsersController(IUsersService usersService, UsersProfileService usersProfileService, LinkGenerator linkGenerator)
         {
             _usersService = usersService;
             _usersProfileService = usersProfileService;
+            _linkGenerator = linkGenerator;
         }
         // GET /api/users
         [HttpGet]
@@ -45,6 +48,14 @@ namespace SimulationProject.Controllers
                     Status = 404
                 });
             }
+
+            var links = new
+            {
+                self = _linkGenerator.GetPathByAction(HttpContext, nameof(GetUser), values: new { Userid }),
+                update = new { href = _linkGenerator.GetPathByAction(HttpContext, nameof(UpdateUser), values: new { Userid }), method = "PUT" },
+                delete = new { href = _linkGenerator.GetPathByAction(HttpContext, nameof(DeleteUser), values: new { Userid }), method = "DELETE" }
+            };
+
             return Ok(user);
         }
 
