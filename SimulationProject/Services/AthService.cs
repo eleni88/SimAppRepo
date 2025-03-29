@@ -6,6 +6,7 @@ using System.Text;
 using SimulationProject.Data;
 using SimulationProject.DTO;
 using SimulationProject.Models;
+using System.Security.Cryptography;
 
 namespace SimulationProject.Services
 {
@@ -43,6 +44,22 @@ namespace SimulationProject.Services
         }
 
         //--------------- Refresh Token ----------------------
+        private string GenerateRefreshToken()
+        {
+            var randomNumber = new byte[32];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomNumber);
+            return Convert.ToBase64String(randomNumber);
+        }
+
+        private async Task<string> GenerateAndSaveRefreshTokenAsync(User user)
+        {
+            var refreshToken = GenerateRefreshToken();
+            user.Refreshtoken = refreshToken;
+            user.Refreshtokenexpiry = DateTime.UtcNow.AddDays(1);
+            await _context.SaveChangesAsync();
+            return refreshToken;
+        }
 
         //find user role
         public string FindUserRole(int role)
@@ -82,7 +99,7 @@ namespace SimulationProject.Services
             return user;
         }
         //login user
-        public async Task<string?> LoginUserAsync(LoginForm loginform)
+        public async Task<TokenDTo?> LoginUserAsync(LoginForm loginform)
         {
             // Find user by username
             var user = await GetUserByNameAsync(loginform.UserName);
@@ -95,7 +112,12 @@ namespace SimulationProject.Services
             {
                 return null;
             }
-            return CreateJWToken(user);
+            var response = new TokenDTo
+            {
+                AccessToken = CreateJWToken(user),
+                RefreshToken = await GenerateAndSaveRefreshTokenAsync(user)
+            };
+            return response;
         }
     }
 }

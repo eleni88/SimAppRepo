@@ -50,10 +50,10 @@ namespace SimulationProject.Controllers
 
         //POST /api/ath/login
         [HttpPost("login")]
-        public async Task<IActionResult> LoginUser([FromBody] LoginForm loginform)
+        public async Task<ActionResult<TokenDTo>> LoginUser([FromBody] LoginForm loginform)
         {
-            var token = await _athService.LoginUserAsync(loginform);
-            if (token is null)
+            var result = await _athService.LoginUserAsync(loginform);
+            if (result is null)
             {
                 return BadRequest("Invalid username or password");
             }
@@ -68,7 +68,7 @@ namespace SimulationProject.Controllers
             //};
             //Response.Cookies.Append("jwtCookie", token, cookieOptions);
 
-            return Ok(token);
+            return Ok(result);
         }
 
         [Authorize]
