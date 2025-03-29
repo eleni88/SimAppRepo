@@ -63,5 +63,13 @@ public partial class User
     [Column("ROLE")]
     [StringLength(255)]
     [Unicode(false)]
-    public string? Role { get; set; }
+    public string Role { get; set; } = null!;
+
+    [Column("REFRESHTOKEN")]
+    [StringLength(255)]
+    [Unicode(false)]
+    public string? Refreshtoken { get; set; }
+
+    [Column("REFRESHTOKENEXPIRY", TypeName = "datetime")]
+    public DateTime? Refreshtokenexpiry { get; set; }
 }

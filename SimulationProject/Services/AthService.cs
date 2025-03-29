@@ -1,4 +1,9 @@
-﻿using SimulationProject.Data;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using SimulationProject.Data;
 using SimulationProject.DTO;
 using SimulationProject.Models;
 
@@ -9,15 +14,35 @@ namespace SimulationProject.Services
         private readonly SimSaasContext _context;
         private IConfiguration _configuration;
         private readonly IPasswordHashService _passwordHashService;
-        private readonly IJwtService _jwtService;
 
-        public AthService(SimSaasContext context, IPasswordHashService passwordHashService, IConfiguration configuration, IJwtService jwtService) : base(context, passwordHashService)
+        public AthService(SimSaasContext context, IPasswordHashService passwordHashService, IConfiguration configuration) : base(context, passwordHashService)
         {
             _context = context;
             _configuration = configuration;
             _passwordHashService = passwordHashService;
-            _jwtService = jwtService;
         }
+
+        private string CreateJWToken(User user)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.NameIdentifier, user.Userid.ToString()),
+                new Claim(ClaimTypes.Role, user.Role)
+            };
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetValue<string>("Appsettings:Token")!));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
+            var tokenDescriptor = new JwtSecurityToken(
+                issuer: _configuration.GetValue<string>("Appsettings:Issuer"),
+                audience: _configuration.GetValue<string>("Appsettings:Audience"),
+                claims: claims,
+                expires: DateTime.UtcNow.AddDays(1),
+                signingCredentials: creds
+             );
+            return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
+        }
+
+        //--------------- Refresh Token ----------------------
 
         //find user role
         public string FindUserRole(int role)
@@ -70,7 +95,7 @@ namespace SimulationProject.Services
             {
                 return null;
             }
-            return _jwtService.CreateJWToken(user);
+            return CreateJWToken(user);
         }
     }
 }
