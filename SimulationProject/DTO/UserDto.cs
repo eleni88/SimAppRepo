@@ -12,5 +12,6 @@
         public bool Admin { get; set; }
         public string SecurityQuestion { get; set; }
         public string SecurityAnswer { get; set; }
+        public string Role { get; set; }
     }
 }

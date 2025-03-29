@@ -28,15 +28,12 @@ namespace SimulationProject.Services
     public class UsersService: IUsersService
     {
         private readonly SimSaasContext _context;
-        private IConfiguration _configuration;
         private readonly IPasswordHashService _passwordHashService;
-        private readonly IJwtService _jwtService;
-        public UsersService(SimSaasContext context, IConfiguration configuration, IPasswordHashService passwordHashService, IJwtService jwtService)
+
+        public UsersService(SimSaasContext context, IPasswordHashService passwordHashService)
         {
             _context = context;
-            _configuration = configuration;
             _passwordHashService = passwordHashService;
-            _jwtService = jwtService;
         }
 
         public bool UserEmailExists(string Email)
@@ -115,7 +112,6 @@ namespace SimulationProject.Services
         //Get new password
         public string GetUserNewPassword(PasswordUpdate PasswordUpdate, User user)
         {
-
             string newpasswordHash = "";
             if (((!_passwordHashService.VerifyUserPassword(PasswordUpdate.OldPassword, user.Password)) || (user.Username != PasswordUpdate.UserName)))
             {
@@ -134,8 +130,7 @@ namespace SimulationProject.Services
             else
             {
                 newpasswordHash = _passwordHashService.HashUserPassword(PasswordUpdate.NewPassword);
-            }
-                              
+            }                            
             return newpasswordHash;
         }
 

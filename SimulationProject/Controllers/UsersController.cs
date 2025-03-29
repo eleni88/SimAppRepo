@@ -51,7 +51,7 @@ namespace SimulationProject.Controllers
 
             var links = new
             {
-                self = _linkGenerator.GetPathByAction(HttpContext, nameof(GetUser), values: new { Userid }),
+                self = new { href = _linkGenerator.GetPathByAction(HttpContext, nameof(GetUser), values: new { Userid }), method = "GET" },
                 update = new { href = _linkGenerator.GetPathByAction(HttpContext, nameof(UpdateUser), values: new { Userid }), method = "PUT" },
                 delete = new { href = _linkGenerator.GetPathByAction(HttpContext, nameof(DeleteUser), values: new { Userid }), method = "DELETE" }
             };

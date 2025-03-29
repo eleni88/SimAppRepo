@@ -19,6 +19,7 @@ builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IPasswordHashService, PasswordHashService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<UsersProfileService>();
+builder.Services.AddScoped<AthService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", builder =>

@@ -59,4 +59,9 @@ public partial class User
     [StringLength(200)]
     [Unicode(false)]
     public string? Securityanswer { get; set; }
+
+    [Column("ROLE")]
+    [StringLength(255)]
+    [Unicode(false)]
+    public string? Role { get; set; }
 }
