@@ -1,8 +1,8 @@
 // URLs
 const apiUrlUsers    = 'https://localhost:7121/api/users'; 
-const apiUrlRegister = 'https://localhost:7121/api/register';
+const apiUrlRegister = 'https://localhost:7121/api/ath/register';
 const apiUrlHome     = 'https://localhost:7121/api/home';
-const apiUrlLogin    = 'https://localhost:7121/api/login';
+const apiUrlLogin    = 'https://localhost:7121/api/ath/login';
 
 // Home
 async function fetchWelcomeMessage() {
@@ -44,7 +44,7 @@ document.getElementById('register-form').addEventListener('submit', async functi
         age: Age,
         Admin: Admin,
         SecurityQuestion: SecurityQuestion,
-        SecurityAnswer: SecurityAnswer 
+        SecurityAnswer: SecurityAnswer
     };
 
     try {
@@ -53,6 +53,7 @@ document.getElementById('register-form').addEventListener('submit', async functi
             headers: {
                 'Content-Type': 'application/json'
             },
+            credentials: "include",
             body: JSON.stringify(registeruser)
         });
 
@@ -86,6 +87,7 @@ document.getElementById('login-form').addEventListener('submit', async function 
             headers: {
                 'Content-Type': 'application/json'
             },
+            credentials: "include",
             body: JSON.stringify(loginuser)
         });
 

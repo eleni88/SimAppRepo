@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using SimulationProject.DTO;
@@ -8,7 +9,6 @@ using SimulationProject.Services;
 
 namespace SimulationProject.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
@@ -23,6 +23,7 @@ namespace SimulationProject.Controllers
             _linkGenerator = linkGenerator;
         }
         // GET /api/users
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -35,6 +36,7 @@ namespace SimulationProject.Controllers
         }
 
         // GET /api/users/{Userid}
+        [Authorize(Roles = "Admin")]
         [HttpGet("{Userid}")]
         public async Task<IActionResult> GetUser(int Userid)
         {
@@ -60,6 +62,7 @@ namespace SimulationProject.Controllers
         }
 
         // POST /api/users/create
+        [Authorize(Roles = "Admin")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateUser([FromBody] User user)
         {
@@ -86,6 +89,7 @@ namespace SimulationProject.Controllers
         }
 
         // PUT /api/users/{Userid}
+        [Authorize(Roles = "Admin")]
         [HttpPost("{Userid}")]
         public async Task<IActionResult> UpdateUser(int Userid, [FromBody]UserDto userDto)
         {
@@ -108,6 +112,7 @@ namespace SimulationProject.Controllers
         }
 
         // DELETE /api/users/{Userid}
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{Userid}")]
         public async Task<IActionResult> DeleteUser(int Userid)
         {
@@ -122,6 +127,7 @@ namespace SimulationProject.Controllers
 
         //------ User Profile --------------
         // PUT /api/profile
+        [Authorize]
         [HttpPost("profile")]
         public async Task<IActionResult> UpdateUserProfile([FromBody] UserDto userDto)
         {
@@ -156,6 +162,7 @@ namespace SimulationProject.Controllers
         }
 
         // DELETE /api/users
+        [Authorize]
         [HttpDelete]
         public async Task<IActionResult> DeleteUserProfile([FromBody]UserDto userDto)
         {

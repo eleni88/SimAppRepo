@@ -144,7 +144,9 @@ namespace SimulationProject.Services
                 Admin = registerForm.Admin,
                 Securityquestion = registerForm.SecurityQuestion,
                 Securityanswer = securityanswerHash,
-                Role = FindUserRole(Convert.ToInt32(registerForm.Admin))
+                Role = FindUserRole(Convert.ToInt32(registerForm.Admin)),
+                Refreshtoken = null,
+                Refreshtokenexpiry = null
             };
             await CreateUserAsync(user);
             return user;

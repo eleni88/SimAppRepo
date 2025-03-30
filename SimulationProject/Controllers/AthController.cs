@@ -50,7 +50,7 @@ namespace SimulationProject.Controllers
 
         //POST /api/ath/login
         [HttpPost("login")]
-        public async Task<ActionResult<TokenDTo>> LoginUser([FromBody] LoginForm loginform)
+        public async Task<IActionResult> LoginUser([FromBody] LoginForm loginform)
         {
             var result = await _athService.LoginUserAsync(loginform);
             if (result is null)
@@ -62,7 +62,7 @@ namespace SimulationProject.Controllers
             var cookieOptions = _athService.GetCookieOptions();
             Response.Cookies.Append("jwtCookie", result.AccessToken, cookieOptions);
 
-            return Ok(result);
+            return Ok("Login successfully");
         }
 
         //----------- Logout -------------
