@@ -53,7 +53,7 @@ document.getElementById('register-form').addEventListener('submit', async functi
             headers: {
                 'Content-Type': 'application/json'
             },
-            credentials: "include",
+            credentials: 'include',
             body: JSON.stringify(registeruser)
         });
 
@@ -87,7 +87,7 @@ document.getElementById('login-form').addEventListener('submit', async function 
             headers: {
                 'Content-Type': 'application/json'
             },
-            credentials: "include",
+            credentials: 'include',
             body: JSON.stringify(loginuser)
         });
 
