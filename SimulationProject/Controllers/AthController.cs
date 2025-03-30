@@ -66,11 +66,30 @@ namespace SimulationProject.Controllers
         }
 
         //----------- Logout -------------
+        //POST /api/ath/logout
         [HttpPost("logout")]
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout(RefreshTokenDTo request)
         {
+            await _athService.RemoveRefreshTokenAsync(request.Userid, request.RefreshToken);
             Response.Cookies.Delete("jwtCookie");
             return Ok(new { message = "Logged out successfully" });
+        }
+
+        //----------Refresh Token -----------
+        [HttpPost("refreshtoken")]
+        public async Task<ActionResult<TokenDTo>> RefreshToken(RefreshTokenDTo request)
+        {
+            var result = await _athService.RefreshTokenAsync(request);
+            if ((result == null) || (result.AccessToken == null) || (result.RefreshToken == null))
+            {
+                return Unauthorized("Invalid refresh token");
+            }
+
+            // Store the new Access JWT in a cookie
+            var cookieOptions = _athService.GetCookieOptions();
+            Response.Cookies.Append("jwtCookie", result.AccessToken, cookieOptions);
+
+            return Ok(result);
         }
 
         [Authorize]

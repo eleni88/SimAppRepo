@@ -108,6 +108,7 @@ app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 
+app.UseCookiePolicy();
 app.UseAuthentication();
 app.UseAuthorization();
 

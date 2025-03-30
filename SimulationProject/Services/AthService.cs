@@ -7,13 +7,14 @@ using SimulationProject.Data;
 using SimulationProject.DTO;
 using SimulationProject.Models;
 using System.Security.Cryptography;
+using Microsoft.EntityFrameworkCore;
 
 namespace SimulationProject.Services
 {
     public class AthService: UsersService
     {
         private readonly SimSaasContext _context;
-        private IConfiguration _configuration;
+        private readonly IConfiguration _configuration;
         private readonly IPasswordHashService _passwordHashService;
 
         public AthService(SimSaasContext context, IPasswordHashService passwordHashService, IConfiguration configuration) : base(context, passwordHashService)
@@ -22,7 +23,7 @@ namespace SimulationProject.Services
             _configuration = configuration;
             _passwordHashService = passwordHashService;
         }
-
+        //------------- JWT (Access Token) -------------------------
         private string CreateJWToken(User user)
         {
             var claims = new List<Claim>
@@ -61,6 +62,43 @@ namespace SimulationProject.Services
             return refreshToken;
         }
 
+        private async Task<User?> ValidateRefreshTokenAsync(int UserId, string RefreshToken)
+        {
+            var user = await _context.Users.FindAsync(UserId); //base.GetUserByIdAsync(UserId);
+            if ((user == null) || (user.Refreshtoken != RefreshToken) || user.Refreshtokenexpiry <= DateTime.UtcNow)
+            {
+                return null;
+            }
+            else
+                return user;
+        }
+
+        public async Task RemoveRefreshTokenAsync(int UserId, string RefreshToken)
+        {
+            var user = await _context.Users.FindAsync(UserId);
+            if ((user != null) && (user.Refreshtoken == RefreshToken))
+            {
+                user.Refreshtoken = null;
+                await base.PutUserAsync(user);
+            }
+        }
+
+        public async Task<TokenDTo?>RefreshTokenAsync(RefreshTokenDTo request)
+        {
+            var user = await ValidateRefreshTokenAsync(request.Userid, request.RefreshToken);
+            if (user != null)
+            {
+                var response = new TokenDTo
+                {
+                    AccessToken = CreateJWToken(user),
+                    RefreshToken = await GenerateAndSaveRefreshTokenAsync(user)
+                };
+                return response;
+            }
+            else
+                return null;            
+        }
+
         //-------------- Create Cookie ---------------------------
         public CookieOptions GetCookieOptions()
         {
@@ -73,7 +111,7 @@ namespace SimulationProject.Services
             };
             return cookieOptions;
         }
-
+        //----------------------------------------------------------
         //find user role
         public string FindUserRole(int role)
         {
