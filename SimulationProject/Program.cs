@@ -48,7 +48,23 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 Encoding.UTF8.GetBytes(builder.Configuration["Appsettings:Token"]!)),
             ValidateIssuerSigningKey = true
         };
+
+        // Read JWT from HttpOnly cookie instead of Authorization header
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var token = context.Request.Cookies["jwtCookie"];
+                if (!string.IsNullOrEmpty(token))
+                {
+                    context.Token = token;
+                }
+                return Task.CompletedTask;
+            }
+        };
     });
+
+builder.Services.AddAuthorization();
 
 // Global cookie settings (optional)
 //builder.Services.ConfigureApplicationCookie(options =>
@@ -57,6 +73,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 //    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 //    options.Cookie.SameSite = SameSiteMode.Strict;
 //});
+
+builder.Services.Configure<CookiePolicyOptions>(options =>
+{
+    options.HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always;
+});
+
 
 // Add user secrets for local development
 if (builder.Environment.IsDevelopment())
@@ -86,6 +108,7 @@ app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

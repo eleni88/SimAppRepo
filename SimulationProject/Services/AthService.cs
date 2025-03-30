@@ -37,7 +37,7 @@ namespace SimulationProject.Services
                 issuer: _configuration.GetValue<string>("Appsettings:Issuer"),
                 audience: _configuration.GetValue<string>("Appsettings:Audience"),
                 claims: claims,
-                expires: DateTime.UtcNow.AddDays(1),
+                expires: DateTime.UtcNow.AddHours(2),
                 signingCredentials: creds
              );
             return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
@@ -59,6 +59,19 @@ namespace SimulationProject.Services
             user.Refreshtokenexpiry = DateTime.UtcNow.AddDays(1);
             await _context.SaveChangesAsync();
             return refreshToken;
+        }
+
+        //-------------- Create Cookie ---------------------------
+        public CookieOptions GetCookieOptions()
+        {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,                        // Make sure the cookie is not accessible via JavaScript (for security)
+                Secure = true,                          // Ensures the cookie is only sent over HTTPS
+                SameSite = SameSiteMode.Strict,         // Prevents cross-site request forgery (CSRF)
+                Expires = DateTime.UtcNow.AddHours(2)   // Set the expiration of the cookie 
+            };
+            return cookieOptions;
         }
 
         //find user role
