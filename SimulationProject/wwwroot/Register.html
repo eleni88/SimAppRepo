@@ -33,7 +33,7 @@
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="/Home.html">
-                            Πίσω
+                            Back
                         </a>
                     </li>
                 </ul>
@@ -44,44 +44,44 @@
     <div class="container">
 
         <!-- Φόρμα για εγγραφή χρήστη -->
-        <h1>Εγγραφή νέου χρήστη</h1>
+        <h1>Register</h1>
         <form id="register-form">
 
-            <label for="FirstName">Όνομα:</label>
+            <label for="FirstName">Firstname:</label>
             <input type="text" id="FirstName" required>
 
-            <label for="LastName">Επίθετο:</label>
+            <label for="LastName">Lastname:</label>
             <input type="text" id="LastName" required>
 
-            <label for="UserName">Όνομα χρήστη:</label>
+            <label for="UserName">Username:</label>
             <input type="text" id="UserName" required>
 
-            <label for="Password">Κωδικός:</label>
+            <label for="Password">Password:</label>
             <input type="text" id="Password" required>
 
             <label for="Email">Email:</label>
             <input type="text" id="Email" required>
 
-            <label for="JobTitle">Τίτλος εργασίας:</label>
+            <label for="JobTitle">Job title:</label>
             <input type="text" id="JobTitle">
 
-            <label for="Age">Ηλικία:</label>
+            <label for="Age">Age:</label>
             <input type="number" id="Age">
 
             <div>
-                <p>Συμπληρώστε την απάντηση σε μία έως τρεις από τις ερωτήσεις:</p>
+                <p>Complete the answer to three out of the five questions bellow:</p>
                 <div id="security-questions">
 
-                    <label for="SecurityQuestion1">Ερώτηση 1:</label>
+                    <label for="SecurityQuestion1">Question 1:</label>
                     <select id="SecurityQuestion1" name="SecurityQuestion1">
-                        <option value="Πού πήγες διακοπές;">Πού πήγες διακοπές;</option>
-                        <option value="Πώς λένε το κατοικίδιό σου;">Πώς λένε το κατοικίδιό σου;</option>
-                        <option value="Ποιο είναι το αγαπημένο σου φαγητό;">Ποιο είναι το αγαπημένο σου φαγητό;</option>
-                        <option value="Πώς λένε την μαμά του καλύτερού σου φίλου;">Πώς λένε την μαμά του καλύτερού σου φίλου;</option>
-                        <option value="Τί χρώμα είναι οι πιτζάμες σου;">Τί χρώμα είναι οι πιτζάμες σου;</option>
+                        <option value="What city were you born in?">What city were you born in?</option>
+                        <option value="What is your oldest sibling’s middle name?">What is your oldest sibling’s middle name?</option>
+                        <option value="What was the first concert you attended?">What was the first concert you attended?</option>
+                        <option value="What was the make and model of your first car?">What was the make and model of your first car?</option>
+                        <option value="In what city or town did your parents meet?">In what city or town did your parents meet?</option>
                     </select>
 
-                    <label for="SecurityAnswer1">απάντηση1:</label>
+                    <label for="SecurityAnswer1">Answer 1:</label>
                     <input type="text" id="SecurityAnswer1">
 
                     <!--<label for="SecurityQuestio2n">Ερώτηση 2:</label>
@@ -111,12 +111,12 @@
             </div>
 
 
-            <button type="submit">Εγγραφή</button>
+            <button type="submit">Register</button>
         </form>
         <div id="response-message"></div>
     </div>
 
     <!-- Σύνδεση με το JavaScript -->
-    <script src="https://localhost:7121/js/script.js"></script>
+    <script src="https://localhost:7121/js/script.js?v=105"></script>
 </body>
 </html>

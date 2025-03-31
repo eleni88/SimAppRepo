@@ -26,21 +26,21 @@ namespace SimulationProject.Controllers
         {
             if (_usersService.UserNameExists(registerForm.UserName))
             {
-                return BadRequest("Username already exists!");
+                return BadRequest(new { message = "Username already exists!" });
             }
             if (_usersService.UserEmailExists(registerForm.Email))
             {
-                return BadRequest("Email already exists.");
+                return BadRequest(new { message = "Email already exists." });
             }
             if (!_usersService.PasswordValid(registerForm.Password))
             {
-                return BadRequest("Invalid password. Password must be at least 10 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.");
+                return BadRequest(new { message = "Invalid password. Password must be at least 10 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character." });
             }
 
             var user = await _athService.RegisterUserAsync(registerForm);
             if (user is null)
             {
-                return BadRequest("User not found!");
+                return BadRequest(new { message = "User not found!" });
             }
 
             return Ok(user);
@@ -55,14 +55,14 @@ namespace SimulationProject.Controllers
             var result = await _athService.LoginUserAsync(loginform);
             if (result is null)
             {
-                return BadRequest("Invalid username or password");
+                return BadRequest(new { message = "Invalid username or password" });
             }
 
             // Store the Access JWT in a cookie
             var cookieOptions = _athService.GetCookieOptions();
             Response.Cookies.Append("jwtCookie", result.AccessToken, cookieOptions);
 
-            return Ok("Login successfully");
+            return Ok(new { message = "Login successfully" });
         }
 
         //----------- Logout -------------
@@ -82,7 +82,7 @@ namespace SimulationProject.Controllers
             var result = await _athService.RefreshTokenAsync(request);
             if ((result == null) || (result.AccessToken == null) || (result.RefreshToken == null))
             {
-                return Unauthorized("Invalid refresh token");
+                return Unauthorized(new { message = "Invalid refresh token" });
             }
 
             // Store the new Access JWT in a cookie
@@ -96,14 +96,14 @@ namespace SimulationProject.Controllers
         [HttpGet]
         public IActionResult AuthenticatedOnlyEndPoint()
         {
-            return Ok("You are Authenticated!");
+            return Ok(new { message = "You are Authenticated!" });
         }
 
         [Authorize(Roles = "Admin")]
         [HttpGet("admin-only")]
         public IActionResult AdminEndPoint()
         {
-            return Ok("You are Admin!");
+            return Ok(new { message = "You are Admin!" });
         }
 
     }

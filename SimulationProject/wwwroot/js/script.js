@@ -53,7 +53,6 @@ document.getElementById('register-form').addEventListener('submit', async functi
             headers: {
                 'Content-Type': 'application/json'
             },
-            credentials: 'include',
             body: JSON.stringify(registeruser)
         });
 
@@ -63,9 +62,15 @@ document.getElementById('register-form').addEventListener('submit', async functi
             throw new Error(data.message || `HTTP error! Status: ${response.status}`);
         }
 
-        document.getElementById('response-message').innerText = 'User registered successfully!';
+        if (response.ok) {
+            document.getElementById('response-message').innerText = 'Login successfully';
+            document.getElementById('response-message').style.color = 'green';
+            window.location.href = '/Login.html';
+        }
+
     } catch (error) {
         document.getElementById('response-message').innerText = 'Error: ' + error.message;
+        document.getElementById('response-message').style.color = 'red';
     }
 });
 
@@ -77,7 +82,7 @@ document.getElementById('login-form').addEventListener('submit', async function 
     const password = document.getElementById('Password').value;
 
     const loginuser = {
-        UserName: userName,
+        Username: userName,
         Password: password
     };
 
@@ -100,8 +105,11 @@ document.getElementById('login-form').addEventListener('submit', async function 
         if (!response.ok) {
             throw new Error(data.message || `HTTP error! Status: ${response.status}`);
         }
-
-        document.getElementById('response-message').innerText = 'User loggedin successfully!';
+        else {
+            document.getElementById('response-message').innerText = 'User loggedin successfully!';
+            window.location.href = '/Home.html';
+        }
+        
     } catch (error) {
         document.getElementById('response-message').innerText = 'Error: ' + error.message;
     }
@@ -112,7 +120,13 @@ document.getElementById('login-form').addEventListener('submit', async function 
 // Λήψη όλων των χρηστών
 document.addEventListener("DOMContentLoaded", async function () {
     try {
-        const response = await fetch(apiUrlUsers);
+        const response = await fetch(apiUrlUsers, {
+            method: "GET",
+            credentials: "include", 
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
 
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
@@ -122,8 +136,8 @@ document.addEventListener("DOMContentLoaded", async function () {
         const usersList = document.getElementById("users"); // Corrected (was 'users-list')
         usersList.innerHTML = ""; //  Clear previous list
 
-        if (data.length == 0) {
-            usersList.innerHTML = "<li>No users found.</li>"; // Handle empty response
+        if (!Array.isArray(data) || data.length === 0) {
+            usersList.innerHTML = "<li>No users found.</li>";
             return;
         }
 
@@ -137,24 +151,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         document.getElementById("users").innerHTML = "<li>Error loading users.</li>";
     }
 });
-
-
-
-//fetch(apiUrlUsers)
-//    .then(response => response.json())
-//    .then(data =>  {
-//     const usersList = document.getElementById('users');
-//     usersList.innerHTML = '';
-
-//     data.forEach(user => {
-//         const li = document.createElement('li');
-//         li.textContent = `${user.firstname}  ${user.lastname}`; 
-//         usersList.appendChild(li);
-        
-//     });
-//}
-//);
-
 
 
 //-----------------------
