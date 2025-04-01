@@ -41,7 +41,7 @@ namespace SimulationProject.Controllers
         public async Task<IActionResult> GetUser(int Userid)
         {
             var user = await _usersService.GetUserByIdAsync(Userid);
-            if (user == null)
+            if (user is null)
             {
                 return NotFound(new ProblemDetails
                 {
@@ -58,7 +58,7 @@ namespace SimulationProject.Controllers
                 delete = new { href = _linkGenerator.GetPathByAction(HttpContext, nameof(DeleteUser), values: new { Userid }), method = "DELETE" }
             };
 
-            return Ok(user);
+            return Ok(new { user, Links = links });
         }
 
         // POST /api/users/create
