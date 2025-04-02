@@ -1,8 +1,6 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using SimulationProject.DTO;
 using SimulationProject.Models;
 using SimulationProject.Services;
@@ -78,11 +76,11 @@ namespace SimulationProject.Controllers
             {
                 if (_usersService.UserNameExists(user.Username))
                 {
-                    ModelState.AddModelError("Username", "The username is used by another user");
+                    return BadRequest(new { message = "The username is used by another user" });
                 }
                 if (_usersService.UserEmailExists(user.Email))
                 {
-                    ModelState.AddModelError("Useremail", "The email is used by another user");
+                    return BadRequest(new { message = "The email is used by another user" });
                 }
             }
             return CreatedAtAction(nameof(GetUser), new { Userid = user.Userid }, user);
@@ -96,15 +94,15 @@ namespace SimulationProject.Controllers
             var user = await _usersService.GetUserByIdAsync(Userid);
             if (user == null)
             {
-                return BadRequest("User not found.");
+                return BadRequest(new { message = "User not found." });
             }
             if (_usersService.UserNameExists(userDto.UserName))
             {
-                return BadRequest("The username is used by another user");
+                return BadRequest(new { message = "The username is used by another user" });
             }
             if (_usersService.UserEmailExists(userDto.Email))
             {
-                return BadRequest("The email is used by another user");
+                return BadRequest(new { message = "The email is used by another user" });
             }
             await _usersService.PutUserAsync(user);
 
@@ -135,27 +133,27 @@ namespace SimulationProject.Controllers
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userIdStr))
             {
-                return BadRequest("Invalid user.");
+                return BadRequest(new { message = "Invalid user" });
             }
             var userId = Int32.Parse(userIdStr);
             var user = await _usersService.GetUserByIdAsync(userId);
             if (user == null)
             {
-                return BadRequest("User not found.");
+                return BadRequest(new { message = "User not found"});
             }
             if (_usersService.UserNameExists(userDto.UserName))
             {
-                return BadRequest("The username is used by another user");
+                return BadRequest(new { message = "The username is used by another user" });
             }
             if (_usersService.UserEmailExists(userDto.Email))
             {
-                return BadRequest("The email is used by another user");
+                return BadRequest(new { message = "The email is used by another user" });
             }
 
             int rowsAfected = await _usersProfileService.PutUserAsync(user, userDto);
             if (rowsAfected > 0)
             {
-                return Ok("User updated successfully.");
+                return Ok(new { message = "User updated successfully" });
             }
 
             return NoContent();
@@ -170,13 +168,13 @@ namespace SimulationProject.Controllers
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userIdStr))
             {
-                return BadRequest("Invalid user.");
+                return BadRequest(new { message = "Invalid user" });
             }
             var userId = Int32.Parse(userIdStr);
             var user = await _usersService.GetUserByIdAsync(userId);
             if (user == null)
             {
-                return BadRequest("User not found.");
+                return BadRequest(new { message = "User not found" });
             }
 
             await _usersService.DeleteUserAsync(user);
