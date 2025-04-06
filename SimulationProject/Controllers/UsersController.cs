@@ -13,12 +13,12 @@ namespace SimulationProject.Controllers
     {
         private readonly IUsersService _usersService;
         private readonly UsersProfileService _usersProfileService;
-        private readonly LinkGenerator _linkGenerator;
-        public UsersController(IUsersService usersService, UsersProfileService usersProfileService, LinkGenerator linkGenerator)
+        private readonly ILinkService<UserDto> _linkService;
+        public UsersController(IUsersService usersService, UsersProfileService usersProfileService, ILinkService<UserDto> linkService)
         {
             _usersService = usersService;
             _usersProfileService = usersProfileService;
-            _linkGenerator = linkGenerator;
+            _linkService = linkService;
         }
         // GET /api/users
         [Authorize(Roles = "Admin")]
@@ -30,6 +30,7 @@ namespace SimulationProject.Controllers
             {
                 return Ok(new List<object>());
             }
+
             return Ok(user);
         }
 
@@ -49,14 +50,12 @@ namespace SimulationProject.Controllers
                 });
             }
 
-            var links = new
-            {
-                self = new { href = _linkGenerator.GetPathByAction(HttpContext, nameof(GetUser), values: new { Userid }), method = "GET" },
-                update = new { href = _linkGenerator.GetPathByAction(HttpContext, nameof(UpdateUser), values: new { Userid }), method = "PUT" },
-                delete = new { href = _linkGenerator.GetPathByAction(HttpContext, nameof(DeleteUser), values: new { Userid }), method = "DELETE" }
-            };
+            var userdto = _usersService.ConvertUserToUserDTo(user);
 
-            return Ok(new { user, Links = links });
+            string baseUri = $"{Request.Scheme}://{Request.Host}";
+            var UserWithlinks = _linkService.AddLinksForUser(userdto, baseUri);
+
+            return Ok(UserWithlinks);
         }
 
         // POST /api/users/create

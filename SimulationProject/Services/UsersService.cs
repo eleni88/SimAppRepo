@@ -3,6 +3,7 @@ using SimulationProject.Data;
 using Microsoft.EntityFrameworkCore;
 using SimulationProject.DTO;
 using System.Text.RegularExpressions;
+using System.Collections.Generic;
 
 namespace SimulationProject.Services
 {
@@ -24,6 +25,7 @@ namespace SimulationProject.Services
         string GetUserNewPassword(PasswordUpdate PasswordUpdate, User user);
         Task UpdateUserPasswordAsync(string passwordHash, User user);
         bool PasswordValid(string password);
+        UserDto ConvertUserToUserDTo(User user);
     }
     public class UsersService: IUsersService
     {
@@ -57,6 +59,23 @@ namespace SimulationProject.Services
         {
             return _context.Users.Any(e => e.Username == Username);
         }
+
+        public UserDto ConvertUserToUserDTo(User user)
+        {
+            var userdto = new UserDto
+            {
+                Id = user.Userid,
+                FirstName = user.Firstname,
+                LastName = user.Lastname,
+                UserName = user.Username,
+                Email = user.Email,
+                Age = (int)user.Age,
+                JobTitle = user.Jobtitle,
+                Admin = user.Admin
+            };
+            return userdto;
+        }
+
         // get
         public async Task<IEnumerable<User>> GetAllUsersAsync()
         {
