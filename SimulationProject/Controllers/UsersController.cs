@@ -14,6 +14,7 @@ namespace SimulationProject.Controllers
         private readonly IUsersService _usersService;
         private readonly UsersProfileService _usersProfileService;
         private readonly ILinkService<UserDto> _linkService;
+
         public UsersController(IUsersService usersService, UsersProfileService usersProfileService, ILinkService<UserDto> linkService)
         {
             _usersService = usersService;
@@ -24,14 +25,18 @@ namespace SimulationProject.Controllers
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
-        {
-            var user = await _usersService.GetAllUsersAsync();
-            if ((user == null) || (!user.Any()))
+        {   
+            string baseUri = $"{Request.Scheme}://{Request.Host}";
+            var users = await _usersService.GetAllUsersAsync();
+            if ((users == null) || (!users.Any()))
             {
                 return Ok(new List<object>());
             }
 
-            return Ok(user);
+            var userdtos = users.Select(user => _usersService.ConvertUserToUserDTo(user));
+            var UsersWithLinks = _linkService.AddLinksToList(userdtos, baseUri);
+
+            return Ok(UsersWithLinks);
         }
 
         // GET /api/users/{Userid}
@@ -39,6 +44,7 @@ namespace SimulationProject.Controllers
         [HttpGet("{Userid}")]
         public async Task<IActionResult> GetUser(int Userid)
         {
+            string baseUri = $"{Request.Scheme}://{Request.Host}";
             var user = await _usersService.GetUserByIdAsync(Userid);
             if (user is null)
             {
@@ -51,8 +57,7 @@ namespace SimulationProject.Controllers
             }
 
             var userdto = _usersService.ConvertUserToUserDTo(user);
-
-            string baseUri = $"{Request.Scheme}://{Request.Host}";
+            
             var UserWithlinks = _linkService.AddLinksForUser(userdto, baseUri);
 
             return Ok(UserWithlinks);

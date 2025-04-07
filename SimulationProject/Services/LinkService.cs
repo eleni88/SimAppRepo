@@ -7,8 +7,7 @@ namespace SimulationProject.Services
 {
     public interface ILinkService<T>
     {
-        //public IEnumerable<Link> AddLinksForUser(UserDto userdto, string baseUri);
-
+        List<LinkResponseWrapper<UserDto>> AddLinksToList(IEnumerable<UserDto> userdto, string baseUri);
         public LinkResponseWrapper<T> AddLinksForUser(UserDto userdto, string baseUri);
 
     }
@@ -21,7 +20,6 @@ namespace SimulationProject.Services
             _linkGenerator = linkGenerator;
         }
 
-        //public IEnumerable<Link> AddLinksForUser(UserDto userdto, string baseUri)
         public LinkResponseWrapper<UserDto> AddLinksForUser(UserDto userdto, string baseUri)
         {
             var response = new LinkResponseWrapper<UserDto>(userdto);
@@ -49,6 +47,10 @@ namespace SimulationProject.Services
             return response;
         }
 
+        public List<LinkResponseWrapper<UserDto>> AddLinksToList(IEnumerable<UserDto> userdto, string baseUri)
+        {
+            return userdto.Select(user => AddLinksForUser(user, baseUri)).ToList();
+        }
 
     }
 }
