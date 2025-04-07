@@ -9,7 +9,6 @@ namespace SimulationProject.Services
     {
         List<LinkResponseWrapper<UserDto>> AddLinksToList(IEnumerable<UserDto> userdto, string baseUri);
         public LinkResponseWrapper<T> AddLinksForUser(UserDto userdto, string baseUri);
-
     }
     public class LinkService: ILinkService<UserDto>
     {
@@ -28,17 +27,8 @@ namespace SimulationProject.Services
             string update = _linkGenerator.GetPathByAction(action: "UpdateUser", controller: "Users", values: new { userId = userdto.Id });
             string delete = _linkGenerator.GetPathByAction(action: "DeleteUser", controller: "Users", values: new { userId = userdto.Id });
 
-            //var LinksList = Enumerable.Empty<Link>();
-
             if ((self is not null) && (update is not null) && (delete is not null))
             {
-               // LinksList = new List<Link>
-               // {
-                    //new Link(baseUri + self,"self","GET"),
-                    //new Link(baseUri + delete, "delete_user","DELETE"),
-                    //new Link(baseUri + update,"update_user","PUT")
-                //};
-
                 response._links.Add(new Link(baseUri + self, "self", "GET"));
                 response._links.Add(new Link(baseUri + delete, "delete_user", "DELETE"));
                 response._links.Add(new Link(baseUri + update, "update_user", "PUT"));
@@ -46,7 +36,6 @@ namespace SimulationProject.Services
 
             return response;
         }
-
         public List<LinkResponseWrapper<UserDto>> AddLinksToList(IEnumerable<UserDto> userdto, string baseUri)
         {
             return userdto.Select(user => AddLinksForUser(user, baseUri)).ToList();

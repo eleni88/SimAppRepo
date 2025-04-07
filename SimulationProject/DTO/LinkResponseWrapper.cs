@@ -2,15 +2,8 @@
 
 namespace SimulationProject.DTO
 {
-    public class LinkResponseWrapper<T> //: LinkResource
+    public class LinkResponseWrapper<T>
     {
-        //public List<T> Value { get; set; } = new List<T>();
-
-        //public LinkResponseWrapper(List<T> value)
-        //{
-        //    Value = value;
-        //}
-
         public T UsersCollection { get; set; }
         public List<Link> _links { get; set; }
 
@@ -19,6 +12,5 @@ namespace SimulationProject.DTO
             UsersCollection = users;
             _links = new List<Link>();
         }
-
     }
 }
