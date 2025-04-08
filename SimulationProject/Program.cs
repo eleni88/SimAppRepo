@@ -19,7 +19,6 @@ builder.Services.AddSwaggerGen();
 // Add services to the container.
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IPasswordHashService, PasswordHashService>();
-builder.Services.AddScoped<UsersProfileService>();
 builder.Services.AddScoped<AthService>();
 builder.Services.AddScoped<ILinkService<UserDto>, LinkService>();
 

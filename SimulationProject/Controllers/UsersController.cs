@@ -13,13 +13,11 @@ namespace SimulationProject.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUsersService _usersService;
-        private readonly UsersProfileService _usersProfileService;
         private readonly ILinkService<UserDto> _linkService;
 
-        public UsersController(IUsersService usersService, UsersProfileService usersProfileService, ILinkService<UserDto> linkService)
+        public UsersController(IUsersService usersService, ILinkService<UserDto> linkService)
         {
             _usersService = usersService;
-            _usersProfileService = usersProfileService;
             _linkService = linkService;
         }
         // GET /api/users
@@ -135,7 +133,7 @@ namespace SimulationProject.Controllers
         // PUT /api/profile
         [Authorize]
         [HttpPost("profile")]
-        public async Task<IActionResult> UpdateUserProfile([FromBody] UpdateUserProfileDTO userDto)
+        public async Task<IActionResult> UpdateUserProfile([FromBody] UpdateUserProfileDTO userDto, [FromBody] SecurityQuestionsAndAnswersDTO QuestionsDto)
         {
             //extract user from token
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -158,7 +156,7 @@ namespace SimulationProject.Controllers
                 return BadRequest(new { message = "The email is used by another user" });
             }
 
-            int rowsAfected = await _usersProfileService.PutUserAsync();
+            int rowsAfected = await _usersService.PutUserProfileAsync(user, userDto, QuestionsDto);
             if (rowsAfected > 0)
             {
                 return Ok(new { message = "User updated successfully" });
@@ -169,7 +167,7 @@ namespace SimulationProject.Controllers
 
         // DELETE /api/users
         [Authorize]
-        [HttpDelete]
+        [HttpDelete("profile")]
         public async Task<IActionResult> DeleteUserProfile([FromBody] SecurityQuestionsAndAnswersDTO QuestionsDto)
         {
             //extract user from token
