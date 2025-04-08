@@ -24,7 +24,7 @@ namespace SimulationProject.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterForm registerForm)
         {
-            if (_usersService.UserNameExists(registerForm.UserName))
+            if (_usersService.UserNameExists(registerForm.Username))
             {
                 return BadRequest(new { message = "Username already exists!" });
             }
@@ -70,9 +70,13 @@ namespace SimulationProject.Controllers
         [HttpPost("logout")]
         public async Task<IActionResult> Logout(RefreshTokenDTo request)
         {
-            await _athService.RemoveRefreshTokenAsync(request.Userid, request.RefreshToken);
-            Response.Cookies.Delete("jwtCookie");
-            return Ok(new { message = "Logged out successfully" });
+            if (await _athService.RemoveRefreshTokenAsync(request.Userid, request.RefreshToken))
+            {
+                Response.Cookies.Delete("jwtCookie");
+                return Ok(new { message = "Logged out successfully" });
+            }
+            else
+                return BadRequest(new { message = "Logout failed" });
         }
 
         //----------Refresh Token -----------

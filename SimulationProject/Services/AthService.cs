@@ -8,6 +8,7 @@ using SimulationProject.DTO;
 using SimulationProject.Models;
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
+using Mapster;
 
 namespace SimulationProject.Services
 {
@@ -64,7 +65,7 @@ namespace SimulationProject.Services
 
         private async Task<User?> ValidateRefreshTokenAsync(int UserId, string RefreshToken)
         {
-            var user = await _context.Users.FindAsync(UserId); //base.GetUserByIdAsync(UserId);
+            var user = await _context.Users.FindAsync(UserId);
             if ((user == null) || (user.Refreshtoken != RefreshToken) || user.Refreshtokenexpiry <= DateTime.UtcNow)
             {
                 return null;
@@ -73,14 +74,17 @@ namespace SimulationProject.Services
                 return user;
         }
 
-        public async Task RemoveRefreshTokenAsync(int UserId, string RefreshToken)
+        //logout user
+        public async Task<bool> RemoveRefreshTokenAsync(int UserId, string RefreshToken)
         {
+            bool tokenrefreshed = false;
             var user = await _context.Users.FindAsync(UserId);
             if ((user != null) && (user.Refreshtoken == RefreshToken))
             {
                 user.Refreshtoken = null;
-                await base.PutUserAsync(user);
+                tokenrefreshed = await PutUserAsync() > 0;
             }
+            return tokenrefreshed;
         }
 
         public async Task<TokenDTo?>RefreshTokenAsync(RefreshTokenDTo request)
@@ -131,23 +135,13 @@ namespace SimulationProject.Services
         public async Task<User?> RegisterUserAsync(RegisterForm registerForm)
         {
             string passwordHash = _passwordHashService.HashUserPassword(registerForm.Password);
-            string securityanswerHash = _passwordHashService.HashUserPassword(registerForm.SecurityAnswer);
-            var user = new User
-            {
-                Username = registerForm.UserName,
-                Password = passwordHash,
-                Firstname = registerForm.FirstName,
-                Lastname = registerForm.LastName,
-                Email = registerForm.Email,
-                Age = registerForm.Age,
-                Jobtitle = registerForm.JobTitle,
-                Admin = registerForm.Admin,
-                Securityquestion = registerForm.SecurityQuestion,
-                Securityanswer = securityanswerHash,
-                Role = FindUserRole(Convert.ToInt32(registerForm.Admin)),
-                Refreshtoken = null,
-                Refreshtokenexpiry = null
-            };
+            string securityanswerHash = _passwordHashService.HashUserPassword(registerForm.Securityanswer);
+
+            var user = registerForm.Adapt<User>();
+            user.Role = FindUserRole(Convert.ToInt32(registerForm.Admin));
+            user.Password = passwordHash;
+            user.Securityanswer = securityanswerHash;
+
             await CreateUserAsync(user);
             return user;
         }

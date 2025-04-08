@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using SimulationProject.DTO;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using Mapster;
 
 namespace SimulationProject.Services
 {
@@ -13,10 +14,10 @@ namespace SimulationProject.Services
         Task<User> GetUserByIdAsync(int Userid);
         Task<User> GetUserByNameAsync(string Username);
         Task CreateUserAsync(User user);
-        abstract Task<int> PutUserAsync(User user);
-        //Task UpDateUserAsync(User user);
-        // Task DeleteUserAsync(User user);
-        abstract Task DeleteUserAsync(User user);
+        Task<int> PutUserAsync();
+        Task<int> PutUserProfileAsync(User user, UpdateUserProfileDTO userDto, SecurityQuestionsAndAnswersDTO QuestionsDto);
+        Task DeleteUserAsync(User user);
+        Task DeleteUserProfileAsync(User user, SecurityQuestionsAndAnswersDTO QuestionsDto);
         //Task<User?> RegisterUserAsync(RegisterForm registerForm);
         //Task<string?> LoginUserAsync(LoginForm loginform);
         bool UserExists(int Userid);
@@ -25,7 +26,6 @@ namespace SimulationProject.Services
         string GetUserNewPassword(PasswordUpdate PasswordUpdate, User user);
         Task UpdateUserPasswordAsync(string passwordHash, User user);
         bool PasswordValid(string password);
-        UserDto ConvertUserToUserDTo(User user);
     }
     public class UsersService: IUsersService
     {
@@ -60,22 +60,6 @@ namespace SimulationProject.Services
             return _context.Users.Any(e => e.Username == Username);
         }
 
-        public UserDto ConvertUserToUserDTo(User user)
-        {
-            var userdto = new UserDto
-            {
-                Id = user.Userid,
-                FirstName = user.Firstname,
-                LastName = user.Lastname,
-                UserName = user.Username,
-                Email = user.Email,
-                Age = (int)user.Age,
-                JobTitle = user.Jobtitle,
-                Admin = user.Admin
-            };
-            return userdto;
-        }
-
         // get
         public async Task<IEnumerable<User>> GetAllUsersAsync()
         {
@@ -102,18 +86,11 @@ namespace SimulationProject.Services
         }
 
         //put
-        public virtual async Task<int> PutUserAsync(User user)
+        public async Task<int> PutUserAsync()
         {
             int rowsAfected = 0;
-            _context.Entry(user).State = EntityState.Modified;
             rowsAfected = await _context.SaveChangesAsync();
             return rowsAfected;
-        }
-
-        //update user profile
-        public virtual async Task<int> PutUserAsync(User user, UserDto userDto)
-        {
-            return 0;
         }
 
         //delete
@@ -123,10 +100,7 @@ namespace SimulationProject.Services
             await _context.SaveChangesAsync();
         }
 
-        public virtual async Task DeleteUserAsync(User user, UserDto userDto)
-        {
-            
-        }
+        //---------------------- Password ------------------------------------
 
         //Get new password
         public string GetUserNewPassword(PasswordUpdate PasswordUpdate, User user)
@@ -160,7 +134,28 @@ namespace SimulationProject.Services
             _context.Entry(user).Property(u => u.Password).IsModified = true;
             await _context.SaveChangesAsync();
         }
+        //--------------------------- User Profile ---------------------------
+        //delete user profile
+        public async Task DeleteUserProfileAsync(User user, SecurityQuestionsAndAnswersDTO QuestionsDto)
+        {
+            if ((user.Securityanswer != null) && (QuestionsDto.Securityanswer != null) &&
+                    (_passwordHashService.VerifyUserPassword(QuestionsDto.Securityanswer, user.Securityanswer)))
+            {
+                await DeleteUserAsync(user);
+            }
+        }
 
-        
+        //update user profile 
+        public async Task<int> PutUserProfileAsync(User user, UpdateUserProfileDTO updateUserDto, SecurityQuestionsAndAnswersDTO QuestionsDto)
+        {
+            int rowsAfected = 0;
+            if ((user.Securityanswer != null) && (QuestionsDto.Securityanswer != null) && 
+                    (_passwordHashService.VerifyUserPassword(QuestionsDto.Securityanswer, user.Securityanswer)))
+            {
+                updateUserDto.Adapt<User>();
+                rowsAfected = await PutUserAsync();
+            }
+            return rowsAfected;
+        }
     }
 }

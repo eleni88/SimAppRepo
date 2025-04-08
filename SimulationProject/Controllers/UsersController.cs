@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SimulationProject.DTO;
@@ -33,7 +34,7 @@ namespace SimulationProject.Controllers
                 return Ok(new List<object>());
             }
 
-            var userdtos = users.Select(user => _usersService.ConvertUserToUserDTo(user));
+            var userdtos = users.Select(user => user.Adapt<UserDto>());
             var UsersWithLinks = _linkService.AddLinksToList(userdtos, baseUri);
 
             return Ok(UsersWithLinks);
@@ -56,7 +57,7 @@ namespace SimulationProject.Controllers
                 });
             }
 
-            var userdto = _usersService.ConvertUserToUserDTo(user);
+            var userdto = user.Adapt<UserDto>();
             
             var UserWithlinks = _linkService.AddLinksForUser(userdto, baseUri);
 
@@ -66,8 +67,9 @@ namespace SimulationProject.Controllers
         // POST /api/users/create
         [Authorize(Roles = "Admin")]
         [HttpPost("create")]
-        public async Task<IActionResult> CreateUser([FromBody] User user)
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserDTO userdtto)
         {
+            var user = userdtto.Adapt<User>();
             if (user == null)
             {
                 return BadRequest();
@@ -93,14 +95,14 @@ namespace SimulationProject.Controllers
         // PUT /api/users/{Userid}
         [Authorize(Roles = "Admin")]
         [HttpPost("{Userid}")]
-        public async Task<IActionResult> UpdateUser(int Userid, [FromBody]UserDto userDto)
+        public async Task<IActionResult> UpdateUser(int Userid, [FromBody] UpdateUserDTO userDto)
         {
             var user = await _usersService.GetUserByIdAsync(Userid);
             if (user == null)
             {
                 return BadRequest(new { message = "User not found." });
             }
-            if (_usersService.UserNameExists(userDto.UserName))
+            if (_usersService.UserNameExists(userDto.Username))
             {
                 return BadRequest(new { message = "The username is used by another user" });
             }
@@ -108,7 +110,9 @@ namespace SimulationProject.Controllers
             {
                 return BadRequest(new { message = "The email is used by another user" });
             }
-            await _usersService.PutUserAsync(user);
+
+            userDto.Adapt<User>();
+            await _usersService.PutUserAsync();
 
             return NoContent();
         }
@@ -131,7 +135,7 @@ namespace SimulationProject.Controllers
         // PUT /api/profile
         [Authorize]
         [HttpPost("profile")]
-        public async Task<IActionResult> UpdateUserProfile([FromBody] UserDto userDto)
+        public async Task<IActionResult> UpdateUserProfile([FromBody] UpdateUserProfileDTO userDto)
         {
             //extract user from token
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -145,7 +149,7 @@ namespace SimulationProject.Controllers
             {
                 return BadRequest(new { message = "User not found"});
             }
-            if (_usersService.UserNameExists(userDto.UserName))
+            if (_usersService.UserNameExists(userDto.Username))
             {
                 return BadRequest(new { message = "The username is used by another user" });
             }
@@ -154,7 +158,7 @@ namespace SimulationProject.Controllers
                 return BadRequest(new { message = "The email is used by another user" });
             }
 
-            int rowsAfected = await _usersProfileService.PutUserAsync(user, userDto);
+            int rowsAfected = await _usersProfileService.PutUserAsync();
             if (rowsAfected > 0)
             {
                 return Ok(new { message = "User updated successfully" });
@@ -166,7 +170,7 @@ namespace SimulationProject.Controllers
         // DELETE /api/users
         [Authorize]
         [HttpDelete]
-        public async Task<IActionResult> DeleteUserProfile([FromBody]UserDto userDto)
+        public async Task<IActionResult> DeleteUserProfile([FromBody] SecurityQuestionsAndAnswersDTO QuestionsDto)
         {
             //extract user from token
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -181,7 +185,7 @@ namespace SimulationProject.Controllers
                 return BadRequest(new { message = "User not found" });
             }
 
-            await _usersService.DeleteUserAsync(user);
+            await _usersService.DeleteUserProfileAsync(user, QuestionsDto);
             return NoContent();
         }
     }

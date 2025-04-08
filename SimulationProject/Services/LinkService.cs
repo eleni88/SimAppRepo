@@ -23,9 +23,9 @@ namespace SimulationProject.Services
         {
             var response = new LinkResponseWrapper<UserDto>(userdto);
 
-            string self = _linkGenerator.GetPathByAction(action: "GetUser", controller: "Users", values: new { userId = userdto.Id });
-            string update = _linkGenerator.GetPathByAction(action: "UpdateUser", controller: "Users", values: new { userId = userdto.Id });
-            string delete = _linkGenerator.GetPathByAction(action: "DeleteUser", controller: "Users", values: new { userId = userdto.Id });
+            string self = _linkGenerator.GetPathByAction(action: "GetUser", controller: "Users", values: new { userId = userdto.Userid });
+            string update = _linkGenerator.GetPathByAction(action: "UpdateUser", controller: "Users", values: new { userId = userdto.Userid });
+            string delete = _linkGenerator.GetPathByAction(action: "DeleteUser", controller: "Users", values: new { userId = userdto.Userid });
 
             if ((self is not null) && (update is not null) && (delete is not null))
             {

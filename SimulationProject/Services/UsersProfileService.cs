@@ -14,31 +14,31 @@ namespace SimulationProject.Services
             _passwordHashService = passwordHashService;
         }
 
-        //delete user profile
-        public override async Task DeleteUserAsync(User user, UserDto userDto)
-        {
-            if (user.Securityanswer != null)
-            {
-                _passwordHashService.VerifyUserPassword(userDto.SecurityAnswer, user.Securityanswer);
-                await base.DeleteUserAsync(user);
-            }
-        }
+        ////delete user profile
+        //public override async Task DeleteUserAsync(User user, UserDto userDto)
+        //{
+        //    if (user.Securityanswer != null)
+        //    {
+        //        _passwordHashService.VerifyUserPassword(userDto.SecurityAnswer, user.Securityanswer);
+        //        await base.DeleteUserAsync(user);
+        //    }
+        //}
 
-        //update user profile 
-        public override async Task<int> PutUserAsync(User user, UserDto userDto)
-        {
-            int rowsAfected = 0;
-            if (user.Securityanswer != null)
-            {
-                _passwordHashService.VerifyUserPassword(userDto.SecurityAnswer, user.Securityanswer);
-                user.Firstname = userDto.FirstName;
-                user.Lastname = userDto.LastName;
-                user.Email = userDto.Email;
-                user.Age = userDto.Age;
-                user.Jobtitle = userDto.JobTitle;
-                rowsAfected = await base.PutUserAsync(user);
-            }
-            return rowsAfected;
-        }
+        ////update user profile 
+        //public override async Task<int> PutUserAsync(User user, UpdateUserProfileDTO userDto)
+        //{
+        //    int rowsAfected = 0;
+        //    if (user.Securityanswer != null)
+        //    {
+        //        _passwordHashService.VerifyUserPassword(userDto.SecurityAnswer, user.Securityanswer);
+        //        user.Firstname = userDto.FirstName;
+        //        user.Lastname = userDto.LastName;
+        //        user.Email = userDto.Email;
+        //        user.Age = userDto.Age;
+        //        user.Jobtitle = userDto.JobTitle;
+        //        rowsAfected = await base.PutUserAsync();
+        //    }
+        //    return rowsAfected;
+        //}
     }
 }
