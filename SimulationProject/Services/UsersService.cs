@@ -15,7 +15,7 @@ namespace SimulationProject.Services
         Task<User> GetUserByNameAsync(string Username);
         Task CreateUserAsync(User user);
         Task<int> PutUserAsync();
-        Task<int> PutUserProfileAsync(User user, UpdateUserProfileDTO userDto, SecurityQuestionsAndAnswersDTO QuestionsDto);
+        Task<int> PutUserProfileAsync(User user, UpdateUserProfileDTO userDto);
         Task DeleteUserAsync(User user);
         Task DeleteUserProfileAsync(User user, SecurityQuestionsAndAnswersDTO QuestionsDto);
         //Task<User?> RegisterUserAsync(RegisterForm registerForm);
@@ -26,6 +26,7 @@ namespace SimulationProject.Services
         string GetUserNewPassword(PasswordUpdate PasswordUpdate, User user);
         Task UpdateUserPasswordAsync(string passwordHash, User user);
         bool PasswordValid(string password);
+        string FindUserRole(int role);
     }
     public class UsersService: IUsersService
     {
@@ -60,6 +61,21 @@ namespace SimulationProject.Services
             return _context.Users.Any(e => e.Username == Username);
         }
 
+        //find user role
+        public string FindUserRole(int role)
+        {
+            string userRole;
+            if (role == 1)
+            {
+                userRole = "Admin";
+            }
+            else
+            {
+                userRole = "User";
+            }
+            return userRole;
+        }
+
         // get
         public async Task<IEnumerable<User>> GetAllUsersAsync()
         {
@@ -80,7 +96,7 @@ namespace SimulationProject.Services
 
         //post
         public async Task CreateUserAsync(User user)
-        {   
+        {  
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
         }
@@ -146,11 +162,11 @@ namespace SimulationProject.Services
         }
 
         //update user profile 
-        public async Task<int> PutUserProfileAsync(User user, UpdateUserProfileDTO updateUserDto, SecurityQuestionsAndAnswersDTO QuestionsDto)
+        public async Task<int> PutUserProfileAsync(User user, UpdateUserProfileDTO updateUserDto)
         {
             int rowsAfected = 0;
-            if ((user.Securityanswer != null) && (QuestionsDto.Securityanswer != null) && 
-                    (_passwordHashService.VerifyUserPassword(QuestionsDto.Securityanswer, user.Securityanswer)))
+            //if ((user.Securityanswer != null) && (QuestionsDto.Securityanswer != null) && 
+            //        (_passwordHashService.VerifyUserPassword(QuestionsDto.Securityanswer, user.Securityanswer)))
             {
                 updateUserDto.Adapt<User>();
                 rowsAfected = await PutUserAsync();

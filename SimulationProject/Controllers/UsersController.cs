@@ -74,6 +74,7 @@ namespace SimulationProject.Controllers
             }
             if (!(_usersService.UserNameExists(user.Username) && _usersService.UserEmailExists(user.Email)))
             {
+                user.Role = _usersService.FindUserRole(Convert.ToInt32(userdtto.Admin));
                 await _usersService.CreateUserAsync(user);
             }
             else
@@ -133,7 +134,7 @@ namespace SimulationProject.Controllers
         // PUT /api/profile
         [Authorize]
         [HttpPost("profile")]
-        public async Task<IActionResult> UpdateUserProfile([FromBody] UpdateUserProfileDTO userDto, [FromBody] SecurityQuestionsAndAnswersDTO QuestionsDto)
+        public async Task<IActionResult> UpdateUserProfile([FromBody] UpdateUserProfileDTO userDto)
         {
             //extract user from token
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -156,7 +157,7 @@ namespace SimulationProject.Controllers
                 return BadRequest(new { message = "The email is used by another user" });
             }
 
-            int rowsAfected = await _usersService.PutUserProfileAsync(user, userDto, QuestionsDto);
+            int rowsAfected = await _usersService.PutUserProfileAsync(user, userDto);
             if (rowsAfected > 0)
             {
                 return Ok(new { message = "User updated successfully" });

@@ -116,20 +116,6 @@ namespace SimulationProject.Services
             return cookieOptions;
         }
         //----------------------------------------------------------
-        //find user role
-        public string FindUserRole(int role)
-        {
-            string userRole;
-            if (role == 1)
-            {
-                userRole = "Admin";
-            }
-            else
-            {
-                userRole = "User";
-            }
-            return userRole;
-        }
 
         //register user
         public async Task<User?> RegisterUserAsync(RegisterForm registerForm)
