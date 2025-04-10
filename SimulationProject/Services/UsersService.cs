@@ -17,9 +17,7 @@ namespace SimulationProject.Services
         Task<int> PutUserAsync();
         Task<int> PutUserProfileAsync(User user, UpdateUserProfileDTO userDto);
         Task DeleteUserAsync(User user);
-        Task DeleteUserProfileAsync(User user, SecurityQuestionsAndAnswersDTO QuestionsDto);
-        //Task<User?> RegisterUserAsync(RegisterForm registerForm);
-        //Task<string?> LoginUserAsync(LoginForm loginform);
+        bool SecurityAnswer(User user, SecurityQuestionsAndAnswersDTO QuestionsDto);
         bool UserExists(int Userid);
         bool UserNameExists(string Username);
         bool UserEmailExists(string Email);
@@ -110,7 +108,7 @@ namespace SimulationProject.Services
         }
 
         //delete
-        public virtual async Task DeleteUserAsync(User user)
+        public async Task DeleteUserAsync(User user)
         {
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
@@ -151,15 +149,6 @@ namespace SimulationProject.Services
             await _context.SaveChangesAsync();
         }
         //--------------------------- User Profile ---------------------------
-        //delete user profile
-        public async Task DeleteUserProfileAsync(User user, SecurityQuestionsAndAnswersDTO QuestionsDto)
-        {
-            if ((user.Securityanswer != null) && (QuestionsDto.Securityanswer != null) &&
-                    (_passwordHashService.VerifyUserPassword(QuestionsDto.Securityanswer, user.Securityanswer)))
-            {
-                await DeleteUserAsync(user);
-            }
-        }
 
         //update user profile 
         public async Task<int> PutUserProfileAsync(User user, UpdateUserProfileDTO updateUserDto)
@@ -172,6 +161,13 @@ namespace SimulationProject.Services
                 rowsAfected = await PutUserAsync();
             }
             return rowsAfected;
+        }
+
+        //security questions
+        public bool SecurityAnswer(User user, SecurityQuestionsAndAnswersDTO QuestionsDto)
+        {
+            return((user.Securityanswer != null) && (QuestionsDto.Securityanswer != null) &&
+                    _passwordHashService.VerifyUserPassword(QuestionsDto.Securityanswer, user.Securityanswer));
         }
     }
 }

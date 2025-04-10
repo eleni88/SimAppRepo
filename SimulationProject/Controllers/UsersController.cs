@@ -169,7 +169,7 @@ namespace SimulationProject.Controllers
         // DELETE /api/users
         [Authorize]
         [HttpDelete("profile")]
-        public async Task<IActionResult> DeleteUserProfile([FromBody] SecurityQuestionsAndAnswersDTO QuestionsDto)
+        public async Task<IActionResult> DeleteUserProfile()
         {
             //extract user from token
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -184,8 +184,30 @@ namespace SimulationProject.Controllers
                 return BadRequest(new { message = "User not found" });
             }
 
-            await _usersService.DeleteUserProfileAsync(user, QuestionsDto);
+            await _usersService.DeleteUserAsync(user);
             return NoContent();
+        }
+
+        [Authorize]
+        [HttpPost("questions")]
+        public async Task<IActionResult> ShowSecurityQuestions([FromBody] SecurityQuestionsAndAnswersDTO QuestionsDto)
+        {
+            //extract user from token
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdStr))
+            {
+                return BadRequest(new { message = "Invalid user" });
+            }
+            var userId = Int32.Parse(userIdStr);
+            var user = await _usersService.GetUserByIdAsync(userId);
+            if (user == null)
+            {
+                return BadRequest(new { message = "User not found" });
+            }
+            if (_usersService.SecurityAnswer(user, QuestionsDto)){
+
+            }
+            return Ok();
         }
     }
 }
