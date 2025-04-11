@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using SimulationProject.DTO;
+using SimulationProject.DTO.UserDTOs;
 
 namespace SimulationProject.Validators
 {

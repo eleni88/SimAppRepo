@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using SimulationProject.Data;
-using SimulationProject.DTO;
+using SimulationProject.DTO.UserDTOs;
 using SimulationProject.Models;
 using SimulationProject.Services;
 using SimulationProject.Validators;

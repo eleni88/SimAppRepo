@@ -1,6 +1,6 @@
 ﻿using SimulationProject.Helper;
 
-namespace SimulationProject.DTO
+namespace SimulationProject.DTO.UserDTOs
 {
     public class LinkResponseWrapper<T>
     {

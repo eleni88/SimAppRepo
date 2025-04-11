@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using SimulationProject.DTO;
 using SimulationProject.Services;
 using SimulationProject.Models;
 using System.Security.Claims;
+using SimulationProject.DTO.UserDTOs;
 
 namespace SimulationProject.Controllers
 {

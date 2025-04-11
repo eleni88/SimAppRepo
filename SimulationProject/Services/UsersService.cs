@@ -1,14 +1,13 @@
 ﻿using SimulationProject.Models;
 using SimulationProject.Data;
 using Microsoft.EntityFrameworkCore;
-using SimulationProject.DTO;
 using System.Text.RegularExpressions;
-using System.Collections.Generic;
 using Mapster;
+using SimulationProject.DTO.UserDTOs;
 
 namespace SimulationProject.Services
 {
-   public interface IUsersService
+    public interface IUsersService
     {
         Task<IEnumerable<User>> GetAllUsersAsync();
         Task<User> GetUserByIdAsync(int Userid);
@@ -154,8 +153,6 @@ namespace SimulationProject.Services
         public async Task<int> PutUserProfileAsync(User user, UpdateUserProfileDTO updateUserDto)
         {
             int rowsAfected = 0;
-            //if ((user.Securityanswer != null) && (QuestionsDto.Securityanswer != null) && 
-            //        (_passwordHashService.VerifyUserPassword(QuestionsDto.Securityanswer, user.Securityanswer)))
             {
                 updateUserDto.Adapt<User>();
                 rowsAfected = await PutUserAsync();
@@ -166,7 +163,7 @@ namespace SimulationProject.Services
         //security questions
         public bool SecurityAnswer(User user, SecurityQuestionsAndAnswersDTO QuestionsDto)
         {
-            return((user.Securityanswer != null) && (QuestionsDto.Securityanswer != null) &&
+            return((user.Securityanswer != null) && (QuestionsDto.Securityquestion != null) && (QuestionsDto.Securityanswer != null) &&
                     _passwordHashService.VerifyUserPassword(QuestionsDto.Securityanswer, user.Securityanswer));
         }
     }

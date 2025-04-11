@@ -4,11 +4,11 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using SimulationProject.Data;
-using SimulationProject.DTO;
 using SimulationProject.Models;
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using Mapster;
+using SimulationProject.DTO.UserDTOs;
 
 namespace SimulationProject.Services
 {

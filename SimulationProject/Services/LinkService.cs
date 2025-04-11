@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using SimulationProject.DTO;
+using SimulationProject.DTO.UserDTOs;
 using SimulationProject.Helper;
 using SimulationProject.Models;
 

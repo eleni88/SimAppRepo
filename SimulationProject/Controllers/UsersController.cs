@@ -2,7 +2,7 @@
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SimulationProject.DTO;
+using SimulationProject.DTO.UserDTOs;
 using SimulationProject.Models;
 using SimulationProject.Services;
 
@@ -183,7 +183,6 @@ namespace SimulationProject.Controllers
             {
                 return BadRequest(new { message = "User not found" });
             }
-
             await _usersService.DeleteUserAsync(user);
             return NoContent();
         }
@@ -205,9 +204,8 @@ namespace SimulationProject.Controllers
                 return BadRequest(new { message = "User not found" });
             }
             if (_usersService.SecurityAnswer(user, QuestionsDto)){
-
             }
-            return Ok();
+            return Ok(new { message = "Validation success." }); 
         }
     }
 }

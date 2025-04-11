@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using SimulationProject.DTO;
+using SimulationProject.DTO.UserDTOs;
 using SimulationProject.Services;
 
 namespace SimulationProject.Controllers

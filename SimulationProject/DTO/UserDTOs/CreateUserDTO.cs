@@ -1,4 +1,4 @@
-﻿namespace SimulationProject.DTO
+﻿namespace SimulationProject.DTO.UserDTOs
 {
     public class CreateUserDTO
     {
