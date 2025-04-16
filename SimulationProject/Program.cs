@@ -7,7 +7,6 @@ using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using SimulationProject.Data;
 using SimulationProject.DTO.UserDTOs;
-using SimulationProject.Models;
 using SimulationProject.Services;
 using SimulationProject.Validators;
 
@@ -19,7 +18,7 @@ builder.Services.AddFluentValidationClientsideAdapters();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateUserValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<UpdateUserValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<SecurityQuestionsAndAnswersValidator>();
-
+builder.Services.Configure<GMailSettings>(builder.Configuration.GetSection("Gmail"));
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -31,6 +30,7 @@ builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IPasswordHashService, PasswordHashService>();
 builder.Services.AddScoped<AthService>();
 builder.Services.AddScoped<ILinkService<UserDto>, LinkService>();
+builder.Services.AddScoped<IGMailService, GMailService>();
 
 builder.Services.AddCors(options =>
 {

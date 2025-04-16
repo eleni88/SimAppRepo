@@ -82,6 +82,7 @@ namespace SimulationProject.Services
             if ((user != null) && (user.Refreshtoken == RefreshToken))
             {
                 user.Refreshtoken = null;
+                user.Refreshtokenexpiry = null;
                 tokenrefreshed = await PutUserAsync() > 0;
             }
             return tokenrefreshed;
