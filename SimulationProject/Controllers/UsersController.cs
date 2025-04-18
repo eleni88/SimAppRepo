@@ -130,7 +130,27 @@ namespace SimulationProject.Controllers
             return NoContent();
         }
 
-        //------ User Profile --------------
+        //-------------------------------- User Profile --------------------------------------
+        //GET /api/profile
+        [Authorize]
+        [HttpGet("profile")]
+        public async Task<IActionResult> ViewUserProfile()
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdStr))
+            {
+                return BadRequest(new { message = "Invalid user" });
+            }
+            var userId = Int32.Parse(userIdStr);
+            var user = await _usersService.GetUserByIdAsync(userId);
+            if (user == null)
+            {
+                return BadRequest(new { message = "User not found" });
+            }
+            var userDto = user.Adapt<UserDto>();
+            return Ok(userDto);
+        }
+
         // PUT /api/profile
         [Authorize]
         [HttpPost("profile")]
