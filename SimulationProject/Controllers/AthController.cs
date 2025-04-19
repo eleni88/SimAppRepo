@@ -24,11 +24,11 @@ namespace SimulationProject.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterForm registerForm)
         {
-            if (_usersService.UserNameExists(registerForm.Username))
+            if (_usersService.UserNameExists(-1 ,registerForm.Username))
             {
                 return BadRequest(new { message = "Username already exists!" });
             }
-            if (_usersService.UserEmailExists(registerForm.Email))
+            if (_usersService.UserEmailExists(-1, registerForm.Email))
             {
                 return BadRequest(new { message = "Email already exists." });
             }

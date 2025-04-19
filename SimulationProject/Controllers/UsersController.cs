@@ -72,18 +72,18 @@ namespace SimulationProject.Controllers
             {
                 return BadRequest();
             }
-            if (!(_usersService.UserNameExists(user.Username) && _usersService.UserEmailExists(user.Email)))
+            if (!(_usersService.UserNameExists(-1, user.Username) && _usersService.UserEmailExists(-1, user.Email)))
             {
                 user.Role = _usersService.FindUserRole(Convert.ToInt32(userdtto.Admin));
                 await _usersService.CreateUserAsync(user);
             }
             else
             {
-                if (_usersService.UserNameExists(user.Username))
+                if (_usersService.UserNameExists(-1 ,user.Username))
                 {
                     return BadRequest(new { message = "The username is used by another user" });
                 }
-                if (_usersService.UserEmailExists(user.Email))
+                if (_usersService.UserEmailExists(-1, user.Email))
                 {
                     return BadRequest(new { message = "The email is used by another user" });
                 }
@@ -101,11 +101,11 @@ namespace SimulationProject.Controllers
             {
                 return BadRequest(new { message = "User not found." });
             }
-            if (_usersService.UserNameExists(userDto.Username))
+            if (_usersService.UserNameExists(Userid, userDto.Username))
             {
                 return BadRequest(new { message = "The username is used by another user" });
             }
-            if (_usersService.UserEmailExists(userDto.Email))
+            if (_usersService.UserEmailExists(Userid, userDto.Email))
             {
                 return BadRequest(new { message = "The email is used by another user" });
             }
@@ -168,11 +168,11 @@ namespace SimulationProject.Controllers
             {
                 return BadRequest(new { message = "User not found"});
             }
-            if (_usersService.UserNameExists(userDto.Username))
+            if (_usersService.UserNameExists(userId ,userDto.Username))
             {
                 return BadRequest(new { message = "The username is used by another user" });
             }
-            if (_usersService.UserEmailExists(userDto.Email))
+            if (_usersService.UserEmailExists(userId, userDto.Email))
             {
                 return BadRequest(new { message = "The email is used by another user" });
             }
@@ -187,7 +187,7 @@ namespace SimulationProject.Controllers
         }
 
         // DELETE /api/users
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpDelete("profile")]
         public async Task<IActionResult> DeleteUserProfile()
         {
