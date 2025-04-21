@@ -25,14 +25,12 @@ namespace SimulationProject.Services
             _passwordHashService = passwordHashService;
         }
         //------------- JWT (Access Token) -------------------------
-        private string CreateJWToken(User user, out string jwtid)
+        private string CreateJWToken(User user)
         {
-            jwtid = Guid.NewGuid().ToString();
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.NameIdentifier, user.Userid.ToString()),
-                new Claim(JwtRegisteredClaimNames.Jti, jwtid),
                 new Claim(ClaimTypes.Role, user.Role)
             };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetValue<string>("Appsettings:Token")!));
@@ -49,8 +47,8 @@ namespace SimulationProject.Services
 
         private async Task<string> GenerateAndSaveTokenAsync(User user)
         {
-            var token = CreateJWToken(user, out string jwtid);
-            user.Jwtid = jwtid;
+            var token = CreateJWToken(user);
+            user.Jwtid = token;
             await _context.SaveChangesAsync();
             return token;
         }

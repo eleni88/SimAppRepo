@@ -79,7 +79,7 @@ namespace SimulationProject.Controllers
             }
             var userId = Int32.Parse(userIdStr);
             var user = await _usersService.GetUserByIdAsync(userId);
-            if (user != null)
+            if ((user != null) && (user.Refreshtoken != null))
             {
                 if (await _athService.RemoveRefreshTokenAsync(user.Userid, user.Refreshtoken))
                 {

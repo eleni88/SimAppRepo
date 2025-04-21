@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using FluentValidation;
@@ -70,18 +71,27 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             OnMessageReceived = context =>
             {
                 var token = context.Request.Cookies["jwtCookie"];
-                if (!string.IsNullOrEmpty(token))
+                var handler = new JwtSecurityTokenHandler();
+                if (!string.IsNullOrEmpty(token) && handler.CanReadToken(token))
                 {
                     context.Token = token;
                 }
+                else
+                {
+                    context.NoResult();
+                    context.Response.StatusCode = 401;
+                    context.Response.ContentType = "application/json";
+                    return context.Response.WriteAsync("{\"error\": \"Invalid token format.\"}");
+                }
+
                 return Task.CompletedTask;
             },
 
                 OnTokenValidated = async context =>
                 {
-                    var jti = context.Principal?.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
+                    //var jti = context.Principal?.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
                     var userId = context.Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
+                    var jti = context.Request.Cookies["jwtCookie"];
                     if (string.IsNullOrEmpty(jti) || string.IsNullOrEmpty(userId))
                     {
                         context.Fail("Missing token claims");
