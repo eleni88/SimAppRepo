@@ -1,8 +1,10 @@
+using System.Security.Claims;
 using System.Text;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using SimulationProject.Data;
@@ -73,7 +75,28 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     context.Token = token;
                 }
                 return Task.CompletedTask;
-            }
+            },
+
+                OnTokenValidated = async context =>
+                {
+                    var jti = context.Principal?.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
+                    var userId = context.Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                    if (string.IsNullOrEmpty(jti) || string.IsNullOrEmpty(userId))
+                    {
+                        context.Fail("Missing token claims");
+                        return;
+                    }
+               
+                    var dbContext = context.HttpContext.RequestServices.GetRequiredService<SimSaasContext>();
+
+                    var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Userid == Int32.Parse(userId));
+
+                    if (user == null || user.Jwtid != jti)
+                    {
+                        context.Fail("Token is no longer valid.");
+                    }
+                }
         };
     });
 

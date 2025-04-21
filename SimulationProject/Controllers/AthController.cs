@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SimulationProject.DTO.UserDTOs;
@@ -68,15 +69,27 @@ namespace SimulationProject.Controllers
         //----------- Logout -------------
         //POST /api/ath/logout
         [HttpPost("logout")]
-        public async Task<IActionResult> Logout(RefreshTokenDTo request)
+        public async Task<IActionResult> Logout()
         {
-            if (await _athService.RemoveRefreshTokenAsync(request.Userid, request.RefreshToken))
+            //extract user from token
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdStr))
             {
-                Response.Cookies.Delete("jwtCookie");
-                return Ok(new { message = "Logged out successfully" });
+                return BadRequest(new { message = "Invalid user" });
             }
-            else
-                return BadRequest(new { message = "Logout failed" });
+            var userId = Int32.Parse(userIdStr);
+            var user = await _usersService.GetUserByIdAsync(userId);
+            if (user != null)
+            {
+                if (await _athService.RemoveRefreshTokenAsync(user.Userid, user.Refreshtoken))
+                {
+                    Response.Cookies.Delete("jwtCookie");
+                    return Ok(new { message = "Logged out successfully" });
+                }
+                else
+                    return BadRequest(new { message = "Logout failed" });
+            }
+            return Ok();
         }
 
         //----------Refresh Token -----------

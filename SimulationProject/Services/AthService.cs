@@ -25,12 +25,14 @@ namespace SimulationProject.Services
             _passwordHashService = passwordHashService;
         }
         //------------- JWT (Access Token) -------------------------
-        private string CreateJWToken(User user)
+        private string CreateJWToken(User user, out string jwtid)
         {
+            jwtid = Guid.NewGuid().ToString();
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.NameIdentifier, user.Userid.ToString()),
+                new Claim(JwtRegisteredClaimNames.Jti, jwtid),
                 new Claim(ClaimTypes.Role, user.Role)
             };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetValue<string>("Appsettings:Token")!));
@@ -43,6 +45,14 @@ namespace SimulationProject.Services
                 signingCredentials: creds
              );
             return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
+        }
+
+        private async Task<string> GenerateAndSaveTokenAsync(User user)
+        {
+            var token = CreateJWToken(user, out string jwtid);
+            user.Jwtid = jwtid;
+            await _context.SaveChangesAsync();
+            return token;
         }
 
         //--------------- Refresh Token ----------------------
@@ -59,6 +69,7 @@ namespace SimulationProject.Services
             var refreshToken = GenerateRefreshToken();
             user.Refreshtoken = refreshToken;
             user.Refreshtokenexpiry = DateTime.UtcNow.AddDays(1);
+            user.Isrevoked = false;
             await _context.SaveChangesAsync();
             return refreshToken;
         }
@@ -83,6 +94,8 @@ namespace SimulationProject.Services
             {
                 user.Refreshtoken = null;
                 user.Refreshtokenexpiry = null;
+                user.Jwtid = null;
+                user.Isrevoked = true;
                 tokenrefreshed = await PutUserAsync() > 0;
             }
             return tokenrefreshed;
@@ -95,7 +108,7 @@ namespace SimulationProject.Services
             {
                 var response = new TokenDTo
                 {
-                    AccessToken = CreateJWToken(user),
+                    AccessToken = await GenerateAndSaveTokenAsync(user), //CreateJWToken(user),
                     RefreshToken = await GenerateAndSaveRefreshTokenAsync(user)
                 };
                 return response;
@@ -148,7 +161,7 @@ namespace SimulationProject.Services
             }
             var response = new TokenDTo
             {
-                AccessToken = CreateJWToken(user),
+                AccessToken = await GenerateAndSaveTokenAsync(user), //CreateJWToken(user),
                 RefreshToken = await GenerateAndSaveRefreshTokenAsync(user)
             };
             return response;

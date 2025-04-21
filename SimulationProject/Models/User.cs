@@ -36,7 +36,6 @@ public partial class User
     [Column("EMAIL")]
     [StringLength(50)]
     [Unicode(false)]
-    [EmailAddress]
     public string Email { get; set; } = null!;
 
     [Column("ADMIN")]
@@ -50,16 +49,6 @@ public partial class User
     [Unicode(false)]
     public string? Jobtitle { get; set; }
 
-    [Column("SECURITYQUESTION")]
-    [StringLength(200)]
-    [Unicode(false)]
-    public string? Securityquestion { get; set; }
-
-    [Column("SECURITYANSWER")]
-    [StringLength(200)]
-    [Unicode(false)]
-    public string? Securityanswer { get; set; }
-
     [Column("ROLE")]
     [StringLength(255)]
     [Unicode(false)]
@@ -72,4 +61,42 @@ public partial class User
 
     [Column("REFRESHTOKENEXPIRY", TypeName = "datetime")]
     public DateTime? Refreshtokenexpiry { get; set; }
+
+    [Column("JWTID")]
+    [StringLength(255)]
+    [Unicode(false)]
+    public string? Jwtid { get; set; }
+
+    [Column("ISREVOKED")]
+    public bool? Isrevoked { get; set; }
+
+    [Column("SECURITYQUESTION")]
+    [StringLength(200)]
+    [Unicode(false)]
+    public string? Securityquestion { get; set; }
+
+    [Column("SECURITYANSWER")]
+    [StringLength(200)]
+    [Unicode(false)]
+    public string? Securityanswer { get; set; }
+
+    [Column("SECURITYQUESTION1")]
+    [StringLength(200)]
+    [Unicode(false)]
+    public string? Securityquestion1 { get; set; }
+
+    [Column("SECURITYANSWER1")]
+    [StringLength(200)]
+    [Unicode(false)]
+    public string? Securityanswer1 { get; set; }
+
+    [Column("SECURITYQUESTION2")]
+    [StringLength(200)]
+    [Unicode(false)]
+    public string? Securityquestion2 { get; set; }
+
+    [Column("SECURITYANSWER2")]
+    [StringLength(200)]
+    [Unicode(false)]
+    public string? Securityanswer2 { get; set; }
 }
