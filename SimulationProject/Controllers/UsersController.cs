@@ -136,10 +136,11 @@ namespace SimulationProject.Controllers
         [HttpGet("profile")]
         public async Task<IActionResult> ViewUserProfile()
         {
+            //extract user from token
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userIdStr))
             {
-                return BadRequest(new { message = "Invalid user" });
+                return BadRequest(new { message = "Unauthorized user" });
             }
             var userId = Int32.Parse(userIdStr);
             var user = await _usersService.GetUserByIdAsync(userId);

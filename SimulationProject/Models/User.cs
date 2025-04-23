@@ -45,7 +45,7 @@ public partial class User
     public int? Age { get; set; }
 
     [Column("JOBTITLE")]
-    [StringLength(100)]
+    [StringLength(200)]
     [Unicode(false)]
     public string? Jobtitle { get; set; }
 
@@ -96,4 +96,18 @@ public partial class User
     [StringLength(200)]
     [Unicode(false)]
     public string? Securityanswer2 { get; set; }
+
+    [Column("ORGANIZATION")]
+    [StringLength(200)]
+    [Unicode(false)]
+    public string? Organization { get; set; }
+
+    [Column("ACTIVE")]
+    public bool Active { get; set; }
+
+    [InverseProperty("User")]
+    public virtual ICollection<Cloudcredential> Cloudcredentials { get; set; } = new List<Cloudcredential>();
+
+    [InverseProperty("SimuserNavigation")]
+    public virtual ICollection<Simulation> Simulations { get; set; } = new List<Simulation>();
 }

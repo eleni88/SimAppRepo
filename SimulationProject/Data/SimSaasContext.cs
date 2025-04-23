@@ -16,6 +16,16 @@ public partial class SimSaasContext : DbContext
     {
     }
 
+    public virtual DbSet<Cloudcredential> Cloudcredentials { get; set; }
+
+    public virtual DbSet<Cloudprovider> Cloudproviders { get; set; }
+
+    public virtual DbSet<Resourcerequirement> Resourcerequirements { get; set; }
+
+    public virtual DbSet<Simexecution> Simexecutions { get; set; }
+
+    public virtual DbSet<Simulation> Simulations { get; set; }
+
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -26,6 +36,54 @@ public partial class SimSaasContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.UseCollation("Greek_100_CI_AI");
+
+        modelBuilder.Entity<Cloudcredential>(entity =>
+        {
+            entity.HasKey(e => e.Credid).HasName("PK_CREDID");
+
+            entity.HasOne(d => d.Cloud).WithMany(p => p.Cloudcredentials)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UCLOUDID");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Cloudcredentials)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_USERID");
+        });
+
+        modelBuilder.Entity<Cloudprovider>(entity =>
+        {
+            entity.HasKey(e => e.Cloudid).HasName("PK_CLOUDID");
+        });
+
+        modelBuilder.Entity<Resourcerequirement>(entity =>
+        {
+            entity.HasKey(e => e.Resourceid).HasName("PK_RESOURCEID");
+        });
+
+        modelBuilder.Entity<Simexecution>(entity =>
+        {
+            entity.HasKey(e => e.Execid).HasName("PK_EXECID");
+
+            entity.Property(e => e.Execreport).IsFixedLength();
+
+            entity.HasOne(d => d.Sim).WithMany(p => p.Simexecutions)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_SIMID");
+        });
+
+        modelBuilder.Entity<Simulation>(entity =>
+        {
+            entity.HasKey(e => e.Simid).HasName("PK_SIMID");
+
+            entity.Property(e => e.Simid).ValueGeneratedNever();
+            entity.Property(e => e.Createdate)
+                .IsRowVersion()
+                .IsConcurrencyToken();
+
+            entity.HasOne(d => d.SimcloudNavigation).WithMany(p => p.Simulations).HasConstraintName("FK_SIMCLOUD");
+
+            entity.HasOne(d => d.SimuserNavigation).WithMany(p => p.Simulations).HasConstraintName("FK_SIMUSER");
+        });
 
         modelBuilder.Entity<User>(entity =>
         {

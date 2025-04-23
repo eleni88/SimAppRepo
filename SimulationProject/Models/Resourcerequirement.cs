@@ -1,0 +1,20 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+namespace SimulationProject.Models;
+
+[Table("RESOURCEREQUIREMENT")]
+public partial class Resourcerequirement
+{
+    [Key]
+    [Column("RESOURCEID")]
+    public int Resourceid { get; set; }
+
+    [Column("INSTANCETYPE")]
+    [StringLength(200)]
+    [Unicode(false)]
+    public string? Instancetype { get; set; }
+}
