@@ -63,12 +63,9 @@ public partial class User
     public DateTime? Refreshtokenexpiry { get; set; }
 
     [Column("JWTID")]
-    [StringLength(255)]
+    [StringLength(1000)]
     [Unicode(false)]
     public string? Jwtid { get; set; }
-
-    [Column("ISREVOKED")]
-    public bool? Isrevoked { get; set; }
 
     [Column("SECURITYQUESTION")]
     [StringLength(200)]

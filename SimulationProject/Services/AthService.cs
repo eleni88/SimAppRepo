@@ -67,7 +67,6 @@ namespace SimulationProject.Services
             var refreshToken = GenerateRefreshToken();
             user.Refreshtoken = refreshToken;
             user.Refreshtokenexpiry = DateTime.UtcNow.AddDays(1);
-            user.Isrevoked = false;
             await _context.SaveChangesAsync();
             return refreshToken;
         }
@@ -93,7 +92,6 @@ namespace SimulationProject.Services
                 user.Refreshtoken = null;
                 user.Refreshtokenexpiry = null;
                 user.Jwtid = null;
-                user.Isrevoked = true;
                 tokenrefreshed = await PutUserAsync() > 0;
             }
             return tokenrefreshed;

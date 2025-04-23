@@ -14,7 +14,6 @@ namespace SimulationProject.Services
         Task<User> GetUserByNameAsync(string Username);
         Task CreateUserAsync(User user);
         Task<int> PutUserAsync();
-        Task<int> PutUserProfileAsync(User user, UpdateUserProfileDTO userDto);
         Task DeleteUserAsync(User user);
         bool SecurityAnswer(User user, SecurityQuestionsAndAnswersDTO QuestionsDto);
         bool UserExists(int Userid);
@@ -146,18 +145,6 @@ namespace SimulationProject.Services
             user.Password = passwordHash;
             _context.Entry(user).Property(u => u.Password).IsModified = true;
             await _context.SaveChangesAsync();
-        }
-        //--------------------------- User Profile ---------------------------
-
-        //update user profile 
-        public async Task<int> PutUserProfileAsync(User user, UpdateUserProfileDTO updateUserDto)
-        {
-            int rowsAfected = 0;
-            {
-                updateUserDto.Adapt<User>();
-                rowsAfected = await PutUserAsync();
-            }
-            return rowsAfected;
         }
 
         //security questions

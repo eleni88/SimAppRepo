@@ -177,13 +177,18 @@ namespace SimulationProject.Controllers
                 return BadRequest(new { message = "The email is used by another user" });
             }
 
-            int rowsAfected = await _usersService.PutUserProfileAsync(user, userDto);
+            userDto.Adapt(user);
+            int rowsAfected = await _usersService.PutUserAsync();
             if (rowsAfected > 0)
             {
                 return Ok(new { message = "User updated successfully" });
             }
+            else
+            {
+                return BadRequest(new { message = "Update failed" });
+            }
 
-            return NoContent();
+                return NoContent();
         }
 
         // DELETE /api/users

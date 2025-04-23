@@ -72,17 +72,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             {
                 var token = context.Request.Cookies["jwtCookie"];
                 var handler = new JwtSecurityTokenHandler();
-                if (!string.IsNullOrEmpty(token) && handler.CanReadToken(token))
+                if (!string.IsNullOrEmpty(token))
                 {
-                    context.Token = token;
-                }
-                else
-                {
-                    context.NoResult();
-                    context.Response.StatusCode = 401;
-                    context.Response.ContentType = "application/json";
-                    return context.Response.WriteAsync("{\"error\": \"Invalid token format.\"}");
-                }
+                    if (handler.CanReadToken(token)){
+                        context.Token = token;
+                    }               
+                    else
+                    {
+                        context.NoResult();
+                        context.Response.StatusCode = 401;
+                        context.Response.ContentType = "application/json";
+                        return context.Response.WriteAsync("{\"error\": \"Invalid token format.\"}");
+                    }
+            }
 
                 return Task.CompletedTask;
             },
