@@ -99,7 +99,7 @@ namespace SimulationProject.Controllers
             var user = await _usersService.GetUserByIdAsync(Userid);
             if (user == null)
             {
-                return BadRequest(new { message = "User not found." });
+                return NotFound(new { message = "User not found." });
             }
             if (_usersService.UserNameExists(Userid, userDto.Username))
             {
@@ -110,7 +110,7 @@ namespace SimulationProject.Controllers
                 return BadRequest(new { message = "The email is used by another user" });
             }
 
-            userDto.Adapt<User>();
+            userDto.Adapt(user);
             await _usersService.PutUserAsync();
 
             return NoContent();
@@ -124,7 +124,7 @@ namespace SimulationProject.Controllers
             var user = await _usersService.GetUserByIdAsync(Userid);
             if (user == null)
             {
-                return NotFound();
+                return NotFound(new { message = "User not found"});
             }
             await _usersService.DeleteUserAsync(user);
             return NoContent();
@@ -146,7 +146,7 @@ namespace SimulationProject.Controllers
             var user = await _usersService.GetUserByIdAsync(userId);
             if (user == null)
             {
-                return BadRequest(new { message = "User not found" });
+                return NotFound(new { message = "User not found" });
             }
             var userDto = user.Adapt<UserDto>();
             return Ok(userDto);
@@ -167,7 +167,7 @@ namespace SimulationProject.Controllers
             var user = await _usersService.GetUserByIdAsync(userId);
             if (user == null)
             {
-                return BadRequest(new { message = "User not found"});
+                return NotFound(new { message = "User not found"});
             }
             if (_usersService.UserNameExists(userId ,userDto.Username))
             {
@@ -207,7 +207,7 @@ namespace SimulationProject.Controllers
             var user = await _usersService.GetUserByIdAsync(userId);
             if (user == null)
             {
-                return BadRequest(new { message = "User not found" });
+                return NotFound(new { message = "User not found" });
             }
             await _usersService.DeleteUserAsync(user);
             return NoContent();
@@ -227,7 +227,7 @@ namespace SimulationProject.Controllers
             var user = await _usersService.GetUserByIdAsync(userId);
             if (user == null)
             {
-                return BadRequest(new { message = "User not found" });
+                return NotFound(new { message = "User not found" });
             }
             if (_usersService.SecurityAnswer(user, QuestionsDto)){
             }

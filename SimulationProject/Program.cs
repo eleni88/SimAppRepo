@@ -21,6 +21,7 @@ builder.Services.AddFluentValidationClientsideAdapters();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateUserValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<UpdateUserValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateSimulationValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<UpdateSimulationValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<SecurityQuestionsAndAnswersValidator>();
 builder.Services.Configure<GMailSettings>(builder.Configuration.GetSection("Gmail"));
 
