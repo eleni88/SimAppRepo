@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SimulationProject.DTO.SimulationDTOs;
+using SimulationProject.DTO.UserDTOs;
 using SimulationProject.Models;
 using SimulationProject.Services;
 
@@ -50,6 +51,10 @@ namespace SimulationProject.Controllers
         public async Task<IActionResult> GetSimulation(int Simid)
         {
             var simulation = await _simulationService.GetSimulationByIdAsync(Simid);
+            if (simulation == null)
+            {
+                return BadRequest(new { message = "Simulation not found" });
+            }
             var simulationDto = simulation.Adapt<SimulationDTO>();
             return Ok(simulationDto);
         }
@@ -66,6 +71,14 @@ namespace SimulationProject.Controllers
             }
             await _simulationService.CreateSimulationAsync(simulation);
             return CreatedAtAction(nameof(GetSimulation), new { Simid = simulation.Simid }, simulation);
+        }
+
+        //PUT /api/simulations/{Simid}
+        [Authorize(Roles = "Admin,User")]
+        [HttpPost("{Simid}")]
+        public async Task<IActionResult> UpdateSimulation(int Simid, [FromBody] UpdateSimulationDto updateSimulationDto)
+        {
+            return NoContent();
         }
 
     }

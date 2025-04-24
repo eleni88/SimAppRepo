@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using SimulationProject.Data;
 using SimulationProject.Models;
 
@@ -12,6 +13,8 @@ namespace SimulationProject.Services
         Task CreateSimulationAsync(Simulation simulation);
         Task<int> PutSimulationAsync();
         Task DeleteSimulationAsync(Simulation simulation);
+        bool IsValidUrl(string codeurl);
+        bool IsValidJson(string simparamsjson);
     }
     public class SimulationService: ISimulationService
     {
@@ -20,6 +23,30 @@ namespace SimulationProject.Services
         public SimulationService(SimSaasContext context)
         {
             _context = context;
+        }
+
+        //CodeURL Check
+        public bool IsValidUrl(string codeurl)
+        {
+            Uri.TryCreate(codeurl, UriKind.Absolute, out Uri uriResult);
+            return (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+        }
+
+        //Json Check
+        public bool IsValidJson(string simparamsjson)
+        {
+            if (string.IsNullOrWhiteSpace(simparamsjson))
+                return false;
+
+            try
+            {
+                JsonDocument.Parse(simparamsjson);
+                return true;
+            }
+            catch (JsonException)
+            {
+                return false;
+            }
         }
 
         // get

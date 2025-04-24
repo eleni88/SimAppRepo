@@ -189,7 +189,7 @@ namespace SimulationProject.Controllers
                 return BadRequest(new { message = "Update failed" });
             }
 
-                return NoContent();
+                //return NoContent();
         }
 
         // DELETE /api/users
