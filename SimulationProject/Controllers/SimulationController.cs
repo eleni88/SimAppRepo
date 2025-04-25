@@ -135,7 +135,7 @@ namespace SimulationProject.Controllers
         }
 
         // DELETE /api/{Simid}/simexecutions/{Execid}
-        [HttpDelete("{userId}/sales/{saleId}")]
+        [HttpDelete("{Simid}/simexecutions/{Execid}")]
         public async Task<IActionResult> DeleteSimulationSimExecution(int Simid, int Execid)
         {
             var simexecution = await _simulationService.GetSimulationSimExecutionAsync(Simid, Execid);
