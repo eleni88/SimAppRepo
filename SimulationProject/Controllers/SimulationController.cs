@@ -3,11 +3,11 @@ using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using SimulationProject.DTO.SimExecutionDTOs;
 using SimulationProject.DTO.SimulationDTOs;
 using SimulationProject.Models;
 using SimulationProject.Services;
+using SimulationProject.DTO.UserDTOs;
 
 namespace SimulationProject.Controllers
 {
@@ -16,10 +16,12 @@ namespace SimulationProject.Controllers
     public class SimulationController : ControllerBase
     {
         private readonly ISimulationService _simulationService;
+        private readonly IUsersService _usersService;
 
-        public SimulationController(ISimulationService simulationService)
+        public SimulationController(ISimulationService simulationService, IUsersService usersService)
         {
             _simulationService = simulationService;
+            _usersService = usersService;
         }
 
         // GET /api/simulations
@@ -125,6 +127,11 @@ namespace SimulationProject.Controllers
         [HttpGet("{Simid}/simexecutions/{Execid}")]
         public async Task<ActionResult<SimExecutionDTO>> GetSimulationSimExecution(int Simid, int Execid)
         {
+            var simulation = await _simulationService.GetSimulationByIdAsync(Simid);
+            if (simulation == null)
+            {
+                return NotFound(new { message = "Simulation not found" });
+            }
             var simexecution = await _simulationService.GetSimulationSimExecutionAsync(Simid, Execid);
 
             if (simexecution == null)
@@ -135,13 +142,24 @@ namespace SimulationProject.Controllers
         }
 
         // DELETE /api/{Simid}/simexecutions/{Execid}
+        [Authorize(Roles = "Admin,User")]
         [HttpDelete("{Simid}/simexecutions/{Execid}")]
         public async Task<IActionResult> DeleteSimulationSimExecution(int Simid, int Execid)
         {
+            var simulation = await _simulationService.GetSimulationByIdAsync(Simid);
+            if (simulation == null)
+            {
+                return NotFound(new { message = "Simulation not found" });
+            }
             var simexecution = await _simulationService.GetSimulationSimExecutionAsync(Simid, Execid);
 
             if (simexecution == null)
                 return NotFound(new { message = "Execution not found" });
+
+            if (simexecution.State == "ongoing")
+            {
+                return BadRequest(new { message = "Execution is ongoing. It cannot be deleted" });
+            }
 
             await _simulationService.DeleteSimulationSimExecutionAsync(simexecution);
 

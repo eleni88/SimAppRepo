@@ -231,7 +231,7 @@ namespace SimulationProject.Controllers
             }
             if (_usersService.SecurityAnswer(user, QuestionsDto)){
             }
-            return Ok(new { message = "Validation success." }); 
+            return Ok(new { verified = true }); 
         }
     }
 }
