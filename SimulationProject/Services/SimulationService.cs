@@ -15,6 +15,10 @@ namespace SimulationProject.Services
         Task DeleteSimulationAsync(Simulation simulation);
         bool IsValidUrl(string codeurl);
         bool IsValidJson(string simparamsjson);
+
+        //------------- Simulation Execution ------------------
+        Task<Simexecution> GetSimulationSimExecutionAsync(int Simid, int Execid);
+        Task DeleteSimulationSimExecutionAsync(Simexecution simexecution);
     }
     public class SimulationService: ISimulationService
     {
@@ -58,13 +62,13 @@ namespace SimulationProject.Services
         //get by id
         public async Task<Simulation> GetSimulationByIdAsync(int Simulation)
         {
-            return await _context.Simulations.FindAsync(Simulation);
+            return await _context.Simulations.Include(sim => sim.Simexecutions).FirstOrDefaultAsync(sim => sim.Simid == Simulation);
         }
 
         // get by name
         public async Task<Simulation> GetSimulationByNameAsync(string Simname)
         {
-            return await _context.Simulations.FirstOrDefaultAsync(u => u.Name == Simname);
+            return await _context.Simulations.Include(sim => sim.Simexecutions).FirstOrDefaultAsync(sim => sim.Name == Simname);
         }
 
         //post
@@ -86,6 +90,20 @@ namespace SimulationProject.Services
         public async Task DeleteSimulationAsync(Simulation simulation)
         {
             _context.Simulations.Remove(simulation);
+            await _context.SaveChangesAsync();
+        }
+
+        //------------------------ Simulation Execution ----------------------
+        //get by simid and execid
+        public async Task<Simexecution> GetSimulationSimExecutionAsync(int Simid, int Execid)
+        {
+            return await _context.Simexecutions.Where(s => s.Simid == Simid && s.Execid == Execid).FirstOrDefaultAsync();
+        }
+
+        //delete simexecution
+        public async Task DeleteSimulationSimExecutionAsync(Simexecution simexecution)
+        {
+            _context.Simexecutions.Remove(simexecution);
             await _context.SaveChangesAsync();
         }
     }

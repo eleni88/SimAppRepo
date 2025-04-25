@@ -3,6 +3,8 @@ using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using SimulationProject.DTO.SimExecutionDTOs;
 using SimulationProject.DTO.SimulationDTOs;
 using SimulationProject.Models;
 using SimulationProject.Services;
@@ -116,6 +118,35 @@ namespace SimulationProject.Controllers
             return NoContent();
         }
 
+        //------------------ Simulation Executions ------------------------
+
+        // GET /api/{Simid}/simexecutions/{Execid}
+        [Authorize(Roles = "Admin,User")]
+        [HttpGet("{Simid}/simexecutions/{Execid}")]
+        public async Task<ActionResult<SimExecutionDTO>> GetSimulationSimExecution(int Simid, int Execid)
+        {
+            var simexecution = await _simulationService.GetSimulationSimExecutionAsync(Simid, Execid);
+
+            if (simexecution == null)
+                return NotFound(new { message = "Execution not found"});
+
+            var saleDto = simexecution.Adapt<SimExecutionDTO>();
+            return Ok(saleDto);
+        }
+
+        // DELETE /api/{Simid}/simexecutions/{Execid}
+        [HttpDelete("{userId}/sales/{saleId}")]
+        public async Task<IActionResult> DeleteSimulationSimExecution(int Simid, int Execid)
+        {
+            var simexecution = await _simulationService.GetSimulationSimExecutionAsync(Simid, Execid);
+
+            if (simexecution == null)
+                return NotFound(new { message = "Execution not found" });
+
+            await _simulationService.DeleteSimulationSimExecutionAsync(simexecution);
+
+            return NoContent();
+        }
     }
 
 }

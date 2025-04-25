@@ -1,4 +1,6 @@
-﻿namespace SimulationProject.DTO.SimulationDTOs
+﻿using SimulationProject.DTO.SimExecutionDTOs;
+
+namespace SimulationProject.DTO.SimulationDTOs
 {
     public class SimulationDTO
     {
@@ -8,5 +10,6 @@
         public string Simparams { get; }
         public int Simuser { get; }
         public int Simcloud { get; }
+        public List<SimExecutionDTO> simExecutions { get; }
     }
 }
