@@ -8,6 +8,7 @@ namespace SimulationProject.Controllers
     [ApiController]
     public class HomeController : ControllerBase
     {
+        [Authorize]
         [HttpGet]
         public IActionResult HomePage()
         {

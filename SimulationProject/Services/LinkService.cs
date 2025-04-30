@@ -1,7 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Data;
 using SimulationProject.DTO.UserDTOs;
 using SimulationProject.Helper;
-using SimulationProject.Models;
 
 namespace SimulationProject.Services
 {
@@ -41,5 +40,45 @@ namespace SimulationProject.Services
             return userdto.Select(user => AddLinksForUser(user, baseUri)).ToList();
         }
 
+        public LinkResponse AddAuthorizedLinks(string baseUri, bool isAuth, string role)
+        {
+
+            var response = new LinkResponse();
+
+            string register = _linkGenerator.GetPathByAction(action: "RegisterUser", controller: "Ath");
+            string login = _linkGenerator.GetPathByAction(action: "LoginUser", controller: "Ath");
+            string home = _linkGenerator.GetPathByAction(action: "HomePage", controller: "Home");
+            string profile = _linkGenerator.GetPathByAction(action: "ViewUserProfile", controller: "Users");
+            string logout = _linkGenerator.GetPathByAction(action: "Logout", controller: "Ath");
+            string users = _linkGenerator.GetPathByAction(action: "GetAllUsers", controller: "Users");
+            string simulations = _linkGenerator.GetPathByAction(action: "GetAllSimulation", controller: "Simulation");
+
+
+            if (!isAuth)
+            {
+                if (login is not null)
+                    response._links.Add(new Link(baseUri + login, "login", "POST"));
+                if (register is not null)
+                    response._links.Add(new Link(baseUri + register, "register", "POST"));
+            }
+            else
+            {
+                if (home is not null)
+                    response._links.Add(new Link(baseUri + home, "home", "GET"));
+                if (profile is not null)
+                    response._links.Add(new Link(baseUri + profile, "profile", "GET"));
+                if (logout is not null)
+                    response._links.Add(new Link(baseUri + logout, "logout", "POST"));
+                if (simulations is not null)
+                    response._links.Add(new Link(baseUri + simulations, "simulations", "GET"));
+
+                if (role == "admin")
+                {
+                    if (users is not null)
+                        response._links.Add(new Link(baseUri + users, "users", "GET"));
+                }
+            }          
+            return response;
+        }
     }
 }

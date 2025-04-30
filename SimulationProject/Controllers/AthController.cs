@@ -27,7 +27,7 @@ namespace SimulationProject.Controllers
         {
             if (_usersService.UserNameExists(-1 ,registerForm.Username))
             {
-                return BadRequest(new { message = "Username already exists!" });
+                return BadRequest(new { message = "Username already exists." });
             }
             if (_usersService.UserEmailExists(-1, registerForm.Email))
             {
@@ -41,7 +41,7 @@ namespace SimulationProject.Controllers
             var user = await _athService.RegisterUserAsync(registerForm);
             if (user is null)
             {
-                return BadRequest(new { message = "User not found!" });
+                return BadRequest(new { message = "Registration failed." });
             }
 
             return Ok(user);
@@ -109,6 +109,8 @@ namespace SimulationProject.Controllers
             return Ok(result);
         }
 
+
+        //------------- test ----------------
         [Authorize]
         [HttpGet]
         public IActionResult AuthenticatedOnlyEndPoint()

@@ -13,4 +13,15 @@ namespace SimulationProject.DTO.UserDTOs
             _links = new List<Link>();
         }
     }
+
+    public class LinkResponse
+    {
+        public List<Link> _links { get; set; }
+
+        public LinkResponse()
+        {
+            _links = new List<Link>();
+        }
+
+    }
 }
