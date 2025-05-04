@@ -40,14 +40,17 @@ builder.Services.AddScoped<IGMailService, GMailService>();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", builder =>
+    options.AddPolicy("AllowFrontEnd", builder =>
     {
-        builder.AllowAnyOrigin()
+        builder.WithOrigins("https://127.0.0.1:5500")
+               //.AllowAnyOrigin()
                .AllowAnyMethod()
-               .AllowAnyHeader();
+               .AllowAnyHeader()
+               .AllowCredentials();
     });
 });
-builder.WebHost.UseWebRoot("wwwroot");
+//builder.WebHost.UseWebRoot("wwwroot");
+
 // Register DbContext with SQL Server provider
 builder.Services.AddDbContext<SimSaasContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -117,21 +120,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-// Global cookie settings (optional)
-//builder.Services.ConfigureApplicationCookie(options =>
-//{
-//    options.Cookie.HttpOnly = true;
-//    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-//    options.Cookie.SameSite = SameSiteMode.Strict;
-//});
-
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
     options.HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always;
 });
 
 
-// Add user secrets for local development
+//Add user secrets for local development
 if (builder.Environment.IsDevelopment())
 {
     builder.Configuration.AddUserSecrets<Program>();
@@ -148,12 +143,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("AllowAll");
+app.UseCors("AllowFrontEnd");
 
-var defaultFilesOptions = new DefaultFilesOptions();
-defaultFilesOptions.DefaultFileNames.Clear();
-defaultFilesOptions.DefaultFileNames.Add("Home.html");
-app.UseDefaultFiles(defaultFilesOptions);
+//var defaultFilesOptions = new DefaultFilesOptions();
+//defaultFilesOptions.DefaultFileNames.Clear();
+//defaultFilesOptions.DefaultFileNames.Add("Home.html");
+//app.UseDefaultFiles(defaultFilesOptions);
 
 app.UseStaticFiles();
 

@@ -7,24 +7,26 @@ using SimulationProject.Services;
 
 namespace SimulationProject.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class NavigationController : ControllerBase
     {
-        private readonly LinkService _linkService;
-        public NavigationController(LinkService linkService)
+        private readonly ILinkService<UserDto> _linkService;
+        public NavigationController(ILinkService<UserDto> linkService)
         {
             _linkService = linkService;
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult GetNavigationLinks()
         {
             string baseUri = $"{Request.Scheme}://{Request.Host}";
 
             var isAuth = User.Identity?.IsAuthenticated ?? false;
             var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-
+            
             var links = _linkService.AddAuthorizedLinks(baseUri, isAuth, role);
 
             return Ok(links);

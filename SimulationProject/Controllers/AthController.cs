@@ -68,6 +68,7 @@ namespace SimulationProject.Controllers
 
         //----------- Logout -------------
         //POST /api/ath/logout
+        [Authorize]
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
@@ -112,14 +113,14 @@ namespace SimulationProject.Controllers
 
         //------------- test ----------------
         [Authorize]
-        [HttpGet]
+        [HttpGet("test-All")]
         public IActionResult AuthenticatedOnlyEndPoint()
         {
             return Ok(new { message = "You are Authenticated!" });
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpGet("admin-only")]
+        [HttpGet("test-admin-only")]
         public IActionResult AdminEndPoint()
         {
             return Ok(new { message = "You are Admin!" });

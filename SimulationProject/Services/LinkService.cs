@@ -8,6 +8,7 @@ namespace SimulationProject.Services
     {
         List<LinkResponseWrapper<UserDto>> AddLinksToList(IEnumerable<UserDto> userdto, string baseUri);
         public LinkResponseWrapper<T> AddLinksForUser(UserDto userdto, string baseUri);
+        public LinkResponse AddAuthorizedLinks(string baseUri, bool isAuth, string role);
     }
     public class LinkService: ILinkService<UserDto>
     {
@@ -56,6 +57,8 @@ namespace SimulationProject.Services
 
             if (!isAuth)
             {
+                if (home is not null)
+                    response._links.Add(new Link(baseUri + home, "home", "GET"));
                 if (login is not null)
                     response._links.Add(new Link(baseUri + login, "login", "POST"));
                 if (register is not null)

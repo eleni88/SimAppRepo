@@ -47,12 +47,7 @@ namespace SimulationProject.Controllers
             var user = await _usersService.GetUserByIdAsync(Userid);
             if (user is null)
             {
-                return NotFound(new ProblemDetails
-                {
-                    Title = "User Not Found",
-                    Detail = $"No User found with ID {Userid}.",
-                    Status = 404
-                });
+                return NotFound(new { message = "User Not Found" });
             }
 
             var userdto = user.Adapt<UserDto>();
