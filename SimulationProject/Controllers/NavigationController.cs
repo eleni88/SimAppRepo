@@ -7,7 +7,6 @@ using SimulationProject.Services;
 
 namespace SimulationProject.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class NavigationController : ControllerBase
@@ -19,7 +18,6 @@ namespace SimulationProject.Controllers
         }
 
         [HttpGet]
-        [AllowAnonymous]
         public IActionResult GetNavigationLinks()
         {
             string baseUri = $"{Request.Scheme}://{Request.Host}";

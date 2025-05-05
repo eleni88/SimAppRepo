@@ -187,7 +187,7 @@ namespace SimulationProject.Controllers
                 //return NoContent();
         }
 
-        // DELETE /api/users
+        // DELETE /api/profile
         [Authorize(Roles = "User")]
         [HttpDelete("profile")]
         public async Task<IActionResult> DeleteUserProfile()
@@ -208,6 +208,7 @@ namespace SimulationProject.Controllers
             return NoContent();
         }
 
+        // /api/users/questions
         [Authorize]
         [HttpPost("questions")]
         public async Task<IActionResult> ShowSecurityQuestions([FromBody] SecurityQuestionsAndAnswersDTO QuestionsDto)
@@ -224,7 +225,8 @@ namespace SimulationProject.Controllers
             {
                 return NotFound(new { message = "User not found" });
             }
-            if (_usersService.SecurityAnswer(user, QuestionsDto)){
+            if (!_usersService.SecurityAnswer(user, QuestionsDto)){
+                return BadRequest(new { message = "Unauthorized" });
             }
             return Ok(new { verified = true }); 
         }

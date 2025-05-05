@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -59,6 +60,7 @@ builder.Services.AddDbContext<SimSaasContext>(options =>
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -156,6 +158,21 @@ app.UseHttpsRedirection();
 
 app.UseCookiePolicy();
 app.UseAuthentication();
+// Custom middleware only for NavigationController
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/api/navigation", StringComparison.OrdinalIgnoreCase))
+    {
+        
+        var result = await context.AuthenticateAsync(JwtBearerDefaults.AuthenticationScheme);
+        if ((result?.Succeeded == true) && (result?.Principal != null))
+        {
+            context.User = result.Principal;
+        }
+    }
+
+    await next();
+});
 app.UseAuthorization();
 
 app.MapControllers();
