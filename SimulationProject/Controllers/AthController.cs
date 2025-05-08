@@ -25,6 +25,19 @@ namespace SimulationProject.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterForm registerForm)
         {
+            // return the messages from fluent validator
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState
+                    .Where(e => e.Value.Errors.Count > 0)
+                    .ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+                    );
+
+                return BadRequest(errors);
+            }
+
             if (_usersService.UserNameExists(-1 ,registerForm.Username))
             {
                 return BadRequest(new { message = "Username already exists." });
@@ -32,10 +45,6 @@ namespace SimulationProject.Controllers
             if (_usersService.UserEmailExists(-1, registerForm.Email))
             {
                 return BadRequest(new { message = "Email already exists." });
-            }
-            if (!_usersService.PasswordValid(registerForm.Password))
-            {
-                return BadRequest(new { message = "Invalid password. Password must be at least 10 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character." });
             }
 
             var user = await _athService.RegisterUserAsync(registerForm);

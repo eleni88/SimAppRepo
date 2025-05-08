@@ -4,10 +4,12 @@ using SimulationProject.Services;
 
 namespace SimulationProject.Validators
 {
-    public class CreateUserValidator: AbstractValidator<CreateUserDTO>
+    public class RegisterValidator : AbstractValidator<RegisterForm>
     {
-        public CreateUserValidator()
+        private readonly IUsersService _usersService;
+        public RegisterValidator(IUsersService usersService)
         {
+            _usersService = usersService;
 
             RuleFor(p => p.Firstname)
                 .NotEmpty().WithMessage("{PropertyName} is required.")
@@ -34,18 +36,15 @@ namespace SimulationProject.Validators
                 .InclusiveBetween(18, 99).WithMessage("{PropertyName} must be between 18 and 99.");
 
             RuleFor(p => p.Jobtitle)
-                .MaximumLength(100).WithMessage("{PropertyName} must be fewer than 200 characters." );
+                .MaximumLength(100).WithMessage("{PropertyName} must be fewer than 200 characters.");
 
             RuleFor(p => p.Organization)
                 .MaximumLength(100).WithMessage("{PropertyName} must be fewer than 200 characters.");
 
             RuleFor(p => p.Password)
                 .NotEmpty().WithMessage("{PropertyName} is required.")
-                .NotNull();
-
-            RuleFor(p => p.Admin)
-                .NotEmpty().WithMessage("{PropertyName} is required.")
-                .NotNull();
+                .NotNull()
+                .Must(_usersService.PasswordValid).WithMessage("Invalid {PropertyName}. {PropertyName} must be at least 10 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.");
         }
     }
 }

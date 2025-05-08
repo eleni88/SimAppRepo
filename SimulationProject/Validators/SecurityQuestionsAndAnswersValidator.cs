@@ -14,6 +14,22 @@ namespace SimulationProject.Validators
             RuleFor(p => p.Securityquestion)
                 .NotEmpty().WithMessage("{PropertyName} is required.")
                 .NotNull();
+
+            RuleFor(p => p.Securityanswer1)
+                .NotEmpty().WithMessage("{PropertyName} is required.")
+                .NotNull();
+
+            RuleFor(p => p.Securityquestion1)
+                .NotEmpty().WithMessage("{PropertyName} is required.")
+                .NotNull();
+
+            RuleFor(p => p.Securityanswer2)
+                .NotEmpty().WithMessage("{PropertyName} is required.")
+                .NotNull();
+
+            RuleFor(p => p.Securityquestion2)
+                .NotEmpty().WithMessage("{PropertyName} is required.")
+                .NotNull();
         }
     }
 }

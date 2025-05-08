@@ -8,6 +8,7 @@
         public string Password { get; set; }
         public string Email { get; set; }
         public int Age { get; set; }
+        public string Organization { get; set; }
         public string Jobtitle { get; set; }
         public bool Admin { get; set; }
         public string Securityquestion { get; set; }

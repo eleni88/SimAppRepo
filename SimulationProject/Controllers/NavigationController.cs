@@ -27,6 +27,8 @@ namespace SimulationProject.Controllers
             
             var links = _linkService.AddAuthorizedLinks(baseUri, isAuth, role);
 
+            
+            
             return Ok(links);
         }
     }

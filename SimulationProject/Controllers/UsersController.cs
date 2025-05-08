@@ -63,26 +63,30 @@ namespace SimulationProject.Controllers
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDTO userdtto)
         {
             var user = userdtto.Adapt<User>();
-            if (user == null)
+
+            // return the messages from fluent validator
+            if (!ModelState.IsValid)
             {
-                return BadRequest();
+                var errors = ModelState.Values
+               .SelectMany(v => v.Errors)
+               .Select(e => e.ErrorMessage)
+               .ToList();
+
+                return BadRequest(new { Errors = errors });
             }
-            if (!(_usersService.UserNameExists(-1, user.Username) && _usersService.UserEmailExists(-1, user.Email)))
+
+            if (_usersService.UserNameExists(-1, user.Username))
             {
-                user.Role = _usersService.FindUserRole(Convert.ToInt32(userdtto.Admin));
-                await _usersService.CreateUserAsync(user);
+                return BadRequest(new { message = "The username is used by another user" });
             }
-            else
+            if (_usersService.UserEmailExists(-1, user.Email))
             {
-                if (_usersService.UserNameExists(-1 ,user.Username))
-                {
-                    return BadRequest(new { message = "The username is used by another user" });
-                }
-                if (_usersService.UserEmailExists(-1, user.Email))
-                {
-                    return BadRequest(new { message = "The email is used by another user" });
-                }
+                return BadRequest(new { message = "The email is used by another user" });
             }
+
+            user.Role = _usersService.FindUserRole(Convert.ToInt32(userdtto.Admin));
+            await _usersService.CreateUserAsync(user);
+
             return CreatedAtAction(nameof(GetUser), new { Userid = user.Userid }, user);
         }
 
