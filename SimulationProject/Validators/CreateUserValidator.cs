@@ -12,11 +12,13 @@ namespace SimulationProject.Validators
             RuleFor(p => p.Firstname)
                 .NotEmpty().WithMessage("{PropertyName} is required.")
                 .NotNull()
+                .MinimumLength(5).WithMessage("{PropertyName} must be more than 5 characters.")
                 .MaximumLength(100).WithMessage("{PropertyName} must be fewer than 100 characters.");
 
             RuleFor(p => p.Lastname)
                 .NotEmpty().WithMessage("{PropertyName} is required.")
                 .NotNull()
+                .MinimumLength(5).WithMessage("{PropertyName} must be more than 5 characters.")
                 .MaximumLength(100).WithMessage("{PropertyName} must be fewer than 100 characters.");
 
             RuleFor(p => p.Email)
@@ -27,7 +29,7 @@ namespace SimulationProject.Validators
             RuleFor(p => p.Username)
                 .NotEmpty().WithMessage("{PropertyName} is required.")
                 .NotNull()
-                .MaximumLength(100).WithMessage("{PropertyName} must be fewer than 50 characters.")
+                .MaximumLength(100).WithMessage("{PropertyName} must be fewer than 100 characters.")
                 .MinimumLength(5).WithMessage("{PropertyName} must be more than 5 characters.");
 
             RuleFor(p => p.Age)

@@ -40,13 +40,6 @@ namespace SimulationProject.Services
             return _context.Users.Any(e => ((e.Userid != Userid) && (e.Email == Email)));
         }
 
-        public bool PasswordValid(string password)
-        {
-            // Regular expression for validating the password strength
-            const string PasswordRegex = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^])[A-Za-z\d@$!%*?&#^]{10,}$";
-            return Regex.IsMatch(password, PasswordRegex);
-        }
-
         public bool UserExists(int Userid)
         {
             return _context.Users.Any(e => e.Userid == Userid);
@@ -113,6 +106,13 @@ namespace SimulationProject.Services
         }
 
         //---------------------- Password ------------------------------------
+        //Check Password validity
+        public bool PasswordValid(string password)
+        {
+            // Regular expression for validating the password strength
+            const string PasswordRegex = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^])[A-Za-z\d@$!%*?&#^]{10,}$";
+            return Regex.IsMatch(password, PasswordRegex);
+        }
 
         //Get new password
         public string GetUserNewPassword(PasswordUpdate PasswordUpdate, User user)
@@ -147,7 +147,10 @@ namespace SimulationProject.Services
             await _context.SaveChangesAsync();
         }
 
-        //security questions
+        //----------------------------------------------------------------------------------------------
+
+        //----------------------- security questions -----------------------------------
+
         public bool SecurityAnswer(User user, SecurityQuestionsAndAnswersDTO QuestionsDto)
         {
             return((user.Securityanswer != null) && (QuestionsDto.Securityquestion != null) && (QuestionsDto.Securityanswer != null) &&

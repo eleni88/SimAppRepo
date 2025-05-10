@@ -26,9 +26,7 @@ namespace SimulationProject.Controllers
             var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
             
             var links = _linkService.AddAuthorizedLinks(baseUri, isAuth, role);
-
-            
-            
+  
             return Ok(links);
         }
     }

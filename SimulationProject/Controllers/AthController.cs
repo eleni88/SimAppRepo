@@ -25,19 +25,6 @@ namespace SimulationProject.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterForm registerForm)
         {
-            // return the messages from fluent validator
-            if (!ModelState.IsValid)
-            {
-                var errors = ModelState
-                    .Where(e => e.Value.Errors.Count > 0)
-                    .ToDictionary(
-                        kvp => kvp.Key,
-                        kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
-                    );
-
-                return BadRequest(errors);
-            }
-
             if (_usersService.UserNameExists(-1 ,registerForm.Username))
             {
                 return BadRequest(new { message = "Username already exists." });

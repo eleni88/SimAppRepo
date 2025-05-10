@@ -25,6 +25,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<CreateSimulationValidator>(
 builder.Services.AddValidatorsFromAssemblyContaining<UpdateSimulationValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<SecurityQuestionsAndAnswersValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<LoginValidator>();
 builder.Services.Configure<GMailSettings>(builder.Configuration.GetSection("Gmail"));
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

@@ -64,17 +64,6 @@ namespace SimulationProject.Controllers
         {
             var user = userdtto.Adapt<User>();
 
-            // return the messages from fluent validator
-            if (!ModelState.IsValid)
-            {
-                var errors = ModelState.Values
-               .SelectMany(v => v.Errors)
-               .Select(e => e.ErrorMessage)
-               .ToList();
-
-                return BadRequest(new { Errors = errors });
-            }
-
             if (_usersService.UserNameExists(-1, user.Username))
             {
                 return BadRequest(new { message = "The username is used by another user" });
