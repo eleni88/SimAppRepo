@@ -75,7 +75,7 @@ namespace SimulationProject.Services
                 if (simulations is not null)
                     response._links.Add(new Link(baseUri + simulations, "simulations", "GET"));
 
-                if (role == "admin")
+                if (role == "Admin")
                 {
                     if (users is not null)
                         response._links.Add(new Link(baseUri + users, "users", "GET"));

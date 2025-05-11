@@ -11,5 +11,6 @@
         public string Jobtitle { get; set; }
         public string Organization { get; set; }
         public bool Admin { get; set; }
+        public bool Active { get; set; }
     }
 }

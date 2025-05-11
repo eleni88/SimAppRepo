@@ -38,6 +38,14 @@ namespace SimulationProject.Validators
             
             RuleFor(p => p.Organization)
                 .MaximumLength(100).WithMessage("{PropertyName} must be fewer than 100 characters.");
+
+            RuleFor(p => p.Admin)
+                .NotEmpty().WithMessage("{PropertyName} is required.")
+                .NotNull();
+
+            RuleFor(p => p.Active)
+                .NotEmpty().WithMessage("{PropertyName} is required.")
+                .NotNull();
         }
     }
 }

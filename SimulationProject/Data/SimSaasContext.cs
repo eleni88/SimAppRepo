@@ -88,6 +88,8 @@ public partial class SimSaasContext : DbContext
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.Userid).HasName("PK__USER__7B9E7F35CC9ADE84");
+
+            entity.Property(e => e.Active).HasDefaultValue(true);
         });
 
         OnModelCreatingPartial(modelBuilder);
