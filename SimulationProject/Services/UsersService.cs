@@ -13,6 +13,7 @@ namespace SimulationProject.Services
         Task<User> GetUserByIdAsync(int Userid);
         Task<User> GetUserByNameAsync(string Username);
         Task CreateUserAsync(User user);
+        Task<User?> CreateUserAsync(CreateUserDTO userdtto);
         Task<int> PutUserAsync();
         Task DeleteUserAsync(User user);
         bool SecurityAnswer(User user, SecurityQuestionsAndAnswersDTO QuestionsDto);
@@ -88,6 +89,16 @@ namespace SimulationProject.Services
         {  
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<User?> CreateUserAsync(CreateUserDTO userdtto)
+        {
+            string passwordHash = _passwordHashService.HashUserPassword(userdtto.Password);
+            var user = userdtto.Adapt<User>();
+            user.Role = FindUserRole(Convert.ToInt32(userdtto.Admin));
+            user.Password = passwordHash;
+            await CreateUserAsync(user);
+            return user;
         }
 
         //put

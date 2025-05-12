@@ -14,13 +14,11 @@ namespace SimulationProject.Controllers
     {
         private readonly IUsersService _usersService;
         private readonly ILinkService<UserDto> _linkService;
-        private readonly AthService _athService; 
 
-        public UsersController(IUsersService usersService, ILinkService<UserDto> linkService, AthService athService)
+        public UsersController(IUsersService usersService, ILinkService<UserDto> linkService)
         {
             _usersService = usersService;
             _linkService = linkService;
-            _athService = athService;
         }
         // GET /api/users
         [Authorize(Roles = "Admin")]
@@ -64,8 +62,7 @@ namespace SimulationProject.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDTO userdtto)
         {
-            //var user = userdtto.Adapt<User>();
-
+            
             if (_usersService.UserNameExists(-1, userdtto.Username))
             {
                 return BadRequest(new { message = "The username is used by another user" });
@@ -74,11 +71,11 @@ namespace SimulationProject.Controllers
             {
                 return BadRequest(new { message = "The email is used by another user" });
             }
-
-            //user.Role = _usersService.FindUserRole(Convert.ToInt32(userdtto.Admin));
-
-            var user = await _athService.RegisterUserAsync(userdtto);
-            //await _usersService.CreateUserAsync(user);
+            var user = await _usersService.CreateUserAsync(userdtto);
+            if (user is null)
+            {
+                return BadRequest(new { message = "Creation failed." });
+            }
 
             return CreatedAtAction(nameof(GetUser), new { Userid = user.Userid }, user);
         }

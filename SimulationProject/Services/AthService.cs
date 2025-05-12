@@ -120,7 +120,7 @@ namespace SimulationProject.Services
             {
                 HttpOnly = true,                        // Make sure the cookie is not accessible via JavaScript (for security)
                 Secure = true,                          // Ensures the cookie is only sent over HTTPS
-                SameSite = SameSiteMode.None,         // Prevents cross-site request forgery (CSRF)
+                SameSite = SameSiteMode.None,           // Prevents cross-site request forgery (CSRF)
                 Expires = DateTime.UtcNow.AddHours(2)   // Set the expiration of the cookie 
             };
             return cookieOptions;
