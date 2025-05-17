@@ -31,7 +31,7 @@ namespace SimulationProject.Services
             {
                 response._links.Add(new Link(baseUri + self, "self", "GET"));
                 response._links.Add(new Link(baseUri + delete, "delete_user", "DELETE"));
-                response._links.Add(new Link(baseUri + update, "update_user", "PUT"));
+                response._links.Add(new Link(baseUri + update, "update_user", "POST"));
             };
 
             return response;

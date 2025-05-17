@@ -44,12 +44,10 @@ namespace SimulationProject.Validators
                 .NotNull();
 
             RuleFor(p => p.Admin)
-                .NotEmpty().WithMessage("{PropertyName} is required.")
-                .NotNull();
-
+                .Equals(true || false);
+                
             RuleFor(p => p.Active)
-                .NotEmpty().WithMessage("{PropertyName} is required.")
-                .NotNull();
+                .Equals(true || false);
         }
     }
 }
