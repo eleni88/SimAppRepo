@@ -199,6 +199,7 @@ namespace SimulationProject.Controllers
                 return NotFound(new { message = "User not found" });
             }
             await _usersService.DeleteUserAsync(user);
+            Response.Cookies.Delete("jwtCookie");
             return NoContent();
         }
 

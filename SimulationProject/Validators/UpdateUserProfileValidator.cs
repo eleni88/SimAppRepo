@@ -1,14 +1,12 @@
 ﻿using FluentValidation;
 using SimulationProject.DTO.UserDTOs;
-using SimulationProject.Services;
 
 namespace SimulationProject.Validators
 {
-    public class CreateUserValidator: AbstractValidator<CreateUserDTO>
+    public class UpdateUserProfileValidator: AbstractValidator<UpdateUserProfileDTO>
     {
-        public CreateUserValidator()
+        public UpdateUserProfileValidator()
         {
-
             RuleFor(p => p.Firstname)
                 .NotEmpty().WithMessage("{PropertyName} is required.")
                 .NotNull()
@@ -34,20 +32,10 @@ namespace SimulationProject.Validators
                 .InclusiveBetween(18, 99).WithMessage("{PropertyName} must be between 18 and 99.");
 
             RuleFor(p => p.Jobtitle)
-                .MaximumLength(100).WithMessage("{PropertyName} must be fewer than 200 characters.");
+                .MaximumLength(100).WithMessage("{PropertyName} must be fewer than 100 characters.");
 
             RuleFor(p => p.Organization)
-                .MaximumLength(100).WithMessage("{PropertyName} must be fewer than 200 characters.");
-
-            RuleFor(p => p.Password)
-                .NotEmpty().WithMessage("{PropertyName} is required.")
-                .NotNull();
-
-            RuleFor(p => p.Admin)
-                .NotNull().WithMessage("{PropertyName} cannot be null.");
-
-            RuleFor(p => p.Active)
-                .NotNull().WithMessage("{PropertyName} cannot be null.");
+                .MaximumLength(100).WithMessage("{PropertyName} must be fewer than 100 characters.");
         }
     }
 }
