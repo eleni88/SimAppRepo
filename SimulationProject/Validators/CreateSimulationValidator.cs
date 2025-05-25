@@ -31,6 +31,9 @@ namespace SimulationProject.Validators
                 .NotEmpty().WithMessage("{PropertyName} is required.")
                 .NotNull()
                 .Must(_simulationService.IsValidJson).WithMessage("{PropertyName} is not a valid JSON");
+
+            
+                
         }
         
     }

@@ -90,6 +90,7 @@ namespace SimulationProject.Controllers
         }
 
         //----------Refresh Token -----------
+        //POST /api/ath/refreshtoken
         [HttpPost("refreshtoken")]
         public async Task<ActionResult<TokenDTo>> RefreshToken(RefreshTokenDTo request)
         {

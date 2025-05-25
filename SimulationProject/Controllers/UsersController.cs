@@ -27,12 +27,28 @@ namespace SimulationProject.Controllers
         {   
             string baseUri = $"{Request.Scheme}://{Request.Host}";
             var users = await _usersService.GetAllUsersAsync();
+
+            //extract user from token
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdStr))
+            {
+                return BadRequest(new { message = "Unauthorized user" });
+            }
+            var userId = Int32.Parse(userIdStr);
+            var user = await _usersService.GetUserByIdAsync(userId);
+
             if ((users == null) || (!users.Any()))
             {
                 return Ok(new List<object>());
             }
 
-            var userdtos = users.Select(user => user.Adapt<UserDto>());
+            //get users list without the Admin in it
+            var filteredUsers = users
+            .Where(u => u.Userid != userId)
+            .ToList();
+
+            var userdtos = filteredUsers.Select(user => user.Adapt<UserDto>());
+ 
             var UsersWithLinks = _linkService.AddLinksToList(userdtos, baseUri);
 
             return Ok(UsersWithLinks);
