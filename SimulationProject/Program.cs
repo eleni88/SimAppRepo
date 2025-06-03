@@ -40,6 +40,7 @@ builder.Services.AddScoped<IPasswordHashService, PasswordHashService>();
 builder.Services.AddScoped<AthService>();
 builder.Services.AddScoped<ILinkService<UserDto>, LinkService>();
 builder.Services.AddScoped<IGMailService, GMailService>();
+builder.Services.AddScoped<SimulationRunService>();
 
 builder.Services.AddCors(options =>
 {

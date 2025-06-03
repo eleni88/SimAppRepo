@@ -1,4 +1,4 @@
-﻿using SimulationProject.Helper;
+﻿using SimulationProject.Helper.HateoasHelper;
 
 namespace SimulationProject.DTO.UserDTOs
 {

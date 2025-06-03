@@ -1,4 +1,4 @@
-﻿namespace SimulationProject.Helper
+﻿namespace SimulationProject.Helper.HateoasHelper
 {
     public class Link
     {

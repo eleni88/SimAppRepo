@@ -21,6 +21,9 @@ public partial class Cloudprovider
     [InverseProperty("Cloud")]
     public virtual ICollection<Cloudcredential> Cloudcredentials { get; set; } = new List<Cloudcredential>();
 
+    [InverseProperty("Cloud")]
+    public virtual ICollection<Region> Regions { get; set; } = new List<Region>();
+
     [InverseProperty("SimcloudNavigation")]
     public virtual ICollection<Simulation> Simulations { get; set; } = new List<Simulation>();
 }

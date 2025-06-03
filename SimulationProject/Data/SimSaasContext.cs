@@ -20,6 +20,8 @@ public partial class SimSaasContext : DbContext
 
     public virtual DbSet<Cloudprovider> Cloudproviders { get; set; }
 
+    public virtual DbSet<Region> Regions { get; set; }
+
     public virtual DbSet<Resourcerequirement> Resourcerequirements { get; set; }
 
     public virtual DbSet<Simexecution> Simexecutions { get; set; }
@@ -53,6 +55,11 @@ public partial class SimSaasContext : DbContext
         modelBuilder.Entity<Cloudprovider>(entity =>
         {
             entity.HasKey(e => e.Cloudid).HasName("PK_CLOUDID");
+        });
+
+        modelBuilder.Entity<Region>(entity =>
+        {
+            entity.HasOne(d => d.Cloud).WithMany(p => p.Regions).HasConstraintName("FK_CLOUDID");
         });
 
         modelBuilder.Entity<Resourcerequirement>(entity =>

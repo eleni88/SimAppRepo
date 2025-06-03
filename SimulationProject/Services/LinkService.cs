@@ -1,6 +1,6 @@
 ﻿using System.Data;
 using SimulationProject.DTO.UserDTOs;
-using SimulationProject.Helper;
+using SimulationProject.Helper.HateoasHelper;
 
 namespace SimulationProject.Services
 {
