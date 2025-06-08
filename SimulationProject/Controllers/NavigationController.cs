@@ -11,8 +11,8 @@ namespace SimulationProject.Controllers
     [ApiController]
     public class NavigationController : ControllerBase
     {
-        private readonly ILinkService<UserDto> _linkService;
-        public NavigationController(ILinkService<UserDto> linkService)
+        private readonly NavLinkService _linkService;
+        public NavigationController(NavLinkService linkService)
         {
             _linkService = linkService;
         }

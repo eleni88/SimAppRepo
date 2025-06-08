@@ -1,13 +1,11 @@
 ﻿using System.Security.Claims;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SimulationProject.DTO.SimExecutionDTOs;
 using SimulationProject.DTO.SimulationDTOs;
 using SimulationProject.Models;
 using SimulationProject.Services;
-using SimulationProject.DTO.UserDTOs;
 
 namespace SimulationProject.Controllers
 {
@@ -17,11 +15,13 @@ namespace SimulationProject.Controllers
     {
         private readonly ISimulationService _simulationService;
         private readonly IUsersService _usersService;
+        private readonly ILinkService<SimulationDTO> _linkService;
 
-        public SimulationController(ISimulationService simulationService, IUsersService usersService)
+        public SimulationController(ISimulationService simulationService, IUsersService usersService, ILinkService<SimulationDTO> linkService)
         {
             _simulationService = simulationService;
             _usersService = usersService;
+            _linkService = linkService;
         }
 
         // GET /api/simulations
@@ -29,6 +29,8 @@ namespace SimulationProject.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllSimulation()
         {
+            string baseUri = $"{Request.Scheme}://{Request.Host}";
+
             //extract user and role from token
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userIdStr))
@@ -45,7 +47,8 @@ namespace SimulationProject.Controllers
             }
 
             var simulationsDtos = usersSimulations.Select(simulation => simulation.Adapt<SimulationDTO>());
-            return Ok(simulationsDtos);
+            var simulationsWithLinks = _linkService.AddLinksToList(simulationsDtos, baseUri);
+            return Ok(simulationsWithLinks);
         }
 
         // GET /api/simulations/{Simid}
@@ -86,7 +89,7 @@ namespace SimulationProject.Controllers
 
         //PUT /api/simulations/{Simid}
         [Authorize(Roles = "Admin,User")]
-        [HttpPost("{Simid}")]
+        [HttpPut("{Simid}")]
         public async Task<IActionResult> UpdateSimulation(int Simid, [FromBody] UpdateSimulationDTO updateSimulationDTO)
         {
             var simulation = await _simulationService.GetSimulationByIdAsync(Simid);

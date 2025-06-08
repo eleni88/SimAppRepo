@@ -3,7 +3,6 @@ using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SimulationProject.DTO.UserDTOs;
-using SimulationProject.Models;
 using SimulationProject.Services;
 
 namespace SimulationProject.Controllers
@@ -35,7 +34,6 @@ namespace SimulationProject.Controllers
                 return BadRequest(new { message = "Unauthorized user" });
             }
             var userId = Int32.Parse(userIdStr);
-            var user = await _usersService.GetUserByIdAsync(userId);
 
             if ((users == null) || (!users.Any()))
             {
@@ -68,7 +66,7 @@ namespace SimulationProject.Controllers
 
             var userdto = user.Adapt<UserDto>();
             
-            var UserWithlinks = _linkService.AddLinksForUser(userdto, baseUri);
+            var UserWithlinks = _linkService.AddLinks(userdto, baseUri);
 
             return Ok(UserWithlinks);
         }
@@ -98,7 +96,7 @@ namespace SimulationProject.Controllers
 
         // PUT /api/users/{Userid}
         [Authorize(Roles = "Admin")]
-        [HttpPost("{Userid}")]
+        [HttpPut("{Userid}")]
         public async Task<IActionResult> UpdateUser(int Userid, [FromBody] UpdateUserDTO userDto)
         {
             var user = await _usersService.GetUserByIdAsync(Userid);
@@ -159,7 +157,7 @@ namespace SimulationProject.Controllers
 
         // PUT /api/profile
         [Authorize]
-        [HttpPost("profile")]
+        [HttpPut("profile")]
         public async Task<IActionResult> UpdateUserProfile([FromBody] UpdateUserProfileDTO userDto)
         {
             //extract user from token

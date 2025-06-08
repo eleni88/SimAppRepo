@@ -1,4 +1,6 @@
 ﻿using System.Data;
+using Microsoft.AspNetCore.Routing;
+using SimulationProject.DTO.SimulationDTOs;
 using SimulationProject.DTO.UserDTOs;
 using SimulationProject.Helper.HateoasHelper;
 
@@ -6,9 +8,9 @@ namespace SimulationProject.Services
 {
     public interface ILinkService<T>
     {
-        List<LinkResponseWrapper<UserDto>> AddLinksToList(IEnumerable<UserDto> userdto, string baseUri);
-        public LinkResponseWrapper<T> AddLinksForUser(UserDto userdto, string baseUri);
-        public LinkResponse AddAuthorizedLinks(string baseUri, bool isAuth, string role);
+        // Links
+        List<LinkResponseWrapper<T>> AddLinksToList(IEnumerable<T> dto, string baseUri);
+        public LinkResponseWrapper<T> AddLinks(T dto, string baseUri);
     }
     public class LinkService: ILinkService<UserDto>
     {
@@ -19,7 +21,7 @@ namespace SimulationProject.Services
             _linkGenerator = linkGenerator;
         }
 
-        public LinkResponseWrapper<UserDto> AddLinksForUser(UserDto userdto, string baseUri)
+        public LinkResponseWrapper<UserDto> AddLinks(UserDto userdto, string baseUri)
         {
             var response = new LinkResponseWrapper<UserDto>(userdto);
 
@@ -27,23 +29,74 @@ namespace SimulationProject.Services
             string update = _linkGenerator.GetPathByAction(action: "UpdateUser", controller: "Users", values: new { userId = userdto.Userid });
             string delete = _linkGenerator.GetPathByAction(action: "DeleteUser", controller: "Users", values: new { userId = userdto.Userid });
 
-            if ((self is not null) && (update is not null) && (delete is not null))
+            if (self is not null) 
+            { 
+            response._links.Add(new Link(baseUri + self, "self", "GET"));
+            }
+            if (delete is not null)
             {
-                response._links.Add(new Link(baseUri + self, "self", "GET"));
                 response._links.Add(new Link(baseUri + delete, "delete_user", "DELETE"));
-                response._links.Add(new Link(baseUri + update, "update_user", "POST"));
-            };
-
+            }
+            if (update is not null)
+            {
+                response._links.Add(new Link(baseUri + update, "update_user", "PUT"));
+            }
             return response;
         }
         public List<LinkResponseWrapper<UserDto>> AddLinksToList(IEnumerable<UserDto> userdto, string baseUri)
         {
-            return userdto.Select(user => AddLinksForUser(user, baseUri)).ToList();
+            return userdto.Select(user => AddLinks(user, baseUri)).ToList();
+        }
+    }
+
+    public class SimLinkService : ILinkService<SimulationDTO>
+    {
+        private readonly LinkGenerator _linkGenerator;
+
+        public SimLinkService(LinkGenerator linkGenerator)
+        {
+            _linkGenerator = linkGenerator;
+        }
+        public LinkResponseWrapper<SimulationDTO> AddLinks(SimulationDTO simulationdto, string baseUri)
+        {
+            var response = new LinkResponseWrapper<SimulationDTO>(simulationdto);
+            string self = _linkGenerator.GetPathByAction(action: "GetSimulation", controller: "Simulation", values: new { simId = simulationdto.Simid });
+            string update = _linkGenerator.GetPathByAction(action: "UpdateSimulation", controller: "Simulation", values: new { simId = simulationdto.Simid });
+            string delete = _linkGenerator.GetPathByAction(action: "DeleteSimulation", controller: "Simulation", values: new { simId = simulationdto.Simid });
+
+            if (self is not null)
+            {
+                response._links.Add(new Link(baseUri + self, "self", "GET"));
+            }
+            if (delete is not null)
+            {
+                response._links.Add(new Link(baseUri + delete, "delete_sim", "DELETE"));
+            }
+            if (update is not null)
+            {
+                response._links.Add(new Link(baseUri + update, "update_sim", "PUT"));
+            }
+
+            return response;
         }
 
+        public List<LinkResponseWrapper<SimulationDTO>> AddLinksToList(IEnumerable<SimulationDTO> simulationdto, string baseUri)
+        {
+            return simulationdto.Select(simulation => AddLinks(simulation, baseUri)).ToList();
+        }
+    }
+
+    // Navigation Bar Links
+    public class NavLinkService
+    {
+        private readonly LinkGenerator _linkGenerator;
+
+        public NavLinkService(LinkGenerator linkGenerator)
+        {
+            _linkGenerator = linkGenerator;
+        }
         public LinkResponse AddAuthorizedLinks(string baseUri, bool isAuth, string role)
         {
-
             var response = new LinkResponse();
 
             string register = _linkGenerator.GetPathByAction(action: "RegisterUser", controller: "Ath");
@@ -53,7 +106,6 @@ namespace SimulationProject.Services
             string logout = _linkGenerator.GetPathByAction(action: "Logout", controller: "Ath");
             string users = _linkGenerator.GetPathByAction(action: "GetAllUsers", controller: "Users");
             string simulations = _linkGenerator.GetPathByAction(action: "GetAllSimulation", controller: "Simulation");
-
 
             if (!isAuth)
             {
@@ -80,7 +132,7 @@ namespace SimulationProject.Services
                     if (users is not null)
                         response._links.Add(new Link(baseUri + users, "users", "GET"));
                 }
-            }          
+            }
             return response;
         }
     }
