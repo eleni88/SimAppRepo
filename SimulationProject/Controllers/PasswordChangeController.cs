@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SimulationProject.Services;
-using SimulationProject.Models;
 using System.Security.Claims;
 using SimulationProject.DTO.UserDTOs;
 
@@ -19,8 +17,7 @@ namespace SimulationProject.Controllers
             _usersService = usersService;
         }
         //POST /api/passwordchange
-
-        [HttpPost]
+        [HttpPut]
         public async Task<IActionResult> UpdateUserPassword([FromBody] PasswordUpdate PasswordUpdate)
         {
             //extract user from token

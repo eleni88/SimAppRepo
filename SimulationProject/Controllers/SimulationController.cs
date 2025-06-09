@@ -56,13 +56,16 @@ namespace SimulationProject.Controllers
         [HttpGet("{Simid}")]
         public async Task<IActionResult> GetSimulation(int Simid)
         {
+            string baseUri = $"{Request.Scheme}://{Request.Host}";
+
             var simulation = await _simulationService.GetSimulationByIdAsync(Simid);
             if (simulation == null)
             {
                 return BadRequest(new { message = "Simulation not found" });
             }
             var simulationDto = simulation.Adapt<SimulationDTO>();
-            return Ok(simulationDto);
+            var simulationWithLinks = _linkService.AddLinks(simulationDto, baseUri);
+            return Ok(simulationWithLinks);
         }
 
         // POST /api/simulations/create

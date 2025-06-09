@@ -32,8 +32,14 @@ namespace SimulationProject.Services
         //CodeURL Check
         public bool IsValidUrl(string codeurl)
         {
-            Uri.TryCreate(codeurl, UriKind.Absolute, out Uri uriResult);
-            return (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+            var valid = false;
+            if (codeurl != null)
+            {
+                Uri.TryCreate(codeurl, UriKind.Absolute, out Uri uriResult);
+                valid = (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+            }
+            return valid;
+
         }
 
         //Json Check
@@ -56,7 +62,7 @@ namespace SimulationProject.Services
         // get
         public async Task<IEnumerable<Simulation>> GetAllSimulationsAsync()
         {
-            return await _context.Simulations.ToListAsync();
+            return await _context.Simulations.Include(sim => sim.Simexecutions).ToListAsync();
         }
 
         //get by id

@@ -83,9 +83,7 @@ public partial class SimSaasContext : DbContext
             entity.HasKey(e => e.Simid).HasName("PK_SIMID");
 
             entity.Property(e => e.Simid).ValueGeneratedNever();
-            entity.Property(e => e.Createdate)
-                .IsRowVersion()
-                .IsConcurrencyToken();
+            entity.Property(e => e.Updatedate).HasDefaultValueSql("(getdate())");
 
             entity.HasOne(d => d.SimcloudNavigation).WithMany(p => p.Simulations).HasConstraintName("FK_SIMCLOUD");
 

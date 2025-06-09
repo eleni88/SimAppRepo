@@ -23,12 +23,6 @@ public partial class Simulation
     [Unicode(false)]
     public string? Description { get; set; }
 
-    [Column("CREATEDATE")]
-    public byte[] Createdate { get; set; } = null!;
-
-    [Column("UPDATEDATE", TypeName = "datetime")]
-    public DateTime? Updatedate { get; set; }
-
     [Column("CODEURL")]
     [StringLength(500)]
     [Unicode(false)]
@@ -42,6 +36,12 @@ public partial class Simulation
 
     [Column("SIMCLOUD")]
     public int? Simcloud { get; set; }
+
+    [Column("CREATEDATE", TypeName = "datetime")]
+    public DateTime Createdate { get; set; }
+
+    [Column("UPDATEDATE", TypeName = "datetime")]
+    public DateTime? Updatedate { get; set; }
 
     [ForeignKey("Simcloud")]
     [InverseProperty("Simulations")]
