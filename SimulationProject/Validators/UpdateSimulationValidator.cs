@@ -22,12 +22,12 @@ namespace SimulationProject.Validators
                 .MaximumLength(100).WithMessage("{PropertyName} must be fewer than 200 characters.");
 
             RuleFor(p => p.Codeurl)
-                //.NotEmpty().WithMessage("{PropertyName} is required.")
+                .NotEmpty().WithMessage("{PropertyName} is required.")
                 .MaximumLength(100).WithMessage("{PropertyName} must be fewer than 500 characters.")
                 .Must(_simulationService.IsValidUrl).WithMessage("Invalid {PropertyName}");
 
             RuleFor(p => p.Simparams)
-                //.NotEmpty().WithMessage("{PropertyName} is required.")
+                .NotEmpty().WithMessage("{PropertyName} is required.")
                 .Must(_simulationService.IsValidJson).WithMessage("{PropertyName} is not a valid JSON");
 
         }
