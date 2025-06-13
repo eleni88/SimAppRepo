@@ -16,8 +16,8 @@ namespace SimulationProject.Controllers
         {
             _usersService = usersService;
         }
-        //POST /api/passwordchange
-        [HttpPut]
+        //PUT /api/passwordchange/update
+        [HttpPut("update")]
         public async Task<IActionResult> UpdateUserPassword([FromBody] PasswordUpdate PasswordUpdate)
         {
             //extract user from token
@@ -34,22 +34,23 @@ namespace SimulationProject.Controllers
                 return BadRequest(new { message = "User not found." });
             }
             
-            string newpass = _usersService.GetUserNewPassword(PasswordUpdate, user);
-            if (newpass == "1")
+            string newpass = _usersService.GetUserNewPassword(PasswordUpdate.NewPassword, PasswordUpdate.OldPassword, PasswordUpdate.UserName, user);
+            if (string.IsNullOrEmpty(newpass))
             {
-                return BadRequest(new { message = "Wrong credentials." });
+                return BadRequest(new { message = "Wrong username or password." });
             }
-            if (newpass == "2")
-            {
-                return BadRequest(new { message = "Invalid password. Password must be at least 10 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character." });
-            }
-            if (newpass == "3")
-            {
-                return BadRequest(new { message = "Password and Confirmation don't match." });
-            }
-              
+            
             await _usersService.UpdateUserPasswordAsync(newpass, user);
             return Ok(new { message = "Password updated successfully." });
+        }
+
+        //PUT /api/passwordchange/reset
+        [HttpPut("reset")]
+        public async Task<IActionResult> ResetUserPassword([FromBody] PasswordReset PasswordResset)
+        {
+            string tempCode = _usersService.GenerateAndSaveTempCode(PasswordResset.UserName);
+
+            return Ok();
         }
     }
 }

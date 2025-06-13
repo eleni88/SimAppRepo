@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 using Mapster;
 using SimulationProject.DTO.UserDTOs;
+using SimulationProject.Helper;
 
 namespace SimulationProject.Services
 {
@@ -20,8 +21,9 @@ namespace SimulationProject.Services
         bool UserExists(int Userid);
         bool UserNameExists(int Userid, string Username);
         bool UserEmailExists(int Userid, string Email);
-        string GetUserNewPassword(PasswordUpdate PasswordUpdate, User user);
+        string GetUserNewPassword(string newPassword, string oldTempPassword, string userName, User user);
         Task UpdateUserPasswordAsync(string passwordHash, User user);
+        Task<string> GenerateAndSaveTempCode(User user);
         bool PasswordValid(string password);
         string FindUserRole(int role);
     }
@@ -126,26 +128,16 @@ namespace SimulationProject.Services
         }
 
         //Get new password
-        public string GetUserNewPassword(PasswordUpdate PasswordUpdate, User user)
+        public string GetUserNewPassword(string newPassword, string oldTempPassword, string userName, User user)
         {
-            string newpasswordHash = "";
-            if (((!_passwordHashService.VerifyUserPassword(PasswordUpdate.OldPassword, user.Password)) || (user.Username != PasswordUpdate.UserName)))
+            string newpasswordHash = string.Empty;
+
+            // checks if the input oldPassword or the input username are same as the ones in the db 
+            if ((_passwordHashService.VerifyUserPassword(oldTempPassword, user.Password)) && (user.Username == userName) &&
+            // checks if the newPassword is different from the old one
+                ((!_passwordHashService.VerifyUserPassword(newPassword, user.Password))))
             {
-                newpasswordHash = "1";
-            }
-            else
-            if ((_passwordHashService.VerifyUserPassword(PasswordUpdate.NewPassword, user.Password)) || (!PasswordValid(PasswordUpdate.NewPassword)))
-            {
-                newpasswordHash = "2";
-            }
-            else
-            if (PasswordUpdate.NewPassword != PasswordUpdate.ConfirmPassword)
-            {
-                newpasswordHash = "3";
-            }
-            else
-            {
-                newpasswordHash = _passwordHashService.HashUserPassword(PasswordUpdate.NewPassword);
+                newpasswordHash = _passwordHashService.HashUserPassword(newPassword);
             }                            
             return newpasswordHash;
         }
@@ -156,6 +148,15 @@ namespace SimulationProject.Services
             user.Password = passwordHash;
             _context.Entry(user).Property(u => u.Password).IsModified = true;
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<string> GenerateAndSaveTempCode(string username)
+        {
+            var user = await GetUserByNameAsync(username);
+            string tempcode = TempCodeGeneratorHelper.GenerateCode(10);
+            user.Tempcode = tempcode;
+            await _context.SaveChangesAsync();
+            return tempcode;
         }
 
         //----------------------------------------------------------------------------------------------

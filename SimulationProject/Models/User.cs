@@ -105,6 +105,11 @@ public partial class User
     [Column("ACTIVE")]
     public bool Active { get; set; }
 
+    [Column("TEMPCODE")]
+    [StringLength(100)]
+    [Unicode(false)]
+    public string? Tempcode { get; set; }
+
     [InverseProperty("User")]
     public virtual ICollection<Cloudcredential> Cloudcredentials { get; set; } = new List<Cloudcredential>();
 

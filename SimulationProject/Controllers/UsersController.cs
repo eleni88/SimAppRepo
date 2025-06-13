@@ -222,21 +222,34 @@ namespace SimulationProject.Controllers
         [HttpPost("questions")]
         public async Task<IActionResult> ShowSecurityQuestions([FromBody] SecurityQuestionsAndAnswersDTO QuestionsDto)
         {
-            //extract user from token
-            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userIdStr))
+            var userNameStr = "";
+            string userName = "";
+
+            //extract user from token. If not, find them through given username (in case when ressetting the password)
+            userNameStr = User.FindFirstValue(ClaimTypes.Name);
+            if (string.IsNullOrEmpty(userNameStr))
             {
-                return BadRequest(new { message = "Invalid user" });
+                userName = QuestionsDto.Username;
             }
-            var userId = Int32.Parse(userIdStr);
-            var user = await _usersService.GetUserByIdAsync(userId);
+            else
+                userName = userNameStr;
+
+            if (string.IsNullOrEmpty(userName))
+            {
+                return NotFound(new { message = "User not found" });
+            }
+            
+            var user = await _usersService.GetUserByNameAsync(userName);
+
             if (user == null)
             {
                 return NotFound(new { message = "User not found" });
             }
-            if (!_usersService.SecurityAnswer(user, QuestionsDto)){
+            if (!_usersService.SecurityAnswer(user, QuestionsDto))
+            {
                 return BadRequest(new { message = "Unauthorized" });
             }
+            
             return Ok(new { verified = true }); 
         }
     }

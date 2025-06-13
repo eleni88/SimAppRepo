@@ -47,9 +47,7 @@ public partial class SimSaasContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UCLOUDID");
 
-            entity.HasOne(d => d.User).WithMany(p => p.Cloudcredentials)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_USERID");
+            entity.HasOne(d => d.User).WithMany(p => p.Cloudcredentials).HasConstraintName("FK_USERID");
         });
 
         modelBuilder.Entity<Cloudprovider>(entity =>
@@ -59,7 +57,9 @@ public partial class SimSaasContext : DbContext
 
         modelBuilder.Entity<Region>(entity =>
         {
-            entity.HasOne(d => d.Cloud).WithMany(p => p.Regions).HasConstraintName("FK_CLOUDID");
+            entity.HasOne(d => d.Cloud).WithMany(p => p.Regions)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_CLOUDID");
         });
 
         modelBuilder.Entity<Resourcerequirement>(entity =>
@@ -73,9 +73,7 @@ public partial class SimSaasContext : DbContext
 
             entity.Property(e => e.Execreport).IsFixedLength();
 
-            entity.HasOne(d => d.Sim).WithMany(p => p.Simexecutions)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_SIMID");
+            entity.HasOne(d => d.Sim).WithMany(p => p.Simexecutions).HasConstraintName("FK_SIMID");
         });
 
         modelBuilder.Entity<Simulation>(entity =>
@@ -87,7 +85,9 @@ public partial class SimSaasContext : DbContext
 
             entity.HasOne(d => d.SimcloudNavigation).WithMany(p => p.Simulations).HasConstraintName("FK_SIMCLOUD");
 
-            entity.HasOne(d => d.SimuserNavigation).WithMany(p => p.Simulations).HasConstraintName("FK_SIMUSER");
+            entity.HasOne(d => d.SimuserNavigation).WithMany(p => p.Simulations)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_SIMUSER");
         });
 
         modelBuilder.Entity<User>(entity =>

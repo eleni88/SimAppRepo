@@ -39,10 +39,10 @@ namespace SimulationProject.Controllers
             // Compose MIME email
             var mimeMessage = new StringBuilder();
             mimeMessage.AppendLine($"To: {userEmail}");
-            mimeMessage.AppendLine("Subject: Welcome to our app!");
+            mimeMessage.AppendLine("Your temporary code is: ");
             mimeMessage.AppendLine("Content-Type: text/plain; charset=utf-8");
             mimeMessage.AppendLine();
-            mimeMessage.AppendLine("Hello world!");
+            mimeMessage.AppendLine(user.Tempcode);
 
             var raw = Convert.ToBase64String(Encoding.UTF8.GetBytes(mimeMessage.ToString()))
                         .Replace("+", "-").Replace("/", "_").Replace("=", "");
