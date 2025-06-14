@@ -23,7 +23,7 @@ namespace SimulationProject.Services
         bool UserEmailExists(int Userid, string Email);
         string GetUserNewPassword(string newPassword, string oldTempPassword, string userName, User user);
         Task UpdateUserPasswordAsync(string passwordHash, User user);
-        Task<string> GenerateAndSaveTempCode(User user);
+        Task<string> GenerateAndSaveTempCode(string username);
         bool PasswordValid(string password);
         string FindUserRole(int role);
     }

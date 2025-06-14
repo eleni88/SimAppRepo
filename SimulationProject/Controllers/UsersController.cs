@@ -247,10 +247,11 @@ namespace SimulationProject.Controllers
             }
             if (!_usersService.SecurityAnswer(user, QuestionsDto))
             {
-                return BadRequest(new { message = "Unauthorized" });
+                return Unauthorized(new { message = "Unauthorized" });
             }
             
             return Ok(new { verified = true }); 
+            
         }
     }
 }

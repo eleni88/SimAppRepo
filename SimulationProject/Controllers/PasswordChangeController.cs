@@ -44,11 +44,27 @@ namespace SimulationProject.Controllers
             return Ok(new { message = "Password updated successfully." });
         }
 
+        //PUT /api/passwordchange/gererate
+        [HttpPut("gererate")]
+        public async Task<IActionResult> GenerateTempCode([FromBody] PasswordReset PasswordResset)
+        {
+            string tempCode = await _usersService.GenerateAndSaveTempCode(PasswordResset.UserName);
+            if (string.IsNullOrEmpty(tempCode)){
+                return BadRequest();
+            } 
+            return Ok();
+        }
+
         //PUT /api/passwordchange/reset
         [HttpPut("reset")]
         public async Task<IActionResult> ResetUserPassword([FromBody] PasswordReset PasswordResset)
         {
-            string tempCode = _usersService.GenerateAndSaveTempCode(PasswordResset.UserName);
+            var user = await _usersService.GetUserByNameAsync(PasswordResset.UserName);
+            if (user == null)
+            {
+                return NotFound(new { message = "User not Found." });
+            }
+            string newpass = _usersService.GetUserNewPassword(PasswordResset.NewPassword, PasswordResset.TempPassword, PasswordResset.UserName, user);
 
             return Ok();
         }
