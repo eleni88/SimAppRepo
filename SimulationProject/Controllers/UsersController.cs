@@ -134,7 +134,7 @@ namespace SimulationProject.Controllers
         }
 
         //-------------------------------- User Profile --------------------------------------
-        //GET /api/profile
+        //GET /api/users/profile
         [Authorize]
         [HttpGet("profile")]
         public async Task<IActionResult> ViewUserProfile()
@@ -155,7 +155,7 @@ namespace SimulationProject.Controllers
             return Ok(userDto);
         }
 
-        // PUT /api/profile
+        // PUT /api/users/profile
         [Authorize]
         [HttpPut("profile")]
         public async Task<IActionResult> UpdateUserProfile([FromBody] UpdateUserProfileDTO userDto)
@@ -195,7 +195,7 @@ namespace SimulationProject.Controllers
                 //return NoContent();
         }
 
-        // DELETE /api/profile
+        // DELETE /api/users/profile
         [Authorize(Roles = "User")]
         [HttpDelete("profile")]
         public async Task<IActionResult> DeleteUserProfile()
@@ -218,21 +218,10 @@ namespace SimulationProject.Controllers
         }
 
         // /api/users/questions
-        [Authorize]
         [HttpPost("questions")]
         public async Task<IActionResult> ShowSecurityQuestions([FromBody] SecurityQuestionsAndAnswersDTO QuestionsDto)
         {
-            var userNameStr = "";
-            string userName = "";
-
-            //extract user from token. If not, find them through given username (in case when ressetting the password)
-            userNameStr = User.FindFirstValue(ClaimTypes.Name);
-            if (string.IsNullOrEmpty(userNameStr))
-            {
-                userName = QuestionsDto.Username;
-            }
-            else
-                userName = userNameStr;
+            string userName = QuestionsDto.Username;
 
             if (string.IsNullOrEmpty(userName))
             {

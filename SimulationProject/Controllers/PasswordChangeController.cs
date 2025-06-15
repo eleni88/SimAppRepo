@@ -6,7 +6,6 @@ using SimulationProject.DTO.UserDTOs;
 
 namespace SimulationProject.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class PasswordChangeController : ControllerBase
@@ -17,6 +16,7 @@ namespace SimulationProject.Controllers
             _usersService = usersService;
         }
         //PUT /api/passwordchange/update
+        [Authorize]
         [HttpPut("update")]
         public async Task<IActionResult> UpdateUserPassword([FromBody] PasswordUpdate PasswordUpdate)
         {
@@ -34,7 +34,7 @@ namespace SimulationProject.Controllers
                 return BadRequest(new { message = "User not found." });
             }
             
-            string newpass = _usersService.GetUserNewPassword(PasswordUpdate.NewPassword, PasswordUpdate.OldPassword, PasswordUpdate.UserName, user);
+            string newpass = _usersService.GetUserNewPassword(PasswordUpdate.NewPassword, PasswordUpdate.OldPassword, user.Username, user);
             if (string.IsNullOrEmpty(newpass))
             {
                 return BadRequest(new { message = "Wrong username or password." });
@@ -44,11 +44,11 @@ namespace SimulationProject.Controllers
             return Ok(new { message = "Password updated successfully." });
         }
 
-        //PUT /api/passwordchange/gererate
-        [HttpPut("gererate")]
-        public async Task<IActionResult> GenerateTempCode([FromBody] PasswordReset PasswordResset)
+        //PUT /api/passwordchange/generate
+        [HttpPut("generate")]
+        public async Task<IActionResult> GenerateTempCode([FromBody] TempcodeRequestDTO tempcodeRequest)
         {
-            string tempCode = await _usersService.GenerateAndSaveTempCode(PasswordResset.UserName);
+            string tempCode = await _usersService.GenerateAndSaveTempCode(tempcodeRequest.username);
             if (string.IsNullOrEmpty(tempCode)){
                 return BadRequest();
             } 
@@ -66,7 +66,13 @@ namespace SimulationProject.Controllers
             }
             string newpass = _usersService.GetUserNewPassword(PasswordResset.NewPassword, PasswordResset.TempPassword, PasswordResset.UserName, user);
 
-            return Ok();
+            if (string.IsNullOrEmpty(newpass))
+            {
+                return BadRequest(new { message = "Wrong username or password." });
+            }
+
+            await _usersService.UpdateUserPasswordAsync(newpass, user);
+            return Ok(new { message = "Password updated successfully." });
         }
     }
 }

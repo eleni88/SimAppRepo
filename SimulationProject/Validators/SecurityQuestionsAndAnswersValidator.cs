@@ -7,6 +7,10 @@ namespace SimulationProject.Validators
     {
         public SecurityQuestionsAndAnswersValidator()
         {
+            RuleFor(p => p.Username)
+               .NotEmpty().WithMessage("{PropertyName} is required.")
+               .NotNull();
+
             RuleFor(p => p.Securityanswer)
                 .NotEmpty().WithMessage("{PropertyName} is required.")
                 .NotNull();

@@ -11,10 +11,6 @@ namespace SimulationProject.Validators
         {
             _usersService = usersService;
 
-            RuleFor(p => p.UserName)
-                .NotEmpty()
-                .NotEmpty().WithMessage("{PropertyName} is required.");
-
             RuleFor(p => p.OldPassword)
                 .NotEmpty()
                 .NotEmpty().WithMessage("{PropertyName} is required.");

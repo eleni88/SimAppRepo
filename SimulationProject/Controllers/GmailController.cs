@@ -7,10 +7,11 @@ using System.Text;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Net;
+using SimulationProject.DTO.UserDTOs;
 
 namespace SimulationProject.Controllers
 {
-    [Authorize]
+    [AllowAnonymous]
     [Route("api/[controller]")]
     [ApiController]
     public class GmailController : ControllerBase
@@ -25,27 +26,15 @@ namespace SimulationProject.Controllers
         }
 
         [HttpPost("send")]
-        public async Task<IActionResult> SendEmailToUser(string username = "")
+        public async Task<IActionResult> SendEmailToUser([FromBody] TempcodeRequestDTO tempcodeRequest)
         {
-            var userNameStr = "";
-            string userName = "";
 
-            if (username != "")
+            if (string.IsNullOrEmpty(tempcodeRequest.username))
             {
-                userName = username;
+                return NotFound(new { message = "User not found" });
             }
-            else
-            if (username == "")
-            {
-                //extract username from token
-                userNameStr = User.FindFirstValue(ClaimTypes.Name);
-                if (string.IsNullOrEmpty(userNameStr))
-                {
-                    return NotFound(new { message = "User not found" });
-                }
-                userName = userNameStr;
-            }
-
+            string userName = tempcodeRequest.username;
+            
             var user = await _usersService.GetUserByNameAsync(userName);    
             var userEmail = user.Email;
 

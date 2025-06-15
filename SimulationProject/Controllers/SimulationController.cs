@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SimulationProject.DTO.SimExecutionDTOs;
 using SimulationProject.DTO.SimulationDTOs;
+using SimulationProject.DTO.UserDTOs;
+using SimulationProject.Helper.HateoasHelper;
 using SimulationProject.Models;
 using SimulationProject.Services;
 
@@ -41,14 +43,24 @@ namespace SimulationProject.Controllers
             var userRoleStr = User.FindFirstValue(ClaimTypes.Role);
             var simulations = await _simulationService.GetAllSimulationsAsync();
             var usersSimulations = simulations;
+            var simulationsWithLinks = new List<LinkResponseWrapper<SimulationDTO>>();
             if ((simulations != null) && (userRoleStr == "User"))
             {
-                 usersSimulations = (IEnumerable<Simulation>)simulations.Select(simulation => simulation.Simuser == userId);
+                if (simulations.Any(simulation => simulation.Simuser == userId))
+                {
+                    usersSimulations = (IEnumerable<Simulation>)simulations.Select(simulation => (simulation.Simuser == userId));
+                    var simulationsDtos = usersSimulations.Select(simulation => simulation.Adapt<SimulationDTO>());
+                    simulationsWithLinks = _linkService.AddLinksToList(simulationsDtos, baseUri);
+                }
+            }
+            else
+            if ((simulations != null) && (userRoleStr == "Admin"))
+            {
+                var simulationsDtos = usersSimulations.Select(simulation => simulation.Adapt<SimulationDTO>());
+                simulationsWithLinks = _linkService.AddLinksToList(simulationsDtos, baseUri);
             }
 
-            var simulationsDtos = usersSimulations.Select(simulation => simulation.Adapt<SimulationDTO>());
-            var simulationsWithLinks = _linkService.AddLinksToList(simulationsDtos, baseUri);
-            return Ok(simulationsWithLinks);
+                return Ok(simulationsWithLinks);
         }
 
         // GET /api/simulations/{Simid}
