@@ -25,13 +25,28 @@ namespace SimulationProject.Controllers
         }
 
         [HttpPost("send")]
-        public async Task<IActionResult> SendEmailToUser()
+        public async Task<IActionResult> SendEmailToUser(string username = "")
         {
-            //extract user from token
-            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            
-            var userId = Int32.Parse(userIdStr);
-            var user = await _usersService.GetUserByIdAsync(userId);
+            var userNameStr = "";
+            string userName = "";
+
+            if (username != "")
+            {
+                userName = username;
+            }
+            else
+            if (username == "")
+            {
+                //extract username from token
+                userNameStr = User.FindFirstValue(ClaimTypes.Name);
+                if (string.IsNullOrEmpty(userNameStr))
+                {
+                    return NotFound(new { message = "User not found" });
+                }
+                userName = userNameStr;
+            }
+
+            var user = await _usersService.GetUserByNameAsync(userName);    
             var userEmail = user.Email;
 
             var accessToken = await _tokenService.GetAccessTokenAsync();
@@ -56,19 +71,9 @@ namespace SimulationProject.Controllers
             var response = await client.PostAsync("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", content);
             var responseBody = await response.Content.ReadAsStringAsync();
 
-            //if (response.StatusCode == HttpStatusCode.Unauthorized)
-            //{
-            //    accessToken = await _tokenService.GetAccessTokenAsync();
-            //    if (!string.IsNullOrEmpty(accessToken))
-            //    {
-
-            //    }
-
-            //}
-
             if (response.IsSuccessStatusCode)
             {
-                return Ok(new { message = "Email sent !", to = userEmail });
+                return Ok(new { message = "A temporary password has been sent to", to = userEmail });
             }
 
             return StatusCode((int)response.StatusCode, new { error = responseBody });
