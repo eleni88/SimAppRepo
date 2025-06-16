@@ -11,6 +11,7 @@ using Scalar.AspNetCore;
 using SimulationProject.Data;
 using SimulationProject.DTO.SimulationDTOs;
 using SimulationProject.DTO.UserDTOs;
+using SimulationProject.Helper;
 using SimulationProject.Services;
 using SimulationProject.Validators;
 
@@ -49,7 +50,6 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontEnd", builder =>
     {
         builder.WithOrigins("https://127.0.0.1:5500")
-               //.AllowAnyOrigin()
                .AllowAnyMethod()
                .AllowAnyHeader()
                .AllowCredentials();
@@ -178,6 +178,8 @@ app.Use(async (context, next) =>
 
     await next();
 });
+// Custom middleware for CSRF token
+app.UseMiddleware<CsrfValidationMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();

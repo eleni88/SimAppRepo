@@ -9,6 +9,7 @@ using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using Mapster;
 using SimulationProject.DTO.UserDTOs;
+using Azure;
 
 namespace SimulationProject.Services
 {
@@ -39,7 +40,7 @@ namespace SimulationProject.Services
                 issuer: _configuration.GetValue<string>("Appsettings:Issuer"),
                 audience: _configuration.GetValue<string>("Appsettings:Audience"),
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(2),
+                expires: DateTime.UtcNow.AddMinutes(15),
                 signingCredentials: creds
              );
             return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
@@ -71,15 +72,21 @@ namespace SimulationProject.Services
             return refreshToken;
         }
 
-        private async Task<User?> ValidateRefreshTokenAsync(int UserId, string RefreshToken)
+        private Task<User?> ValidateRefreshTokenAsync(User user, string RefreshToken)
         {
-            var user = await _context.Users.FindAsync(UserId);
             if ((user == null) || (user.Refreshtoken != RefreshToken) || user.Refreshtokenexpiry <= DateTime.UtcNow)
             {
-                return null;
+                return Task.FromResult<User?>(null);
             }
             else
-                return user;
+                return Task.FromResult<User?>(user);
+        }
+
+        //--------------- CSRF Token ----------------------
+        public string GenerateCSRFToken()
+        {
+            var csrfToken = Guid.NewGuid().ToString();
+            return csrfToken;
         }
 
         //logout user
@@ -97,15 +104,15 @@ namespace SimulationProject.Services
             return tokenrefreshed;
         }
 
-        public async Task<TokenDTo?>RefreshTokenAsync(RefreshTokenDTo request)
+        public async Task<TokenDTo?>RefreshTokenAsync(User user,string request)
         {
-            var user = await ValidateRefreshTokenAsync(request.Userid, request.RefreshToken);
-            if (user != null)
+            var validuser = await ValidateRefreshTokenAsync(user, request);
+            if (validuser != null)
             {
                 var response = new TokenDTo
                 {
-                    AccessToken = await GenerateAndSaveTokenAsync(user), //CreateJWToken(user),
-                    RefreshToken = await GenerateAndSaveRefreshTokenAsync(user)
+                    AccessToken = await GenerateAndSaveTokenAsync(validuser), //CreateJWToken(user),
+                    RefreshToken = await GenerateAndSaveRefreshTokenAsync(validuser)
                 };
                 return response;
             }
@@ -113,17 +120,50 @@ namespace SimulationProject.Services
                 return null;            
         }
 
-        //-------------- Create Cookie ---------------------------
-        public CookieOptions GetCookieOptions()
+        //-------------- Create Cookies ---------------------------
+        //public CookieOptions GetCookieOptions()
+        //{
+        //    var cookieOptions = new CookieOptions
+        //    {
+        //        HttpOnly = true,                            // Make sure the cookie is not accessible via JavaScript (for security)
+        //        Secure = true,                              // Ensures the cookie is only sent over HTTPS
+        //        SameSite = SameSiteMode.None,               // If strict, prevents cross-site request forgery (CSRF)
+        //        Expires = DateTime.UtcNow.AddMinutes(15)    // Set the expiration of the cookie 
+        //    };
+        //    return cookieOptions;
+        //}
+
+        //public CookieOptions GetRefreshCookieOptions()
+        //{
+        //    var cookieOptions = new CookieOptions
+        //    {
+        //        HttpOnly = true,                            
+        //        Secure = true,                              
+        //        SameSite = SameSiteMode.None,
+        //        Expires = DateTime.UtcNow.AddDays(1)         
+        //    };
+        //    return cookieOptions;
+        //}
+
+        // Cookie for CSRF token
+        public CookieOptions GetCSRFTokenCookieOptions()
         {
             var cookieOptions = new CookieOptions
             {
-                HttpOnly = true,                        // Make sure the cookie is not accessible via JavaScript (for security)
-                Secure = true,                          // Ensures the cookie is only sent over HTTPS
-                SameSite = SameSiteMode.None,           // Prevents cross-site request forgery (CSRF)
-                Expires = DateTime.UtcNow.AddHours(2)   // Set the expiration of the cookie 
+                HttpOnly = false,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Path = "/"
             };
             return cookieOptions;
+        }
+
+
+        // Cookie with partitioned attribute for third party cookies
+        public string SetPartitionedCookie(string name, string value, int maxAgeSeconds)
+        {
+            var cookieStr = $"{name}={value}; Max-Age={maxAgeSeconds}; Path=/; Secure; HttpOnly; SameSite=None; Partitioned";
+            return cookieStr;
         }
         //----------------------------------------------------------
 

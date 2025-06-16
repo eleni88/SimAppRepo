@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Linq;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -55,11 +56,23 @@ namespace SimulationProject.Controllers
                 return BadRequest(new { message = "Invalid username or password" });
             }
 
-            // Store the Access JWT in a cookie
-            var cookieOptions = _athService.GetCookieOptions();
-            Response.Cookies.Append("jwtCookie", result.AccessToken, cookieOptions);
+            //// Store the Access JWT in a cookie
+            //var cookieOptions = _athService.GetCookieOptions();
+            //Response.Cookies.Append("jwtCookie", result.AccessToken, cookieOptions);
 
-            return Ok(new { message = "Login successfully" });
+            //// Store the Refrash token in a cookie
+            //var refreshCookieOptions = _athService.GetRefreshCookieOptions();
+            //Response.Cookies.Append("RefreshTokenCookie", result.RefreshToken, refreshCookieOptions);
+
+            // Store the Access JWT in partinioned cookie
+            var cookieOptions = _athService.SetPartitionedCookie("jwtCookie", result.AccessToken, 900);
+            Response.Headers.Append("Set-Cookie", cookieOptions);
+
+            // Store the Refresh token in partinioned cookie
+            var cookieRefreshOptions = _athService.SetPartitionedCookie("RefreshTokenCookie", result.RefreshToken, 604800);
+            Response.Headers.Append("Set-Cookie", cookieRefreshOptions);
+
+            return Ok(new { message = "Login successful" });
         }
 
         //----------- Logout -------------
@@ -80,7 +93,9 @@ namespace SimulationProject.Controllers
             {
                 if (await _athService.RemoveRefreshTokenAsync(user.Userid, user.Refreshtoken))
                 {
+                    Response.Cookies.Delete("RefreshTokenCookie"); 
                     Response.Cookies.Delete("jwtCookie");
+
                     return Ok(new { message = "Logged out successfully" });
                 }
                 else
@@ -92,17 +107,40 @@ namespace SimulationProject.Controllers
         //----------Refresh Token -----------
         //POST /api/ath/refreshtoken
         [HttpPost("refreshtoken")]
-        public async Task<ActionResult<TokenDTo>> RefreshToken(RefreshTokenDTo request)
+        public async Task<ActionResult<TokenDTo>> RefreshToken()
         {
-            var result = await _athService.RefreshTokenAsync(request);
+            var request = Request.Cookies["RefreshTokenCookie"];
+
+            if (string.IsNullOrEmpty(request))
+                return Unauthorized();
+
+            var user = await _usersService.GetUserByRefreshTokenAsync(request);
+            var result = await _athService.RefreshTokenAsync(user, request);
             if ((result == null) || (result.AccessToken == null) || (result.RefreshToken == null))
             {
                 return Unauthorized(new { message = "Invalid refresh token" });
             }
 
-            // Store the new Access JWT in a cookie
-            var cookieOptions = _athService.GetCookieOptions();
-            Response.Cookies.Append("jwtCookie", result.AccessToken, cookieOptions);
+            //// Store the new Access JWT in a cookie
+            //var cookieOptions = _athService.GetCookieOptions();
+            //Response.Cookies.Append("jwtCookie", result.AccessToken, cookieOptions);
+
+            //// Store the Refrash token in a cookie
+            //var refreshCookieOptions = _athService.GetRefreshCookieOptions();
+            //Response.Cookies.Append("RefreshTokenCookie", result.RefreshToken, refreshCookieOptions);
+
+            // Store CSRF token in non-HttpOnly cookie
+            var CSRFToken = _athService.GenerateCSRFToken();
+            var CsrfCookieOptions = _athService.GetCSRFTokenCookieOptions();
+            Response.Cookies.Append("CsrfCookie", CSRFToken, CsrfCookieOptions);
+
+            // Store the Access JWT in partinioned cookie
+            var cookieOptions = _athService.SetPartitionedCookie("jwtCookie", result.AccessToken, 900);
+            Response.Headers.Append("Set-Cookie", cookieOptions);
+
+            // Store the Refresh token in partinioned cookie
+            var cookieRefreshOptions = _athService.SetPartitionedCookie("RefreshTokenCookie", result.RefreshToken, 604800);
+            Response.Headers.Append("Set-Cookie", cookieRefreshOptions);
 
             return Ok(result);
         }

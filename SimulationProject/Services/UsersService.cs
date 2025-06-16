@@ -13,6 +13,7 @@ namespace SimulationProject.Services
         Task<IEnumerable<User>> GetAllUsersAsync();
         Task<User> GetUserByIdAsync(int Userid);
         Task<User> GetUserByNameAsync(string Username);
+        Task<User> GetUserByRefreshTokenAsync(string refreshtoken);
         Task CreateUserAsync(User user);
         Task<User?> CreateUserAsync(CreateUserDTO userdtto);
         Task<int> PutUserAsync();
@@ -116,6 +117,11 @@ namespace SimulationProject.Services
         {
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<User> GetUserByRefreshTokenAsync(string refreshtoken)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.Refreshtoken == refreshtoken);
         }
 
         //---------------------- Password ------------------------------------
