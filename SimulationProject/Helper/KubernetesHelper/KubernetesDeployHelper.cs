@@ -10,6 +10,7 @@ namespace SimulationProject.Helper.KubernetesHelper
     {
         private readonly IKubernetes _client;
 
+        // Creation of KubernetesClient
         public KubernetesDeployerHelper(string kubeConfig)
         {
             var config = KubernetesClientConfiguration.BuildConfigFromConfigFile(
@@ -38,11 +39,12 @@ namespace SimulationProject.Helper.KubernetesHelper
                             await _client.CoreV1.CreateNamespacedConfigMapAsync(configMap, configMap.Metadata.NamespaceProperty ?? "default");
                             break;
                         default:
-                            Console.WriteLine($"[!] Unsupported resource type: {resource.GetType().Name}");
+                            Console.WriteLine($"Unsupported resource type: {resource.GetType().Name}");
                             break;
                     }
                 }
             }
         }
+        public IKubernetes GetClient() => _client;
     }
 }

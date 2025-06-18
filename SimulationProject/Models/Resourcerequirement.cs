@@ -17,4 +17,10 @@ public partial class Resourcerequirement
     [StringLength(200)]
     [Unicode(false)]
     public string? Instancetype { get; set; }
+
+    [Column("MININSTANCES")]
+    public int? Mininstances { get; set; }
+
+    [Column("MAXINSTANCES")]
+    public int? Maxinstances { get; set; }
 }
