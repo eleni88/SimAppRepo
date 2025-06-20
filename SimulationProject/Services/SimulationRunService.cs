@@ -49,9 +49,11 @@ namespace SimulationProject.Services
             
             var builder = new TerraformBuilder()
                 .UseWorkingDirectory(terraformInput.OutputDirectory)
+                .AddRequiredProviders()
                 .AddAwsProvider(terraformInput.Region, terraformInput.AwsAccessKey, terraformInput.AwsSecretKey)
                 .AddEksCluster(
                     terraformInput.ClusterName,
+                    terraformInput.Region,
                     terraformInput.DesiredNodes,
                     terraformInput.MinNodes,
                     terraformInput.MaxNodes
