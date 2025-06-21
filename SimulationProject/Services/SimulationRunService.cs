@@ -49,7 +49,7 @@ namespace SimulationProject.Services
 
                 // Copy only needed YAMLs
                 var tmpYamlFiles = YamlHelper.CopyYamlFilesToTmp(yamlFiles, tempDir);
-                // add configMap yaml to yamls
+                // create configMap yaml
                 string configMapPath = await ConfigMapGenerator.GenerateConfigMapFileAsync(request.Simparams, tempDir);
 
                 // creation of terraform configuration

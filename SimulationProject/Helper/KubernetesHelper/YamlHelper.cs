@@ -1,4 +1,8 @@
-﻿namespace SimulationProject.Helper.KubernetesHelper
+﻿using YamlDotNet.RepresentationModel;
+using YamlDotNet.Serialization.NamingConventions;
+using YamlDotNet.Serialization;
+
+namespace SimulationProject.Helper.KubernetesHelper
 {
     public class YamlParseResult
     {
@@ -41,6 +45,68 @@
                     result.SlaveCount++;
             }
             return result;
+        }
+
+        public static void AddConfigMapToDeploymentYaml(string yamlPath)
+        {
+            var yaml = File.ReadAllText(yamlPath);
+
+            // Load YAML
+            var input = new StringReader(yaml);
+            var yamlStream = new YamlStream();
+            yamlStream.Load(input);
+
+            var root = (YamlMappingNode)yamlStream.Documents[0].RootNode;
+
+            var specNode = root["spec"] as YamlMappingNode;
+            
+            var templateNode = specNode["template"] as YamlMappingNode;
+            
+            var podSpec = templateNode["spec"] as YamlMappingNode;
+
+            // Add volumes
+            if (!podSpec.Children.ContainsKey("volumes"))
+            {
+                var volumesNode = new YamlSequenceNode
+            {
+                new YamlMappingNode
+                {
+                    { "name", "config-volume" },
+                    {
+                        "configMap", new YamlMappingNode
+                        {
+                            { "name", "simulation-config" }
+                        }
+                    }
+                }
+            };
+                podSpec.Add("volumes", volumesNode);
+            }
+
+            // Add volumeMounts to first container
+            var containers = podSpec["containers"] as YamlSequenceNode;
+            var firstContainer = containers.Children[0] as YamlMappingNode;
+
+            if (!firstContainer.Children.ContainsKey("volumeMounts"))
+            {
+                var volumeMounts = new YamlSequenceNode
+            {
+                new YamlMappingNode
+                {
+                    { "name", "config-volume" },
+                    { "mountPath", "/app/config" }
+                }
+            };
+                firstContainer.Add("volumeMounts", volumeMounts);
+            }
+
+            // Save back to file
+            using var writer = new StringWriter();
+            var serializer = new SerializerBuilder()
+                .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                .Build();
+            yamlStream.Save(writer);
+            File.WriteAllText(yamlPath, writer.ToString());
         }
     }
 }
