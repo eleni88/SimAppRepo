@@ -12,6 +12,22 @@
             return Directory.GetFiles(repoPath, "*.yaml", SearchOption.AllDirectories).ToList();
         }
 
+        public static List<string> CopyYamlFilesToTmp(List<string> yamlFiles, string tempDir)
+        {
+            // Copy only needed YAMLs
+            foreach (var yamlFile in yamlFiles)
+            {
+                var content = File.ReadAllText(yamlFile);
+
+                if ((content.Contains("master") && content.Contains("Deployment")) || (content.Contains("slave") && content.Contains("Pod")))
+                {
+                    var dest = Path.Combine(tempDir, Path.GetFileName(yamlFile));
+                    File.Copy(yamlFile, dest);
+                }
+            }
+            return Directory.GetFiles(tempDir, "*.yaml", SearchOption.AllDirectories).ToList();
+        }
+
         // parse Yaml files to check if they are master/slave
         public static YamlParseResult ParseYamlFiles(List<string> files)
         {
