@@ -242,5 +242,31 @@ namespace SimulationProject.Controllers
             return Ok(new { verified = true }); 
             
         }
+
+        // PUT /api/users/updatequestions
+        [HttpPut("updatequestions")]
+        public async Task<IActionResult> UpdateUsersQuestions([FromBody] QuestionsUpdateDTO questionsUpdateDTO)
+        {
+            //extract user from token
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdStr))
+            {
+                return BadRequest(new { message = "Invalid user." });
+            }
+            var userId = Int32.Parse(userIdStr);
+            var user = await _usersService.GetUserByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound(new { message = "User not found." });
+            }
+            questionsUpdateDTO.Adapt(user);
+            var updated = await _usersService.UpdateSecurityQuestionAnsyc(questionsUpdateDTO.Securityquestion, questionsUpdateDTO.Securityquestion1, questionsUpdateDTO.Securityquestion2,
+                questionsUpdateDTO.Securityanswer, questionsUpdateDTO.Securityanswer1, questionsUpdateDTO.Securityanswer2, user);
+            if (!updated)
+            {
+                return BadRequest(new { message = "Update failed." });
+            }
+            return NoContent();
+        }
     }
 }

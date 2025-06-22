@@ -24,6 +24,7 @@ namespace SimulationProject.Services
         bool UserEmailExists(int Userid, string Email);
         string GetUserNewPassword(string newPassword, string oldTempPassword, string userName, User user);
         Task UpdateUserPasswordAsync(string passwordHash, User user);
+        Task<bool> UpdateSecurityQuestionAnsyc(string question, string question1, string question2, string answer, string answer1, string answer2, User user)
         Task<string> GenerateAndSaveTempCode(string username);
         bool PasswordValid(string password);
         string FindUserRole(int role);
@@ -173,6 +174,18 @@ namespace SimulationProject.Services
         {
             return((user.Securityanswer != null) && (QuestionsDto.Securityquestion != null) && (QuestionsDto.Securityanswer != null) &&
                     _passwordHashService.VerifyUserPassword(QuestionsDto.Securityanswer, user.Securityanswer));
+        }
+
+        // update Sequrity Questions
+        public async Task<bool> UpdateSecurityQuestionAnsyc(string question, string question1, string question2, string answer, string answer1, string answer2, User user)
+        {
+            user.Securityquestion = question;
+            user.Securityanswer = _passwordHashService.HashUserPassword(answer);
+            user.Securityquestion1 = question1;
+            user.Securityanswer1 = _passwordHashService.HashUserPassword(answer1);
+            user.Securityquestion2 = question2;
+            user.Securityanswer2 = _passwordHashService.HashUserPassword(answer2);
+            return await PutUserAsync()>0;
         }
     }
 }
