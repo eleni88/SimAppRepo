@@ -1,4 +1,5 @@
-﻿using SimulationProject.Helper.TerraformHelper;
+﻿using Microsoft.Extensions.Options;
+using SimulationProject.Helper.TerraformHelper;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
@@ -9,9 +10,9 @@ namespace SimulationProject.Services
     {
         private readonly string _workingDirectory;
 
-        public TerraformService(string workingDirectory)
+        public TerraformService(string outputDirectory)
         {
-            _workingDirectory = workingDirectory;
+            _workingDirectory = outputDirectory;
         }
 
         public async Task<TerraformResult> InitAsync()

@@ -12,6 +12,7 @@ using SimulationProject.Data;
 using SimulationProject.DTO.SimulationDTOs;
 using SimulationProject.DTO.UserDTOs;
 using SimulationProject.Helper;
+using SimulationProject.Helper.TerraformHelper;
 using SimulationProject.Services;
 using SimulationProject.Validators;
 
@@ -27,6 +28,10 @@ builder.Services.AddValidatorsFromAssemblyContaining<UpdateSimulationValidator>(
 builder.Services.AddValidatorsFromAssemblyContaining<SecurityQuestionsAndAnswersValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<LoginValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PasswordResetValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PasswordUpdateValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<QuestionsUpadateValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<UpdateUserProfileValidator>();
 builder.Services.Configure<GMailSettings>(builder.Configuration.GetSection("Gmail"));
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -44,6 +49,7 @@ builder.Services.AddScoped<ILinkService<SimulationDTO>, SimLinkService>();
 builder.Services.AddScoped<NavLinkService>();
 builder.Services.AddScoped<IGMailService, GMailService>();
 builder.Services.AddScoped<SimulationRunService>();
+builder.Services.AddScoped<PollingService>();
 
 builder.Services.AddCors(options =>
 {
@@ -127,10 +133,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-builder.Services.Configure<CookiePolicyOptions>(options =>
-{
-    options.HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always;
-});
+//builder.Services.Configure<CookiePolicyOptions>(options =>
+//{
+//    options.HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always;
+//});
 
 
 //Add user secrets for local development
@@ -152,17 +158,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowFrontEnd");
 
-//var defaultFilesOptions = new DefaultFilesOptions();
-//defaultFilesOptions.DefaultFileNames.Clear();
-//defaultFilesOptions.DefaultFileNames.Add("Home.html");
-//app.UseDefaultFiles(defaultFilesOptions);
-
 app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 
 app.UseCookiePolicy();
 app.UseAuthentication();
+
 // Custom middleware only for NavigationController
 app.Use(async (context, next) =>
 {
@@ -178,8 +180,6 @@ app.Use(async (context, next) =>
 
     await next();
 });
-// Custom middleware for CSRF token
-app.UseMiddleware<CsrfValidationMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();

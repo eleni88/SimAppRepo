@@ -145,20 +145,6 @@ namespace SimulationProject.Services
         //    return cookieOptions;
         //}
 
-        // Cookie for CSRF token
-        public CookieOptions GetCSRFTokenCookieOptions()
-        {
-            var cookieOptions = new CookieOptions
-            {
-                HttpOnly = false,
-                Secure = true,
-                SameSite = SameSiteMode.None,
-                Path = "/"
-            };
-            return cookieOptions;
-        }
-
-
         // Cookie with partitioned attribute for third party cookies
         public string SetPartitionedCookie(string name, string value, int maxAgeSeconds)
         {

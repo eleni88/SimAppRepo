@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SimulationProject.DTO.UserDTOs;
 using SimulationProject.Services;
@@ -64,6 +65,7 @@ namespace SimulationProject.Controllers
             //var refreshCookieOptions = _athService.GetRefreshCookieOptions();
             //Response.Cookies.Append("RefreshTokenCookie", result.RefreshToken, refreshCookieOptions);
 
+
             // Store the Access JWT in partinioned cookie
             var cookieOptions = _athService.SetPartitionedCookie("jwtCookie", result.AccessToken, 900);
             Response.Headers.Append("Set-Cookie", cookieOptions);
@@ -93,8 +95,13 @@ namespace SimulationProject.Controllers
             {
                 if (await _athService.RemoveRefreshTokenAsync(user.Userid, user.Refreshtoken))
                 {
-                    Response.Cookies.Delete("RefreshTokenCookie"); 
-                    Response.Cookies.Delete("jwtCookie");
+                    // Delete JWT
+                    var cookieOptions = _athService.SetPartitionedCookie("jwtCookie", "", 0);
+                    Response.Headers.Append("Set-Cookie", cookieOptions);
+                    // Delete Refresh Token cookie
+                    var cookieRefreshOptions = _athService.SetPartitionedCookie("RefreshTokenCookie", "", 0);
+                    Response.Headers.Append("Set-Cookie", cookieRefreshOptions);
+
 
                     return Ok(new { message = "Logged out successfully" });
                 }
@@ -128,11 +135,6 @@ namespace SimulationProject.Controllers
             //// Store the Refrash token in a cookie
             //var refreshCookieOptions = _athService.GetRefreshCookieOptions();
             //Response.Cookies.Append("RefreshTokenCookie", result.RefreshToken, refreshCookieOptions);
-
-            // Store CSRF token in non-HttpOnly cookie
-            var CSRFToken = _athService.GenerateCSRFToken();
-            var CsrfCookieOptions = _athService.GetCSRFTokenCookieOptions();
-            Response.Cookies.Append("CsrfCookie", CSRFToken, CsrfCookieOptions);
 
             // Store the Access JWT in partinioned cookie
             var cookieOptions = _athService.SetPartitionedCookie("jwtCookie", result.AccessToken, 900);
