@@ -15,7 +15,6 @@ namespace SimulationProject.Validators
                 .NotEmpty()
                 .NotEmpty().WithMessage("{PropertyName} is required.");
 
-
             RuleFor(p => p.NewPassword)
                 .NotEmpty()
                 .NotEmpty().WithMessage("{PropertyName} is required.")
@@ -24,7 +23,7 @@ namespace SimulationProject.Validators
             RuleFor(p => p.ConfirmPassword)
                 .NotEmpty()
                 .NotEmpty().WithMessage("{PropertyName} is required.")
-                .Matches(p => p.ConfirmPassword).WithMessage("Confirm password and new pawwsord do not match");
+                .Equal(p => p.NewPassword).WithMessage("Confirm password and new pawwsord do not match");
         }
     }
 }

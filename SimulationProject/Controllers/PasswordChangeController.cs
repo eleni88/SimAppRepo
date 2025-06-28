@@ -37,7 +37,7 @@ namespace SimulationProject.Controllers
             string newpass = _usersService.GetUserNewPassword(PasswordUpdate.NewPassword, PasswordUpdate.OldPassword, user.Username, user);
             if (string.IsNullOrEmpty(newpass))
             {
-                return BadRequest(new { message = "Wrong username or password." });
+                return BadRequest(new { message = "Wrong password." });
             }
             
             await _usersService.UpdateUserPasswordAsync(newpass, user);
