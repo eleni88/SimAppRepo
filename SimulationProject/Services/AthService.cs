@@ -193,7 +193,7 @@ namespace SimulationProject.Services
         {
             // Find user by username
             var user = await GetUserByNameAsync(loginform.UserName);
-            return user.Active;
+            return (user.Active || ((user.Emailtimestamp == null) || ((DateTime.UtcNow - user.Emailtimestamp) < TimeSpan.FromMinutes(10))));
         }
     }
 }

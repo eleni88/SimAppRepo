@@ -22,11 +22,12 @@ namespace SimulationProject.Services
         bool UserExists(int Userid);
         bool UserNameExists(int Userid, string Username);
         bool UserEmailExists(int Userid, string Email);
-        string GetUserNewPassword(string newPassword, string oldTempPassword, string userName, User user);
+        string GetUserNewPassword(string newPassword, string userName, User user, string oldPassword = "", string tempPassword = "");
         Task UpdateUserPasswordAsync(string passwordHash, User user);
         Task<bool> UpdateSecurityQuestionAnsyc(string question, string question1, string question2, string answer, string answer1, string answer2, User user);
         Task<string> GenerateAndSaveTempCode(string username);
         Task SetUserInActive(User user);
+        Task ResetTempPassAndTimeStamp(User user);
         bool PasswordValid(string password);
         string FindUserRole(int role);
     }
@@ -133,6 +134,13 @@ namespace SimulationProject.Services
             await _context.SaveChangesAsync();
         }
 
+        public async Task ResetTempPassAndTimeStamp(User user)
+        {
+            user.Emailtimestamp = null;
+            user.Tempcode = null;
+            await _context.SaveChangesAsync();
+        }
+
         //---------------------- Password ------------------------------------
         //Check Password validity
         public bool PasswordValid(string password)
@@ -143,12 +151,13 @@ namespace SimulationProject.Services
         }
 
         //Get new password
-        public string GetUserNewPassword(string newPassword, string oldTempPassword, string userName, User user)
+        public string GetUserNewPassword(string newPassword, string userName, User user, string oldPassword = "", string tempPassword = "")
         {
             string newpasswordHash = string.Empty;
 
-            // checks if the input oldPassword or the input username are same as the ones in the db 
-            if ((_passwordHashService.VerifyUserPassword(oldTempPassword, user.Password)) && (user.Username == userName) &&
+            // checks if has tempPassword or the input oldPassword or the input username are same as the ones in the db 
+            if (((tempPassword != "") || ((oldPassword != "") && _passwordHashService.VerifyUserPassword(oldPassword, user.Password))) 
+                && (user.Username == userName) &&
             // checks if the newPassword is different from the old one
                 ((!_passwordHashService.VerifyUserPassword(newPassword, user.Password))))
             {
@@ -188,13 +197,26 @@ namespace SimulationProject.Services
         // update Sequrity Questions
         public async Task<bool> UpdateSecurityQuestionAnsyc(string question, string question1, string question2, string answer, string answer1, string answer2, User user)
         {
-            user.Securityquestion = question;
-            user.Securityanswer = _passwordHashService.HashUserPassword(answer);
-            user.Securityquestion1 = question1;
-            user.Securityanswer1 = _passwordHashService.HashUserPassword(answer1);
-            user.Securityquestion2 = question2;
-            user.Securityanswer2 = _passwordHashService.HashUserPassword(answer2);
-            return await PutUserAsync()>0;
+            bool questionsUpdated = false;
+            if (!String.IsNullOrEmpty(question) && !String.IsNullOrEmpty(answer))
+            {
+                user.Securityquestion = question;
+                user.Securityanswer = _passwordHashService.HashUserPassword(answer);
+                questionsUpdated = await PutUserAsync() > 0;
+            }
+            if (!String.IsNullOrEmpty(question1) && !String.IsNullOrEmpty(answer1))
+            {
+                user.Securityquestion1 = question1;
+                user.Securityanswer1 = _passwordHashService.HashUserPassword(answer1);
+                questionsUpdated = await PutUserAsync() > 0;
+            }
+            if (!String.IsNullOrEmpty(question2) && !String.IsNullOrEmpty(answer2))
+            {
+                user.Securityquestion2 = question2;
+                user.Securityanswer2 = _passwordHashService.HashUserPassword(answer2);
+                questionsUpdated = await PutUserAsync() > 0;
+            }
+            return questionsUpdated;
         }
     }
 }

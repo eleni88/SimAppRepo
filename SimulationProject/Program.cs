@@ -32,6 +32,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<PasswordResetValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<PasswordUpdateValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<QuestionsUpadateValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<UpdateUserProfileValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<TempCodeRequestValidator>();
 builder.Services.Configure<GMailSettings>(builder.Configuration.GetSection("Gmail"));
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

@@ -34,7 +34,7 @@ namespace SimulationProject.Controllers
                 return BadRequest(new { message = "User not found." });
             }
             
-            string newpass = _usersService.GetUserNewPassword(PasswordUpdate.NewPassword, PasswordUpdate.OldPassword, user.Username, user);
+            string newpass = _usersService.GetUserNewPassword(PasswordUpdate.NewPassword, user.Username, user, PasswordUpdate.OldPassword);
             if (string.IsNullOrEmpty(newpass))
             {
                 return BadRequest(new { message = "Wrong password." });
@@ -64,13 +64,13 @@ namespace SimulationProject.Controllers
             {
                 return NotFound(new { message = "User not Found." });
             }
-            if ((DateTime.UtcNow - user.Emailtimestamp) > TimeSpan.FromMinutes(10))
+            if ((user.Emailtimestamp != null) && ((DateTime.UtcNow - user.Emailtimestamp) > TimeSpan.FromMinutes(10)))
             {
                 await _usersService.SetUserInActive(user);
                 return BadRequest(new { message = "Temporary code has expired. Your account has been disabled. Please contact the admin." });
             }
 
-            string newpass = _usersService.GetUserNewPassword(PasswordResset.NewPassword, PasswordResset.TempPassword, PasswordResset.UserName, user);
+            string newpass = _usersService.GetUserNewPassword(PasswordResset.NewPassword, PasswordResset.UserName, user, "", PasswordResset.TempPassword);
 
             if (string.IsNullOrEmpty(newpass))
             {
@@ -78,6 +78,7 @@ namespace SimulationProject.Controllers
             }
 
             await _usersService.UpdateUserPasswordAsync(newpass, user);
+            await _usersService.ResetTempPassAndTimeStamp(user);
             return Ok(new { message = "Password updated successfully." });
         }
     }

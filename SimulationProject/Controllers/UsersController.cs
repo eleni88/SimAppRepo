@@ -259,7 +259,7 @@ namespace SimulationProject.Controllers
             {
                 return NotFound(new { message = "User not found." });
             }
-            questionsUpdateDTO.Adapt(user);
+            //questionsUpdateDTO.Adapt(user);
             var updated = await _usersService.UpdateSecurityQuestionAnsyc(questionsUpdateDTO.Securityquestion, questionsUpdateDTO.Securityquestion1, questionsUpdateDTO.Securityquestion2,
                 questionsUpdateDTO.Securityanswer, questionsUpdateDTO.Securityanswer1, questionsUpdateDTO.Securityanswer2, user);
             if (!updated)
