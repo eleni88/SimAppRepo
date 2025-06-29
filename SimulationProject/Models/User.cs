@@ -110,6 +110,9 @@ public partial class User
     [Unicode(false)]
     public string? Tempcode { get; set; }
 
+    [Column("EMAILTIMESTAMP", TypeName = "datetime")]
+    public DateTime? Emailtimestamp { get; set; }
+
     [InverseProperty("User")]
     public virtual ICollection<Cloudcredential> Cloudcredentials { get; set; } = new List<Cloudcredential>();
 

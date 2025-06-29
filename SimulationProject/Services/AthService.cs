@@ -188,5 +188,12 @@ namespace SimulationProject.Services
             };
             return response;
         }
+        // login user - check Active
+        public async Task<bool> CheckUserActiveAsync(LoginForm loginform)
+        {
+            // Find user by username
+            var user = await GetUserByNameAsync(loginform.UserName);
+            return user.Active;
+        }
     }
 }

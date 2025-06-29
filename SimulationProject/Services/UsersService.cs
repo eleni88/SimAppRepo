@@ -26,6 +26,7 @@ namespace SimulationProject.Services
         Task UpdateUserPasswordAsync(string passwordHash, User user);
         Task<bool> UpdateSecurityQuestionAnsyc(string question, string question1, string question2, string answer, string answer1, string answer2, User user);
         Task<string> GenerateAndSaveTempCode(string username);
+        Task SetUserInActive(User user);
         bool PasswordValid(string password);
         string FindUserRole(int role);
     }
@@ -125,6 +126,13 @@ namespace SimulationProject.Services
             return await _context.Users.FirstOrDefaultAsync(u => u.Refreshtoken == refreshtoken);
         }
 
+        // InActive
+        public async Task SetUserInActive(User user)
+        {
+            user.Active = false;
+            await _context.SaveChangesAsync();
+        }
+
         //---------------------- Password ------------------------------------
         //Check Password validity
         public bool PasswordValid(string password)
@@ -162,6 +170,7 @@ namespace SimulationProject.Services
             var user = await GetUserByNameAsync(username);
             string tempcode = TempCodeGeneratorHelper.GenerateCode(10);
             user.Tempcode = tempcode;
+            user.Emailtimestamp = DateTime.UtcNow;
             await _context.SaveChangesAsync();
             return tempcode;
         }

@@ -64,6 +64,12 @@ namespace SimulationProject.Controllers
             {
                 return NotFound(new { message = "User not Found." });
             }
+            if ((DateTime.UtcNow - user.Emailtimestamp) > TimeSpan.FromMinutes(10))
+            {
+                await _usersService.SetUserInActive(user);
+                return BadRequest(new { message = "Temporary code has expired. Your account has been disabled. Please contact the admin." });
+            }
+
             string newpass = _usersService.GetUserNewPassword(PasswordResset.NewPassword, PasswordResset.TempPassword, PasswordResset.UserName, user);
 
             if (string.IsNullOrEmpty(newpass))
