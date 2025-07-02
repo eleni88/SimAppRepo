@@ -40,7 +40,7 @@ namespace SimulationProject.Controllers
             try
             {
                 await _tokenService.SendEmailAsync(userEmail, TmpCode);
-                return Ok(new { message = "A temporary password has been sent to", to = userEmail });
+                return Ok(new { message = $"A temporary password has been sent to {userEmail}", to = userEmail });
             }
             catch(Exception ex)
             {

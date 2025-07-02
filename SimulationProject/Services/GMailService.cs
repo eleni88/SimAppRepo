@@ -47,10 +47,10 @@ namespace SimulationProject.Services
             // Compose MIME email
             var mimeMessage = new StringBuilder();
             mimeMessage.AppendLine($"To: {emailTo}");
-            mimeMessage.AppendLine("Your temporary code is: ");
+            mimeMessage.AppendLine("Subject: Temporary code");
             mimeMessage.AppendLine("Content-Type: text/plain; charset=utf-8");
             mimeMessage.AppendLine();
-            mimeMessage.AppendLine(tmpcode);
+            mimeMessage.AppendLine($"Your temporary code is: {tmpcode}");
 
             var raw = Convert.ToBase64String(Encoding.UTF8.GetBytes(mimeMessage.ToString()))
                         .Replace("+", "-").Replace("/", "_").Replace("=", "");
