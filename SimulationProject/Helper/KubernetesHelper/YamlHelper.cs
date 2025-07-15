@@ -39,10 +39,63 @@ namespace SimulationProject.Helper.KubernetesHelper
             foreach (var file in files)
             {
                 var content = File.ReadAllText(file);
-                if (content.Contains("master") && content.Contains("Deployment"))
-                    result.HasMaster = true;
-                if (content.Contains("slave") && content.Contains("Pod"))
-                    result.SlaveCount++;
+                //if (content.Contains("master") && content.Contains("Deployment"))
+                //    result.HasMaster = true;
+                //if (content.Contains("slave") && content.Contains("Pod"))
+                //    result.SlaveCount++;
+
+                var input = new StringReader(content);
+                var yamlStream = new YamlStream();
+                yamlStream.Load(input);
+
+                foreach (var document in yamlStream.Documents)
+                {
+                    if (document.RootNode is not YamlMappingNode rootNode)
+                        continue;
+
+                    string kind = null;
+                    string name = null;
+                    string role = null;
+
+                    // Try to read kind
+                    if (rootNode.Children.TryGetValue(new YamlScalarNode("kind"), out var kindNode))
+                    {
+                        kind = kindNode.ToString();
+                    }
+
+                    // Try to read metadata.name
+                    if (rootNode.Children.TryGetValue(new YamlScalarNode("metadata"), out var metadataNode)
+                        && metadataNode is YamlMappingNode metadataMap)
+                    {
+                        if (metadataMap.Children.TryGetValue(new YamlScalarNode("name"), out var nameNode))
+                        {
+                            name = nameNode.ToString();
+                        }
+
+                        // Try to read metadata.labels.role (or app if needed)
+                        if (metadataMap.Children.TryGetValue(new YamlScalarNode("labels"), out var labelsNode)
+                            && labelsNode is YamlMappingNode labelsMap)
+                        {
+                            if (labelsMap.Children.TryGetValue(new YamlScalarNode("role"), out var roleNode))
+                            {
+                                role = roleNode.ToString();
+                            }
+                        }
+                    }
+
+                    // Robust detection
+                    if ((role?.Contains("master") ?? false) || (name?.Contains("master") ?? false))
+                    {
+                        if (kind == "Deployment")
+                            result.HasMaster = true;
+                    }
+
+                    if ((role?.Contains("slave") ?? false) || (name?.Contains("slave") ?? false))
+                    {
+                        if (kind == "Pod")
+                            result.SlaveCount++;
+                    }
+                }
             }
             return result;
         }
