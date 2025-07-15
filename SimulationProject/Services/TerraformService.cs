@@ -117,7 +117,7 @@ namespace SimulationProject.Services
 
             return valueElement.GetString() ?? throw new Exception("Kubeconfig not found in Terraform output.");
         }
-
+        
 
     }
 }
