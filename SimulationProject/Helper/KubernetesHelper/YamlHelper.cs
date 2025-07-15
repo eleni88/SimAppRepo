@@ -39,10 +39,6 @@ namespace SimulationProject.Helper.KubernetesHelper
             foreach (var file in files)
             {
                 var content = File.ReadAllText(file);
-                //if (content.Contains("master") && content.Contains("Deployment"))
-                //    result.HasMaster = true;
-                //if (content.Contains("slave") && content.Contains("Pod"))
-                //    result.SlaveCount++;
 
                 var input = new StringReader(content);
                 var yamlStream = new YamlStream();
