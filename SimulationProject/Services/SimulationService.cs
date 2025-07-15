@@ -19,6 +19,7 @@ namespace SimulationProject.Services
         //------------- Simulation Execution ------------------
         Task<Simexecution> GetSimulationSimExecutionAsync(int Simid, int Execid);
         Task DeleteSimulationSimExecutionAsync(Simexecution simexecution);
+        Task<int> PutSimuExecutionAsync();
     }
     public class SimulationService: ISimulationService
     {
@@ -111,6 +112,14 @@ namespace SimulationProject.Services
         {
             _context.Simexecutions.Remove(simexecution);
             await _context.SaveChangesAsync();
+        }
+
+        //put
+        public async Task<int> PutSimuExecutionAsync()
+        {
+            int rowsAfected = 0;
+            rowsAfected = await _context.SaveChangesAsync();
+            return rowsAfected;
         }
     }
 }
