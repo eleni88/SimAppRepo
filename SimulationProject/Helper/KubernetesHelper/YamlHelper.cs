@@ -107,53 +107,72 @@ namespace SimulationProject.Helper.KubernetesHelper
 
             var root = (YamlMappingNode)yamlStream.Documents[0].RootNode;
 
-            var specNode = root["spec"] as YamlMappingNode;
+            var specNode = (YamlMappingNode)root["spec"];
+
+            var templateNode = (YamlMappingNode)specNode["template"]; 
             
-            var templateNode = specNode["template"] as YamlMappingNode;
-            
-            var podSpec = templateNode["spec"] as YamlMappingNode;
+            var podSpec = (YamlMappingNode)templateNode["spec"];
 
             // Add volumes
-            if (!podSpec.Children.ContainsKey("volumes"))
+            if (!podSpec.Children.TryGetValue("volumes", out var volumesNode))
             {
-                var volumesNode = new YamlSequenceNode
-            {
-                new YamlMappingNode
-                {
-                    { "name", "config-volume" },
-                    {
-                        "configMap", new YamlMappingNode
-                        {
-                            { "name", "simulation-config" }
-                        }
-                    }
-                }
-            };
+                volumesNode = new YamlSequenceNode();
                 podSpec.Add("volumes", volumesNode);
             }
 
-            // Add volumeMounts to first container
-            var containers = podSpec["containers"] as YamlSequenceNode;
-            var firstContainer = containers.Children[0] as YamlMappingNode;
+            var volumesSeq = (YamlSequenceNode)volumesNode;
 
-            if (!firstContainer.Children.ContainsKey("volumeMounts"))
+            var existingVolume = volumesSeq.Children
+                .OfType<YamlMappingNode>()
+                .FirstOrDefault(v => v.Children.TryGetValue("name", out var n) && n.ToString() == "config-volume");
+
+            if (existingVolume == null)
             {
-                var volumeMounts = new YamlSequenceNode
+                var newVolume = new YamlMappingNode
+                {
+                    { "name", "config-volume" },
+                    { "configMap", new YamlMappingNode { { "name", "simulation-config" } } }
+                };
+                volumesSeq.Add(newVolume);
+            }
+            else
             {
-                new YamlMappingNode
+                existingVolume.Children["configMap"] = new YamlMappingNode { { "name", "simulation-config" } };
+            }
+
+            // Add volumeMounts to first container
+            var containers = (YamlSequenceNode)podSpec["containers"];
+            var firstContainer = (YamlMappingNode)containers.Children[0];
+
+            if (!firstContainer.Children.TryGetValue("volumeMounts", out var volumeMountsNode))
+            {
+                volumeMountsNode = new YamlSequenceNode();
+                firstContainer.Add("volumeMounts", volumeMountsNode);
+            }
+
+            var volumeMountsSeq = (YamlSequenceNode)volumeMountsNode;
+
+            var existingMount = volumeMountsSeq.Children
+                .OfType<YamlMappingNode>()
+                .FirstOrDefault(m => m.Children.TryGetValue("mountPath", out var p) && p.ToString() == "/app/config");
+
+            if (existingMount != null)
+            {
+                // overwrite to point to config-volume
+                existingMount.Children["name"] = new YamlScalarNode("config-volume");
+            }
+            else
+            {
+                var newMount = new YamlMappingNode
                 {
                     { "name", "config-volume" },
                     { "mountPath", "/app/config" }
-                }
-            };
-                firstContainer.Add("volumeMounts", volumeMounts);
+                };
+                volumeMountsSeq.Add(newMount);
             }
 
             // Save back to file
             using var writer = new StringWriter();
-            var serializer = new SerializerBuilder()
-                .WithNamingConvention(CamelCaseNamingConvention.Instance)
-                .Build();
             yamlStream.Save(writer);
             File.WriteAllText(yamlPath, writer.ToString());
         }
