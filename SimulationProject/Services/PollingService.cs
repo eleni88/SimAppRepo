@@ -5,12 +5,12 @@ namespace SimulationProject.Services
     public class PollingService
     {
         private readonly ILogger<SimulationService> _logger;
-        private readonly ISimulationService _simulationService;
+        //private readonly ISimulationService _simulationService;
 
-        public PollingService(ILogger<SimulationService> logger, ISimulationService simulationService)
+        public PollingService(ILogger<SimulationService> logger) //, ISimulationService simulationService)
         {
             _logger = logger;
-            _simulationService = simulationService;
+           // _simulationService = simulationService;
         }
 
         public async Task WaitForSimulationToFinishAsync(
