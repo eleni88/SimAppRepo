@@ -1,6 +1,7 @@
 ﻿using k8s;
 using SimulationProject.Helper.GitCloneHelper;
 using SimulationProject.Services;
+using YamlDotNet.RepresentationModel;
 
 namespace SimulationProject.Helper.KubernetesHelper
 {
@@ -8,6 +9,7 @@ namespace SimulationProject.Helper.KubernetesHelper
     {
         public static async Task<string> RunSimulationToMinikubeAsync(string repoUrl, string jsonParams)
         {
+            var logger = new LoggerFactory().CreateLogger("MinikubeDeploy");
             var kubeConfigPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".kube", "config");
             var kubeConfigContent = await File.ReadAllTextAsync(kubeConfigPath);
             var kubeClient = new KubernetesDeployerHelper(kubeConfigContent);
@@ -19,6 +21,8 @@ namespace SimulationProject.Helper.KubernetesHelper
 
             // 2. Find YAML files
             var allYamlFiles = YamlHelper.FindYamlFiles(repoPath);
+            if (!allYamlFiles.Any())
+                throw new Exception("No YAML files found in repository.");
             var parsed = YamlHelper.ParseYamlFiles(allYamlFiles);
             if (!parsed.HasMaster)
                 throw new Exception("No master deployment found in repo YAMLs.");
@@ -37,47 +41,92 @@ namespace SimulationProject.Helper.KubernetesHelper
                 var content = File.ReadAllText(yaml);
                 if (content.Contains("master") && content.Contains("Deployment"))
                     YamlHelper.AddConfigMapToDeploymentYaml(yaml);
+                else
+                if (content.Contains("master") && content.Contains("Service"))
+                {
+                    var stream = new YamlStream();
+                    stream.Load(new StringReader(content));
+
+                    if (stream.Documents[0].RootNode is YamlMappingNode root &&
+                        root.Children.TryGetValue("spec", out var specNodeObj) &&
+                        specNodeObj is YamlMappingNode specNode)
+                    {
+                        specNode.Children["type"] = new YamlScalarNode("NodePort");
+
+                        if (!specNode.Children.TryGetValue("ports", out var portsNode) ||
+                            portsNode is not YamlSequenceNode portsSeq)
+                        {
+                            portsSeq = new YamlSequenceNode();
+                            specNode.Children["ports"] = portsSeq;
+                        }
+
+                        var firstPort = portsSeq.Children.OfType<YamlMappingNode>().FirstOrDefault();
+                        if (firstPort == null)
+                        {
+                            firstPort = new YamlMappingNode();
+                            portsSeq.Add(firstPort);
+                        }
+
+                        firstPort.Children["port"] = new YamlScalarNode("80");
+                        firstPort.Children["targetPort"] = new YamlScalarNode("80");
+                        firstPort.Children["nodePort"] = new YamlScalarNode("30080");
+                        firstPort.Children["protocol"] = new YamlScalarNode("TCP");
+
+                        using var writer = new StringWriter();
+                        stream.Save(writer);
+                        File.WriteAllText(yaml, writer.ToString());
+                    }
+                }
             }
 
-            // 6. Deploy
-            await kubeClient.DeployYamlFilesAsync(new List<string> { configMapPath });
-            await kubeClient.DeployYamlFilesAsync(yamlFilesToDeploy);
+            // 6. Filter only master deployment and service YAMLs
+            var masterYamlOnly = yamlFilesToDeploy.Where(yaml =>
+            {
+                var content = File.ReadAllText(yaml);
+                return content.Contains("master") &&
+                       (content.Contains("Deployment") || content.Contains("Service"));
+            }).ToList();
 
-            // 7. Poll master
+            // 7. Deploy configMap and master-only YAMLs
+            await kubeClient.DeployYamlFilesAsync(new List<string> { configMapPath });
+            await kubeClient.DeployYamlFilesAsync(masterYamlOnly);
+
+            // 8. Poll master
             var polling = new PollingService(new LoggerFactory().CreateLogger<SimulationService>());
             await polling.WaitForSimulationToFinishAsync(kubeClient.GetClient(), "app=master", 0);
 
-            // 8. Fetch results from master service
-            try
+            // 9.Fetch results from master service
+        try
             {
                 var httpClient = new HttpClient();
-                var response = await httpClient.GetAsync("http://localhost:30080/results"); // Assuming port-forward
+                var response = await httpClient.GetAsync("http://localhost:30080/results"); // Assuming NodePort or port-forward
                 if (response.IsSuccessStatusCode)
                 {
                     resultsJson = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine("\nSimulation Results (JSON):\n" + resultsJson);
+                    logger.LogInformation("Simulation Results (JSON):\n{Results}", resultsJson);
                 }
                 else
                 {
-                    Console.WriteLine($"Failed to fetch results. Status: {response.StatusCode}");
+                    logger.LogWarning("Failed to fetch results. Status: {Status}", response.StatusCode);
                     resultsJson = $"Error: Failed to fetch results. Status {response.StatusCode}";
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error retrieving results from master service: {ex.Message}");
+                logger.LogError(ex, "Error retrieving results from master service");
                 resultsJson = $"Exception: {ex.Message}";
             }
 
-            // 9. Cleanup
+            // 10. Cleanup
             try
             {
                 await kubeClient.GetClient().AppsV1.DeleteNamespacedDeploymentAsync("master", "default");
+                await kubeClient.GetClient().CoreV1.DeleteNamespacedServiceAsync("master", "default");
                 await kubeClient.GetClient().CoreV1.DeleteNamespacedConfigMapAsync("simulation-config", "default");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Cleanup warning: {ex.Message}");
+                logger.LogWarning(ex, "Cleanup warning");
             }
 
             return resultsJson;

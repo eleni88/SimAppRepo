@@ -11,8 +11,6 @@ using Scalar.AspNetCore;
 using SimulationProject.Data;
 using SimulationProject.DTO.SimulationDTOs;
 using SimulationProject.DTO.UserDTOs;
-using SimulationProject.Helper;
-using SimulationProject.Helper.TerraformHelper;
 using SimulationProject.Services;
 using SimulationProject.Validators;
 

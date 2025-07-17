@@ -23,10 +23,11 @@ namespace SimulationProject.Helper.KubernetesHelper
             {
                 var content = File.ReadAllText(yamlFile);
 
-                if ((content.Contains("master") && content.Contains("Deployment")) || (content.Contains("slave") && content.Contains("Pod")))
+                if ((content.Contains("master") && content.Contains("Deployment")) ||
+                    (content.Contains("master") && content.Contains("Service")))// || (content.Contains("slave") && content.Contains("Pod")))
                 {
                     var dest = Path.Combine(tempDir, Path.GetFileName(yamlFile));
-                    File.Copy(yamlFile, dest);
+                    File.Copy(yamlFile, dest, overwrite: true);
                 }
             }
             return Directory.GetFiles(tempDir, "*.yaml", SearchOption.AllDirectories).ToList();

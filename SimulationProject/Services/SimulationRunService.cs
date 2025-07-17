@@ -95,11 +95,11 @@ namespace SimulationProject.Services
                     KubeConfigValidator.ValidateKubeConfig(kubeConfig);
                     // 3. Deploy YAML files
                     var kubeClient = new KubernetesDeployerHelper(kubeConfig);
-                    // 4. Deploy configMap YAML first
+                    // 3.1. Deploy configMap YAML first
                     await kubeClient.DeployYamlFilesAsync(new List<string> { configMapPath });
-                    // 5. Deploy the rest YAML files
+                    // 3.2. Deploy the rest YAML files
                     await kubeClient.DeployYamlFilesAsync(tmpYamlFiles);
-                    // 6. Wait until slave pods complete
+                    // 4. Wait until slave pods complete
                     await _PollingService.WaitForSimulationToFinishAsync(kubeClient.GetClient(), "app=slave", parsed.SlaveCount);
 
                     return "Simulation completed and cluster destroyed.";
@@ -113,7 +113,7 @@ namespace SimulationProject.Services
                 {
                     try
                     {
-                        // 7. Destroy cluster
+                        // 5. Destroy cluster
                         await terraformRunner.DestroyAsync();
                     }
                     catch (Exception destroyEx)
