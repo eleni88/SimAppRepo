@@ -112,6 +112,11 @@ namespace SimulationProject.Controllers
             {
                 return NotFound(new { message = "Simulation not found" });
             }
+            var simexecutions = simulation.Simexecutions;
+            if ((simexecutions != null) && (simexecutions.Any(simexc => simexc.State == "Running")))
+            {
+                return BadRequest(new { message = "Simulation is running. It cannot be modified." });
+            }
             updateSimulationDTO.Adapt(simulation);
             int rowsaffected = await _simulationService.PutSimulationAsync();
             if (rowsaffected > 0)
@@ -133,6 +138,11 @@ namespace SimulationProject.Controllers
             if (simulation == null)
             {
                 return NotFound(new { message = "Simulation not found" });
+            }
+            var simexecutions = simulation.Simexecutions;
+            if ((simexecutions != null) && (simexecutions.Any(simexc => simexc.State == "Running")))
+            {
+                return BadRequest(new { message = "Simulation is running. It cannot be deleted." });
             }
             await _simulationService.DeleteSimulationAsync(simulation);
             return NoContent();
@@ -174,9 +184,9 @@ namespace SimulationProject.Controllers
             if (simexecution == null)
                 return NotFound(new { message = "Execution not found" });
 
-            if (simexecution.State == "ongoing")
+            if (simexecution.State == "Running")
             {
-                return BadRequest(new { message = "Execution is ongoing. It cannot be deleted" });
+                return BadRequest(new { message = "Execution is running. It cannot be deleted." });
             }
 
             await _simulationService.DeleteSimulationSimExecutionAsync(simexecution);
