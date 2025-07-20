@@ -97,6 +97,7 @@ namespace SimulationProject.Services
 
             // 7. Deploy configMap and master-only YAMLs
             await kubeClient.DeployYamlFilesAsync(new List<string> { configMapPath });
+            
             await kubeClient.DeployYamlFilesAsync(masterYamlOnly);
 
             // 8. Poll master
