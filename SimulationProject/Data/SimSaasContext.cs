@@ -71,8 +71,6 @@ public partial class SimSaasContext : DbContext
         {
             entity.HasKey(e => e.Execid).HasName("PK_EXECID");
 
-            entity.Property(e => e.Execreport).IsFixedLength();
-
             entity.HasOne(d => d.Sim).WithMany(p => p.Simexecutions).HasConstraintName("FK_SIMID");
         });
 

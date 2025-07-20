@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SimulationProject.DTO.SimExecutionDTOs;
 using SimulationProject.DTO.SimulationDTOs;
-using SimulationProject.Helper.KubernetesHelper;
+using SimulationProject.Models;
 using SimulationProject.Services;
 
 namespace SimulationProject.Controllers
@@ -11,10 +12,14 @@ namespace SimulationProject.Controllers
     public class SimulationRunController : ControllerBase
     {
         private readonly ISimulationService _simulationService;
+        private readonly PollingService _PollingService;
+        private readonly MinikubeDeployService _minikubeDeployService;
 
-        public SimulationRunController(ISimulationService simulationService)
+        public SimulationRunController(ISimulationService simulationService, PollingService pollingService, MinikubeDeployService minikubeDeployService)
         {
             _simulationService = simulationService;
+            _PollingService = pollingService;
+            _minikubeDeployService = minikubeDeployService;
         }
 
         [HttpPost("minikube/run")]
@@ -27,12 +32,25 @@ namespace SimulationProject.Controllers
             }
             try
             {
-                string resultsJson = await MinikubeDeployHelper.RunSimulationToMinikubeAsync(
-                    request.Codeurl,
-                    request.Simparams
-                );
+                // create new simExecution
+                var newsimexec = new Simexecution
+                {
+                    Simid = request.Simid,
+                    Startdate = DateTime.UtcNow
+                };
+                await _simulationService.CreateSimExecutionAsync(newsimexec);
 
-                return Content(resultsJson, "application/json");
+                string resultsJson = await _minikubeDeployService.RunSimulationToMinikubeAsync(
+                    request.Codeurl,
+                    request.Simparams,
+                    newsimexec
+                );
+                newsimexec.Enddate = DateTime.UtcNow;
+                TimeSpan duration = (TimeSpan)(newsimexec.Enddate - newsimexec.Startdate);
+                newsimexec.Duration = duration.ToString(@"hh\:mm\:ss");
+                await _simulationService.CreateSimExecutionAsync(newsimexec);
+
+                return Ok(new { message = "Simulation succeed" });
             }
             catch (Exception ex)
             {

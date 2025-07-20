@@ -40,7 +40,7 @@ builder.Services.AddSwaggerGen();
 
 // Add services to the container.
 builder.Services.AddScoped<IUsersService, UsersService>();
-builder.Services.AddScoped<ISimulationService, SimulationService>();
+builder.Services.AddScoped<ISimulationService, ISimulationService>();
 builder.Services.AddScoped<IPasswordHashService, PasswordHashService>();
 builder.Services.AddScoped<AthService>();
 builder.Services.AddScoped<ILinkService<UserDto>, LinkService>();
@@ -49,6 +49,7 @@ builder.Services.AddScoped<NavLinkService>();
 builder.Services.AddScoped<IGMailService, GMailService>();
 builder.Services.AddScoped<SimulationRunService>();
 builder.Services.AddScoped<PollingService>();
+builder.Services.AddScoped<MinikubeDeployService>();
 
 builder.Services.AddCors(options =>
 {

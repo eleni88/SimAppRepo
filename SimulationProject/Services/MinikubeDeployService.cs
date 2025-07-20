@@ -1,13 +1,21 @@
 ﻿using k8s;
 using SimulationProject.Helper.GitCloneHelper;
-using SimulationProject.Services;
+using SimulationProject.Helper.KubernetesHelper;
+using SimulationProject.Models;
 using YamlDotNet.RepresentationModel;
 
-namespace SimulationProject.Helper.KubernetesHelper
+namespace SimulationProject.Services
 {
-    public static class MinikubeDeployHelper
+    public class MinikubeDeployService
     {
-        public static async Task<string> RunSimulationToMinikubeAsync(string repoUrl, string jsonParams)
+        private readonly ILogger<ISimulationService> _logger;
+        private readonly PollingService _PollingService;
+        public MinikubeDeployService(ILogger<ISimulationService> logger, PollingService pollingService)
+        {
+            _logger = logger;
+            _PollingService = pollingService;
+        }
+        public async Task<string> RunSimulationToMinikubeAsync(string repoUrl, string jsonParams, Simexecution newsimexec)
         {
             var logger = new LoggerFactory().CreateLogger("MinikubeDeploy");
             var kubeConfigPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".kube", "config");
@@ -92,14 +100,13 @@ namespace SimulationProject.Helper.KubernetesHelper
             await kubeClient.DeployYamlFilesAsync(masterYamlOnly);
 
             // 8. Poll master
-            var polling = new PollingService(new LoggerFactory().CreateLogger<SimulationService>());
-            await polling.WaitForSimulationToFinishAsync(kubeClient.GetClient(), "app=master", 0);
+            await _PollingService.WaitForSimulationToFinishAsync(newsimexec, kubeClient.GetClient(), "app=master", 0);
 
             // 9.Fetch results from master service
         try
             {
                 var httpClient = new HttpClient();
-                var response = await httpClient.GetAsync("http://localhost:30080/results"); // Assuming NodePort or port-forward
+                var response = await httpClient.GetAsync("http://localhost:30080/results"); //  NodePort 
                 if (response.IsSuccessStatusCode)
                 {
                     resultsJson = await response.Content.ReadAsStringAsync();

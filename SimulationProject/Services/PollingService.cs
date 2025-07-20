@@ -1,19 +1,21 @@
 ﻿using k8s;
+using SimulationProject.Models;
 
 namespace SimulationProject.Services
 {
     public class PollingService
     {
-        private readonly ILogger<SimulationService> _logger;
-        //private readonly ISimulationService _simulationService;
+        private readonly ILogger<ISimulationService> _logger;
+        private readonly ISimulationService _simulationService;
 
-        public PollingService(ILogger<SimulationService> logger) //, ISimulationService simulationService)
+        public PollingService(ILogger<ISimulationService> logger, ISimulationService simulationService)
         {
             _logger = logger;
-           // _simulationService = simulationService;
+            _simulationService = simulationService;
         }
 
         public async Task WaitForSimulationToFinishAsync(
+            Simexecution newsimexec,
             IKubernetes client,
             string masterLabelSelector,
             int expectedSlaves,
@@ -53,13 +55,13 @@ namespace SimulationProject.Services
                     else if (phase == "Succeeded")
                     {
                         _logger.LogInformation("Master pod completed successfully. Fetching results...");
-                        await SaveResultsFromMasterPodAsync(client, masterPod.Metadata.Name, namespaceName, cancellationToken);
+                        await SaveResultsFromMasterPodAsync(newsimexec, client, masterPod.Metadata.Name, namespaceName, phase, cancellationToken);
                         break;
                     }
                     else
                     {
                         _logger.LogWarning("Master pod terminated with phase: {Phase}. Attempting to fetch logs anyway.", phase);
-                        await SaveResultsFromMasterPodAsync(client, masterPod.Metadata.Name, namespaceName, cancellationToken);
+                        await SaveResultsFromMasterPodAsync(newsimexec, client, masterPod.Metadata.Name, namespaceName, phase, cancellationToken);
                         break;
                     }
                 }
@@ -68,7 +70,7 @@ namespace SimulationProject.Services
             }
         }
 
-        private async Task SaveResultsFromMasterPodAsync(IKubernetes client, string podName, string namespaceName, CancellationToken cancellationToken)
+        private async Task SaveResultsFromMasterPodAsync(Simexecution newsimexec, IKubernetes client, string podName, string namespaceName, string phase, CancellationToken cancellationToken)
         {
             try
             {
@@ -83,7 +85,7 @@ namespace SimulationProject.Services
                     _logger.LogInformation("Collected logs from master pod:\n{Logs}", logs);
 
                     // Save to DB
-                    await SaveResultsToDatabaseAsync(logs);
+                    await SaveResultsToDatabaseAsync(logs, newsimexec, phase);
                 }
             }
             catch (Exception ex)
@@ -92,9 +94,10 @@ namespace SimulationProject.Services
             }
         }
 
-        private async Task SaveResultsToDatabaseAsync(string results) // , int simId, int simExecId)
+        private async Task SaveResultsToDatabaseAsync(string results, Simexecution newsimexec, string phase)
         {
-            //var simExec = await _simulationService.GetSimulationSimExecutionAsync(simId, simExecId);
+            newsimexec.Execreport = results;
+            newsimexec.State = phase;
             await Task.Delay(100); 
             _logger.LogInformation("Results saved to database.");
         }

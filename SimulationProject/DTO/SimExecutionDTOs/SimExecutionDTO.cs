@@ -8,6 +8,6 @@
         public DateTime Startdate { get; set; } 
         public DateTime Enddate { get; set; }
         public float Duration { get; set; }
-        //public BinaryData Execreport { get; set; }
+        public string Execreport { get; set; }
     }
 }

@@ -1,27 +1,25 @@
-﻿using System.Diagnostics;
-using System.Text.Json;
-using SimulationProject.Data;
-using SimulationProject.DTO.RegionDTOs;
+﻿using SimulationProject.DTO.RegionDTOs;
 using SimulationProject.DTO.ResourceDTOs;
 using SimulationProject.DTO.SimulationDTOs;
 using SimulationProject.Helper.GitCloneHelper;
 using SimulationProject.Helper.KubernetesHelper;
 using SimulationProject.Helper.TerraformHelper;
+using SimulationProject.Models;
 
 namespace SimulationProject.Services
 {
     public class SimulationRunService
     {
-        private readonly ILogger<SimulationService> _logger;
+        private readonly ILogger<ISimulationService> _logger;
         private readonly PollingService _PollingService;
 
-        public SimulationRunService(ILogger<SimulationService> logger, PollingService pollingService)
+        public SimulationRunService(ILogger<ISimulationService> logger, PollingService pollingService)
         {
             _logger = logger;
             _PollingService = pollingService;
         }
 
-        public async Task<string> RunSimulationAsync(SimulationDTO request, RegionDTO region, ResourceDTO resource)
+        public async Task<string> RunSimulationAsync(SimulationDTO request, RegionDTO region, ResourceDTO resource, Simexecution newsimexec)
         {
             string repoPath;
             try
@@ -100,7 +98,7 @@ namespace SimulationProject.Services
                     // 3.2. Deploy the rest YAML files
                     await kubeClient.DeployYamlFilesAsync(tmpYamlFiles);
                     // 4. Wait until slave pods complete
-                    await _PollingService.WaitForSimulationToFinishAsync(kubeClient.GetClient(), "app=slave", parsed.SlaveCount);
+                    await _PollingService.WaitForSimulationToFinishAsync(newsimexec, kubeClient.GetClient(), "app=slave", parsed.SlaveCount);
 
                     return "Simulation completed and cluster destroyed.";
                 }

@@ -27,15 +27,18 @@ public partial class Simexecution
     [Column("ENDDATE", TypeName = "datetime")]
     public DateTime? Enddate { get; set; }
 
-    [Column("DURATION")]
-    public double? Duration { get; set; }
-
     [Column("EXECREPORT")]
-    [MaxLength(1)]
-    public byte[]? Execreport { get; set; }
+    [StringLength(8000)]
+    [Unicode(false)]
+    public string? Execreport { get; set; }
 
     [Column("SIMID")]
     public int Simid { get; set; }
+
+    [Column("duration")]
+    [StringLength(20)]
+    [Unicode(false)]
+    public string? Duration { get; set; }
 
     [ForeignKey("Simid")]
     [InverseProperty("Simexecutions")]
