@@ -29,4 +29,7 @@ public partial class Region
     [ForeignKey("Cloudid")]
     [InverseProperty("Regions")]
     public virtual Cloudprovider? Cloud { get; set; }
+
+    [InverseProperty("Reg")]
+    public virtual ICollection<Simulation> Simulations { get; set; } = new List<Simulation>();
 }

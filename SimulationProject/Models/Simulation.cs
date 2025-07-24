@@ -43,6 +43,13 @@ public partial class Simulation
     [Column("UPDATEDATE", TypeName = "datetime")]
     public DateTime? Updatedate { get; set; }
 
+    [Column("REGID")]
+    public int? Regid { get; set; }
+
+    [ForeignKey("Regid")]
+    [InverseProperty("Simulations")]
+    public virtual Region? Reg { get; set; }
+
     [ForeignKey("Simcloud")]
     [InverseProperty("Simulations")]
     public virtual Cloudprovider? SimcloudNavigation { get; set; }

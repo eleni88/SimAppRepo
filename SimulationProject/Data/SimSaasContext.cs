@@ -34,7 +34,6 @@ public partial class SimSaasContext : DbContext
     {
 
     }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.UseCollation("Greek_100_CI_AI");
@@ -80,6 +79,8 @@ public partial class SimSaasContext : DbContext
 
             entity.Property(e => e.Simid).ValueGeneratedNever();
             entity.Property(e => e.Updatedate).HasDefaultValueSql("(getdate())");
+
+            entity.HasOne(d => d.Reg).WithMany(p => p.Simulations).HasConstraintName("FK_RegionId");
 
             entity.HasOne(d => d.SimcloudNavigation).WithMany(p => p.Simulations).HasConstraintName("FK_SIMCLOUD");
 

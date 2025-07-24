@@ -50,6 +50,8 @@ builder.Services.AddScoped<IGMailService, GMailService>();
 builder.Services.AddScoped<SimulationRunService>();
 builder.Services.AddScoped<PollingService>();
 builder.Services.AddScoped<MinikubeDeployService>();
+builder.Services.AddScoped<ProviderService>();
+builder.Services.AddScoped<RegionService>();
 
 builder.Services.AddCors(options =>
 {
