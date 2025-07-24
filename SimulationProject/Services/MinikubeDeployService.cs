@@ -3,6 +3,7 @@ using SimulationProject.Helper.GitCloneHelper;
 using SimulationProject.Helper.KubernetesHelper;
 using SimulationProject.Models;
 using YamlDotNet.RepresentationModel;
+using static Azure.Core.HttpHeader;
 
 namespace SimulationProject.Services
 {
@@ -95,16 +96,18 @@ namespace SimulationProject.Services
                        (content.Contains("Deployment") || content.Contains("Service"));
             }).ToList();
 
-            // 7. Deploy configMap and master-only YAMLs
+            // 7. Deploy configMap YAML
             await kubeClient.DeployYamlFilesAsync(new List<string> { configMapPath });
-            
+            // 8. RBAC 
+            await RBACHelper.ApplyRbacAsync(kubeClient.GetClient());
+            // 9. Deploy  master YAML
             await kubeClient.DeployYamlFilesAsync(masterYamlOnly);
 
             // 8. Poll master
             await _PollingService.WaitForSimulationToFinishAsync(newsimexec, kubeClient.GetClient(), "app=master", 0);
 
             // 9.Fetch results from master service
-        try
+            try
             {
                 var httpClient = new HttpClient();
                 var response = await httpClient.GetAsync("http://localhost:30080/results"); //  NodePort 
