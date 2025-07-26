@@ -3,6 +3,7 @@ using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SimulationProject.DTO.ProviderDTOs;
 using SimulationProject.Services;
 
 namespace SimulationProject.Controllers
@@ -25,7 +26,8 @@ namespace SimulationProject.Controllers
         public async Task<IActionResult> GetAllProviders()
         {
             var providers = await _providerService.GetAllProvidersAsync();
-            return Ok(providers);
+            var providerDtos = providers.Adapt<List<ProviderDTO>>();
+            return Ok(providerDtos);
         }
     }
 }

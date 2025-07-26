@@ -44,11 +44,12 @@ namespace SimulationProject.Controllers
             var simulations = await _simulationService.GetAllSimulationsAsync();
             var usersSimulations = simulations;
             var simulationsWithLinks = new List<LinkResponseWrapper<SimulationDTO>>();
+            
             if ((simulations != null) && (userRoleStr == "User"))
             {
                 if (simulations.Any(simulation => simulation.Simuser == userId))
                 {
-                    usersSimulations = (IEnumerable<Simulation>)simulations.Select(simulation => (simulation.Simuser == userId));
+                    usersSimulations = simulations.Where(simulation => simulation.Simuser == userId);
                     var simulationsDtos = usersSimulations.Select(simulation => simulation.Adapt<SimulationDTO>());
                     simulationsWithLinks = _linkService.AddLinksToList(simulationsDtos, baseUri);
                 }
@@ -98,6 +99,7 @@ namespace SimulationProject.Controllers
                 return BadRequest();
             }
             simulation.Simuser = userId;
+            simulation.Createdate = DateTime.UtcNow;
             await _simulationService.CreateSimulationAsync(simulation);
             return CreatedAtAction(nameof(GetSimulation), new { Simid = simulation.Simid }, simulation);
         }
@@ -165,8 +167,8 @@ namespace SimulationProject.Controllers
             if (simexecution == null)
                 return NotFound(new { message = "Execution not found"});
 
-            var saleDto = simexecution.Adapt<SimExecutionDTO>();
-            return Ok(saleDto);
+            var simexecDto = simexecution.Adapt<SimExecutionDTO>();
+            return Ok(simexecDto);
         }
 
         // DELETE /api/{Simid}/simexecutions/{Execid}

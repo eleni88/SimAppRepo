@@ -16,7 +16,7 @@ namespace SimulationProject.Services
         // get
         public async Task<IEnumerable<Cloudprovider>> GetAllProvidersAsync()
         {
-            return await _context.Cloudproviders.ToListAsync();
+            return await _context.Cloudproviders.Include(p => p.Regions).ToListAsync();
         }
     }
 }

@@ -26,7 +26,7 @@ namespace SimulationProject.Helper.TerraformHelper
             return new TerraformInput
             {
                 CloudProvider = request.Simcloud,
-                Region = region.RegionCode,
+                Region = region.Regioncode,
                 MinNodes = resource.Mininstances,
                 MaxNodes = resource.Maxinstances,
                 DesiredNodes = resource.Mininstances,

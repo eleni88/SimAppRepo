@@ -43,12 +43,12 @@ public partial class Simulation
     [Column("UPDATEDATE", TypeName = "datetime")]
     public DateTime? Updatedate { get; set; }
 
-    [Column("REGID")]
-    public int? Regid { get; set; }
+    [Column("REGIONID")]
+    public int? Regionid { get; set; }
 
-    [ForeignKey("Regid")]
+    [ForeignKey("Regionid")]
     [InverseProperty("Simulations")]
-    public virtual Region? Reg { get; set; }
+    public virtual Region? Region { get; set; }
 
     [ForeignKey("Simcloud")]
     [InverseProperty("Simulations")]

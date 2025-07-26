@@ -3,7 +3,7 @@
     public class RegionDTO
     {
         public int Regionid { get; set; }
-        public string RegionName { get; set; }
-        public string RegionCode { get; set; }
+        public string Regionname { get; set; }
+        public string Regioncode { get; set; }
     }
 }

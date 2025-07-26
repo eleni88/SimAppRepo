@@ -64,19 +64,25 @@ namespace SimulationProject.Services
         // get
         public async Task<IEnumerable<Simulation>> GetAllSimulationsAsync()
         {
-            return await _context.Simulations.Include(sim => sim.Simexecutions).ToListAsync();
+            return await _context.Simulations.Include(sim => sim.Simexecutions)
+                .Include(sim => sim.Region)
+                .ToListAsync();
         }
 
         //get by id
         public async Task<Simulation> GetSimulationByIdAsync(int Simulation)
         {
-            return await _context.Simulations.Include(sim => sim.Simexecutions).FirstOrDefaultAsync(sim => sim.Simid == Simulation);
+            return await _context.Simulations.Include(sim => sim.Simexecutions)
+                .Include(sim => sim.Region)
+                .FirstOrDefaultAsync(sim => sim.Simid == Simulation);
         }
 
         // get by name
         public async Task<Simulation> GetSimulationByNameAsync(string Simname)
         {
-            return await _context.Simulations.Include(sim => sim.Simexecutions).FirstOrDefaultAsync(sim => sim.Name == Simname);
+            return await _context.Simulations.Include(sim => sim.Simexecutions)
+                .Include(sim => sim.Region)
+                .FirstOrDefaultAsync(sim => sim.Name == Simname);
         }
 
         //post

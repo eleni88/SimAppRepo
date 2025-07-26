@@ -30,6 +30,6 @@ public partial class Region
     [InverseProperty("Regions")]
     public virtual Cloudprovider? Cloud { get; set; }
 
-    [InverseProperty("Reg")]
+    [InverseProperty("Region")]
     public virtual ICollection<Simulation> Simulations { get; set; } = new List<Simulation>();
 }
