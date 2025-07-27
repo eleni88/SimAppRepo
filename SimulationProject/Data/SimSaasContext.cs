@@ -76,10 +76,7 @@ public partial class SimSaasContext : DbContext
 
         modelBuilder.Entity<Simulation>(entity =>
         {
-            entity.HasKey(e => e.Simid).HasName("PK_SIMID");
-
-            entity.Property(e => e.Simid).ValueGeneratedNever();
-            entity.Property(e => e.Updatedate).HasDefaultValueSql("(getdate())");
+            entity.HasKey(e => e.Simid).HasName("PK_SIMULID");
 
             entity.HasOne(d => d.Region).WithMany(p => p.Simulations).HasConstraintName("FK_REGIONID");
 

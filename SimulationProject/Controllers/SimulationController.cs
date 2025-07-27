@@ -101,7 +101,7 @@ namespace SimulationProject.Controllers
             simulation.Simuser = userId;
             simulation.Createdate = DateTime.UtcNow;
             await _simulationService.CreateSimulationAsync(simulation);
-            return CreatedAtAction(nameof(GetSimulation), new { Simid = simulation.Simid }, simulation);
+            return CreatedAtAction(nameof(GetSimulation), new { Simid = simulation.Simid }, new { Simid = simulation.Simid });
         }
 
         //PUT /api/simulations/{Simid}
