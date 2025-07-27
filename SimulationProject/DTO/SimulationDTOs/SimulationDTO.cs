@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using SimulationProject.DTO.ProviderDTOs;
 using SimulationProject.DTO.RegionDTOs;
 using SimulationProject.DTO.SimExecutionDTOs;
 
@@ -15,6 +16,7 @@ namespace SimulationProject.DTO.SimulationDTOs
         public string Simparams { get; set; }
         public int Simuser { get; set; }
         public int Simcloud { get; set; }
+        public Provider2DTO SimcloudNavigation { get; set; }
         public int Regionid { get; set; }
         public RegionDTO Region { get; set; }
         public List<SimExecutionDTO> Simexecutions { get; set; } = new();

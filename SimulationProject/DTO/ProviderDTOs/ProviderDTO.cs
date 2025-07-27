@@ -1,5 +1,4 @@
 ﻿using SimulationProject.DTO.RegionDTOs;
-using SimulationProject.DTO.SimExecutionDTOs;
 
 namespace SimulationProject.DTO.ProviderDTOs
 {
