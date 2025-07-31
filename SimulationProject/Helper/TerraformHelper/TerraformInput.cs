@@ -20,13 +20,13 @@ namespace SimulationProject.Helper.TerraformHelper
         public string OutputDirectory { get; set; } = "./terraform-output";
 
 
-        public static TerraformInput FromRequest(SimulationDTO request, RegionDTO region, ResourceDTO resource )
+        public static TerraformInput FromRequest(SimulationDTO request, ResourceDTO resource )
         {
 
             return new TerraformInput
             {
                 CloudProvider = request.Simcloud,
-                Region = region.Regioncode,
+                Region = request.Region.Regioncode, 
                 MinNodes = resource.Mininstances,
                 MaxNodes = resource.Maxinstances,
                 DesiredNodes = resource.Mininstances,

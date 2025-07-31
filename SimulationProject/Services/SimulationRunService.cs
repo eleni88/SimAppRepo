@@ -5,6 +5,7 @@ using SimulationProject.Helper.GitCloneHelper;
 using SimulationProject.Helper.KubernetesHelper;
 using SimulationProject.Helper.TerraformHelper;
 using SimulationProject.Models;
+using YamlDotNet.RepresentationModel;
 
 namespace SimulationProject.Services
 {
@@ -19,7 +20,7 @@ namespace SimulationProject.Services
             _PollingService = pollingService;
         }
 
-        public async Task<string> RunSimulationAsync(SimulationDTO request, RegionDTO region, ResourceDTO resource, Simexecution newsimexec)
+        public async Task<string> RunSimulationAsync(SimulationDTO request, ResourceDTO resource, Simexecution newsimexec)
         {
             string repoPath;
             try
@@ -50,8 +51,52 @@ namespace SimulationProject.Services
                 // create configMap yaml
                 string configMapPath = await ConfigMapGenerator.GenerateConfigMapFileAsync(request.Simparams, tempDir);
 
+                // Inject ConfigMap into master deployment
+                foreach (var yaml in tmpYamlFiles)
+                {
+                    var content = File.ReadAllText(yaml);
+                    if (content.Contains("master") && content.Contains("Deployment"))
+                        YamlHelper.AddConfigMapToDeploymentYaml(yaml);
+                    else
+                    if (content.Contains("master") && content.Contains("Service"))
+                    {
+                        var stream = new YamlStream();
+                        stream.Load(new StringReader(content));
+
+                        if (stream.Documents[0].RootNode is YamlMappingNode root &&
+                            root.Children.TryGetValue("spec", out var specNodeObj) &&
+                            specNodeObj is YamlMappingNode specNode)
+                        {
+                            specNode.Children["type"] = new YamlScalarNode("NodePort");
+
+                            if (!specNode.Children.TryGetValue("ports", out var portsNode) ||
+                                portsNode is not YamlSequenceNode portsSeq)
+                            {
+                                portsSeq = new YamlSequenceNode();
+                                specNode.Children["ports"] = portsSeq;
+                            }
+
+                            var firstPort = portsSeq.Children.OfType<YamlMappingNode>().FirstOrDefault();
+                            if (firstPort == null)
+                            {
+                                firstPort = new YamlMappingNode();
+                                portsSeq.Add(firstPort);
+                            }
+
+                            firstPort.Children["port"] = new YamlScalarNode("80");
+                            firstPort.Children["targetPort"] = new YamlScalarNode("80");
+                            firstPort.Children["nodePort"] = new YamlScalarNode("30080");
+                            firstPort.Children["protocol"] = new YamlScalarNode("TCP");
+
+                            using var writer = new StringWriter();
+                            stream.Save(writer);
+                            File.WriteAllText(yaml, writer.ToString());
+                        }
+                    }
+                }
+
                 // creation of terraform configuration
-                var terraformInput = TerraformInput.FromRequest(request, region, resource);
+                var terraformInput = TerraformInput.FromRequest(request, resource);
 
                 var builder = new TerraformBuilder()
                     .UseWorkingDirectory(terraformInput.OutputDirectory)

@@ -18,9 +18,9 @@ namespace SimulationProject.Services
         }
         public async Task<string> RunSimulationToMinikubeAsync(string repoUrl, string jsonParams, Simexecution newsimexec)
         {
-            var logger = new LoggerFactory().CreateLogger("MinikubeDeploy");
             var kubeConfigPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".kube", "config");
             var kubeConfigContent = await File.ReadAllTextAsync(kubeConfigPath);
+            KubeConfigValidator.ValidateKubeConfig(kubeConfigContent);
             var kubeClient = new KubernetesDeployerHelper(kubeConfigContent);
 
             string resultsJson = "";
@@ -114,17 +114,17 @@ namespace SimulationProject.Services
                 if (response.IsSuccessStatusCode)
                 {
                     resultsJson = await response.Content.ReadAsStringAsync();
-                    logger.LogInformation("Simulation Results (JSON):\n{Results}", resultsJson);
+                    _logger.LogInformation("Simulation Results (JSON):\n{Results}", resultsJson);
                 }
                 else
                 {
-                    logger.LogWarning("Failed to fetch results. Status: {Status}", response.StatusCode);
+                    _logger.LogWarning("Failed to fetch results. Status: {Status}", response.StatusCode);
                     resultsJson = $"Error: Failed to fetch results. Status {response.StatusCode}";
                 }
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error retrieving results from master service");
+                _logger.LogError(ex, "Error retrieving results from master service");
                 resultsJson = $"Exception: {ex.Message}";
             }
 
@@ -137,7 +137,7 @@ namespace SimulationProject.Services
             }
             catch (Exception ex)
             {
-                logger.LogWarning(ex, "Cleanup warning");
+                _logger.LogWarning(ex, "Cleanup warning");
             }
 
             return resultsJson;
