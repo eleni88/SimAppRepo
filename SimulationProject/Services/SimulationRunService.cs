@@ -166,6 +166,8 @@ namespace SimulationProject.Services
                     KubeConfigValidator.ValidateKubeConfig(kubeConfig);
                     // 3. Deploy YAML files
                     var kubeClient = new KubernetesDeployerHelper(kubeConfig);
+                    // RBAC 
+                    await RBACHelper.ApplyRbacAsync(kubeClient.GetClient());
                     // 3.1. Deploy configMap YAML first
                     await kubeClient.DeployYamlFilesAsync(new List<string> { configMapPath });
                     // 3.2. Deploy the rest YAML files

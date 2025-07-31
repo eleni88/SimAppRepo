@@ -29,6 +29,20 @@ namespace SimulationProject.Helper.TerraformHelper
                                 ");
             }
             else
+            if (Provider == 2)
+            {
+                _tfBuilder.AppendLine(@"
+                                    terraform {{
+                                      required_providers {{
+                                        google = {{
+                                          source  = ""hashicorp/google""
+                                          version = ""~> 6.0""
+                                        }}
+                                      }}
+                                    }}
+                    ");
+            }
+            else
             if (Provider == 3)
             {
                 _tfBuilder.AppendLine(@"
@@ -76,6 +90,15 @@ namespace SimulationProject.Helper.TerraformHelper
                                 ");
             return this;
         }
+
+        //------------------ GOOGLE Provider -----------------------------
+        public TerraformBuilder AddGooglerovider(string region, string subscriptionId, string clientId, string clientSecret, string tenantId)
+        {
+            
+            return this;
+        }
+
+
         //------------------ AWS Cluster (Using AWS Module) -----------------------------
         public TerraformBuilder AddEksCluster(string clusterName, string region, int desired, int min, int max)
         {
