@@ -14,33 +14,69 @@ namespace SimulationProject.Helper.TerraformHelper
             return this;
         }
 
-        public TerraformBuilder AddRequiredProviders()
+        public TerraformBuilder AddRequiredProviders(int Provider)
         {
-            _tfBuilder.AppendLine(@"
+            if (Provider == 1) {
+                _tfBuilder.AppendLine(@"
                                     terraform {
                                       required_providers {
                                         aws = {
                                           source  = ""hashicorp/aws""
-                                          version = ""~> 5.0""
+                                          version = ""~> 6.0""
                                         }
                                       }
                                     }
-            ");
-            return this;
-        }
+                                ");
+            }
+            else
+            if (Provider == 3)
+            {
+                _tfBuilder.AppendLine(@"
+                                    terraform {
+                                      required_providers {
+                                         azurerm = {
+                                          source = ""hashicorp/azurerm""
+                                          version = ""~> 4.0""
+                                        }
+                                      }
+                                    }
+                                ");
+            }
 
+                return this;
+        }
+        //------------------ AWS Provider -----------------------------
         public TerraformBuilder AddAwsProvider(string region, string accessKey, string secretKey)
         {
-            _tfBuilder.AppendLine($@"
+            
+                _tfBuilder.AppendLine($@"
                                     provider ""aws"" {{
                                       region     = ""{region}""
                                       access_key = ""{accessKey}""
                                       secret_key = ""{secretKey}""
                                     }}
                                     ");
-            return this;
+            
+   
+                return this;
         }
 
+        //------------------ AZURE Provider -----------------------------
+        public TerraformBuilder AddAzureProvider(string region, string subscriptionId, string clientId, string clientSecret, string tenantId)
+        {
+            _tfBuilder.AppendLine($@"
+                                    provider ""azurerm"" {{
+                                     resource_provider_registrations = ""none""
+                                      features {{}}
+                                      subscription_id = ""{subscriptionId}""
+                                      client_id       = ""{clientId}""
+                                      client_secret   = ""{clientSecret}""
+                                      tenant_id       = ""{tenantId}""
+                                    }}
+                                ");
+            return this;
+        }
+        //------------------ AWS Cluster (Using AWS Module) -----------------------------
         public TerraformBuilder AddEksCluster(string clusterName, string region, int desired, int min, int max)
         {
             //--------------------------------------------
@@ -139,9 +175,64 @@ namespace SimulationProject.Helper.TerraformHelper
                                         }})
                                         sensitive = true
                                     }}
-");
+                                ");
 
-            //-------------------------------------------------------------
+            return this;
+        }
+
+        //------------------ AZURE Cluster (Official Provider) -----------------------------
+        public TerraformBuilder AddAzureCluster(string clusterName, string region, int desired, int min, int max)
+        {
+            _tfBuilder.AppendLine($@" 
+                                resource  ""azurerm_resource_group"" ""aks"" {{
+                                  name     = ""aks-rg""
+                                  location = {region}
+                                }}
+
+                                resource ""azurerm_virtual_network"" ""aks_vnet"" {{
+                                  name                = ""aks-vnet""
+                                  location            = azurerm_resource_group.aks.location
+                                  resource_group_name = azurerm_resource_group.aks.name
+                                  address_space       = [""10.0.0.0/16""]
+                                }}
+
+                                resource ""azurerm_subnet"" ""aks_subnet"" {{
+                                  name                 = ""aks-subnet""
+                                  resource_group_name  = azurerm_resource_group.aks.name
+                                  virtual_network_name = azurerm_virtual_network.aks_vnet.name
+                                  address_prefixes     = [""10.0.1.0/24""]
+                                }}
+                                
+                        
+                                resource ""azurerm_kubernetes_cluster"" ""aks"" {{
+                                  name                = {clusterName}
+                                  location            = azurerm_resource_group.aks.location
+                                  resource_group_name = azurerm_resource_group.aks.name
+                                  dns_prefix          = ""akscluster""
+
+                                  default_node_pool {{
+                                    name                = ""general""
+                                    vm_size             = ""Standard_D2_v2""
+                                    enable_auto_scaling = true
+                                    min_count           = {min}
+                                    max_count           = {max}
+                                    node_count          = {desired}
+                                    vnet_subnet_id      = azurerm_subnet.aks_subnet.id
+                                  }}
+
+                                identity {{type = ""SystemAssigned""}}
+
+                                tags = {{
+                                        Environment = ""dev""
+                                        Terraform   = ""true""
+                                      }}
+
+                                output ""kubeconfig"" {{
+                                  value     = azurerm_kubernetes_cluster.aks.kube_config_raw
+                                  sensitive = true
+                                }}
+
+            ");
 
             return this;
         }

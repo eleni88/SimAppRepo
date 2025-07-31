@@ -1,6 +1,8 @@
 ﻿using SimulationProject.DTO.RegionDTOs;
 using SimulationProject.DTO.ResourceDTOs;
+using SimulationProject.DTO.SimExecutionDTOs;
 using SimulationProject.DTO.SimulationDTOs;
+using SimulationProject.DTO.UserDTOs;
 using SimulationProject.Helper.GitCloneHelper;
 using SimulationProject.Helper.KubernetesHelper;
 using SimulationProject.Helper.TerraformHelper;
@@ -20,12 +22,16 @@ namespace SimulationProject.Services
             _PollingService = pollingService;
         }
 
-        public async Task<string> RunSimulationAsync(SimulationDTO request, ResourceDTO resource, Simexecution newsimexec)
+        public async Task<string> RunSimulationAsync(string repoUrl, string jsonParams, int Provider, string Region, string instanceType, int MinNodes, int MaxNodes, UserDto user, Simexecution newsimexec)
         {
+            var OutputDirectory = Path.Combine("terraform_workdir", Guid.NewGuid().ToString("N"));
+            var ClusterName = $"sim-cluster-{Guid.NewGuid().ToString("N").Substring(0, 6)}";
+            int DesiredNodes = 1;
+
             string repoPath;
             try
             {
-                repoPath = await GitHelper.CloneRepoAsync(request.Codeurl);
+                repoPath = await GitHelper.CloneRepoAsync(repoUrl);
             }
             catch (Exception ex)
             {
@@ -49,7 +55,7 @@ namespace SimulationProject.Services
                 // Copy only needed YAMLs
                 var tmpYamlFiles = YamlHelper.CopyYamlFilesToTmp(yamlFiles, tempDir);
                 // create configMap yaml
-                string configMapPath = await ConfigMapGenerator.GenerateConfigMapFileAsync(request.Simparams, tempDir);
+                string configMapPath = await ConfigMapGenerator.GenerateConfigMapFileAsync(jsonParams, tempDir);
 
                 // Inject ConfigMap into master deployment
                 foreach (var yaml in tmpYamlFiles)
@@ -96,22 +102,44 @@ namespace SimulationProject.Services
                 }
 
                 // creation of terraform configuration
-                var terraformInput = TerraformInput.FromRequest(request, resource);
+                if (Provider == 1)
+                {
+                    var builder = new TerraformBuilder()
+                        .UseWorkingDirectory(OutputDirectory)
+                        .AddRequiredProviders(Provider)
+                        .AddAwsProvider(Region, user.Cloudcredentials.Find(prov => prov.Provider.Cloudid==Provider).Accesskey, 
+                            user.Cloudcredentials.Find(prov => prov.Provider.Cloudid == Provider).Secretkey)
+                        .AddEksCluster(
+                            ClusterName,
+                            Region,
+                            DesiredNodes,
+                            MinNodes,
+                            MaxNodes
+                        );
+                    await builder.CreateTerraformFile();
+                }
+                else
+                if (Provider == 3)
+                {
+                    var builder = new TerraformBuilder()
+                        .UseWorkingDirectory(OutputDirectory)
+                        .AddRequiredProviders(Provider)
+                        .AddAzureProvider(Region, user.Cloudcredentials.Find(prov => prov.Provider.Cloudid == Provider).Subscriptionid,
+                            user.Cloudcredentials.Find(prov => prov.Provider.Cloudid == Provider).Clientid,
+                            user.Cloudcredentials.Find(prov => prov.Provider.Cloudid == Provider).Clientsecret,
+                            user.Cloudcredentials.Find(prov => prov.Provider.Cloudid == Provider).Tenantid)
+                        .AddAzureCluster(
+                            ClusterName,
+                            Region,
+                            DesiredNodes,
+                            MinNodes,
+                            MaxNodes
+                        );
+                    await builder.CreateTerraformFile();
+                }
+                
 
-                var builder = new TerraformBuilder()
-                    .UseWorkingDirectory(terraformInput.OutputDirectory)
-                    .AddRequiredProviders()
-                    .AddAwsProvider(terraformInput.Region, terraformInput.AwsAccessKey, terraformInput.AwsSecretKey)
-                    .AddEksCluster(
-                        terraformInput.ClusterName,
-                        terraformInput.Region,
-                        terraformInput.DesiredNodes,
-                        terraformInput.MinNodes,
-                        terraformInput.MaxNodes
-                    );
-                await builder.CreateTerraformFile();
-
-                var terraformRunner = new TerraformService(terraformInput.OutputDirectory);
+                var terraformRunner = new TerraformService(OutputDirectory);
 
                 // Terraform init
                 var initResult = await terraformRunner.InitAsync();

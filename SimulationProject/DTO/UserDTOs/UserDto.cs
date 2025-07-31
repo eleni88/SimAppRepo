@@ -1,4 +1,7 @@
-﻿namespace SimulationProject.DTO.UserDTOs
+﻿using SimulationProject.DTO.SimExecutionDTOs;
+using SimulationProject.Models;
+
+namespace SimulationProject.DTO.UserDTOs
 {
     public class UserDto
     {
@@ -12,5 +15,6 @@
         public string Organization { get; set; }
         public bool Admin { get; set; }
         public bool Active { get; set; }
+        public List<CredentialsDTO> Cloudcredentials { get; set; } = new();
     }
 }
