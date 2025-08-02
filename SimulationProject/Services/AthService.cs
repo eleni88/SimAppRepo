@@ -120,35 +120,11 @@ namespace SimulationProject.Services
                 return null;            
         }
 
-        //-------------- Create Cookies ---------------------------
-        //public CookieOptions GetCookieOptions()
-        //{
-        //    var cookieOptions = new CookieOptions
-        //    {
-        //        HttpOnly = true,                            // Make sure the cookie is not accessible via JavaScript (for security)
-        //        Secure = true,                              // Ensures the cookie is only sent over HTTPS
-        //        SameSite = SameSiteMode.None,               // If strict, prevents cross-site request forgery (CSRF)
-        //        Expires = DateTime.UtcNow.AddMinutes(15)    // Set the expiration of the cookie 
-        //    };
-        //    return cookieOptions;
-        //}
-
-        //public CookieOptions GetRefreshCookieOptions()
-        //{
-        //    var cookieOptions = new CookieOptions
-        //    {
-        //        HttpOnly = true,                            
-        //        Secure = true,                              
-        //        SameSite = SameSiteMode.None,
-        //        Expires = DateTime.UtcNow.AddDays(1)         
-        //    };
-        //    return cookieOptions;
-        //}
-
         // Cookie with partitioned attribute for third party cookies
         public string SetPartitionedCookie(string name, string value, int maxAgeSeconds)
         {
-            var cookieStr = $"{name}={value}; Max-Age={maxAgeSeconds}; Path=/; Secure; HttpOnly; SameSite=None; Partitioned";
+            //var cookieStr = $"{name}={value}; Max-Age={maxAgeSeconds}; Path=/; Secure; HttpOnly; SameSite=None; Partitioned";
+            var cookieStr = $"{name}={value}; Max-Age={maxAgeSeconds}; Path=/; Secure; HttpOnly; SameSite=None; ";
             return cookieStr;
         }
         //----------------------------------------------------------

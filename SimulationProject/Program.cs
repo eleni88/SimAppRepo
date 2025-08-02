@@ -63,7 +63,6 @@ builder.Services.AddCors(options =>
                .AllowCredentials();
     });
 });
-//builder.WebHost.UseWebRoot("wwwroot");
 
 // Register DbContext with SQL Server provider
 builder.Services.AddDbContext<SimSaasContext>(options =>
@@ -159,8 +158,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowFrontEnd");
-
-app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 

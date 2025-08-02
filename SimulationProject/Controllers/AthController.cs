@@ -63,15 +63,6 @@ namespace SimulationProject.Controllers
                 return BadRequest(new { message = "Your account has been disabled. Please contact the admin." });
             }
 
-            //// Store the Access JWT in a cookie
-            //var cookieOptions = _athService.GetCookieOptions();
-            //Response.Cookies.Append("jwtCookie", result.AccessToken, cookieOptions);
-
-            //// Store the Refrash token in a cookie
-            //var refreshCookieOptions = _athService.GetRefreshCookieOptions();
-            //Response.Cookies.Append("RefreshTokenCookie", result.RefreshToken, refreshCookieOptions);
-
-
             // Store the Access JWT in partinioned cookie
             var cookieOptions = _athService.SetPartitionedCookie("jwtCookie", result.AccessToken, 900);
             Response.Headers.Append("Set-Cookie", cookieOptions);

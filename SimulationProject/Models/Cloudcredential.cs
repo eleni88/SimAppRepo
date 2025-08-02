@@ -57,14 +57,6 @@ public partial class Cloudcredential
     [Unicode(false)]
     public string? Gcpprojectid { get; set; }
 
-    [Column("GCPREGION")]
-    [StringLength(200)]
-    [Unicode(false)]
-    public string? Gcpregion { get; set; }
-
-    [Column("CREATEDAT", TypeName = "datetime")]
-    public DateTime? Createdat { get; set; }
-
     [ForeignKey("Cloudid")]
     [InverseProperty("Cloudcredentials")]
     public virtual Cloudprovider Cloud { get; set; } = null!;
