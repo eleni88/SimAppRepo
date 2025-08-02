@@ -65,6 +65,8 @@ public partial class SimSaasContext : DbContext
         modelBuilder.Entity<Resourcerequirement>(entity =>
         {
             entity.HasKey(e => e.Resourceid).HasName("PK_RESOURCEID");
+
+            entity.HasOne(d => d.Sim).WithMany(p => p.Resourcerequirements).HasConstraintName("FK_RESOURCESIMID");
         });
 
         modelBuilder.Entity<Simexecution>(entity =>

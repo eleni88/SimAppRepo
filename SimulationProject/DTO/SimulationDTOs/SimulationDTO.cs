@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-using SimulationProject.DTO.ProviderDTOs;
+﻿using SimulationProject.DTO.ProviderDTOs;
 using SimulationProject.DTO.RegionDTOs;
+using SimulationProject.DTO.ResourceDTOs;
 using SimulationProject.DTO.SimExecutionDTOs;
 
 namespace SimulationProject.DTO.SimulationDTOs
@@ -20,5 +20,7 @@ namespace SimulationProject.DTO.SimulationDTOs
         public int Regionid { get; set; }
         public RegionDTO Region { get; set; }
         public List<SimExecutionDTO> Simexecutions { get; set; } = new();
+        public List<ResourceDTO> Resourcerequirements { get; set; } = new();
+       // public ResourceDTO Resourcerequirements { get; set; }
     }
 }

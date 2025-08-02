@@ -23,4 +23,11 @@ public partial class Resourcerequirement
 
     [Column("MAXINSTANCES")]
     public int? Maxinstances { get; set; }
+
+    [Column("SIMID")]
+    public int? Simid { get; set; }
+
+    [ForeignKey("Simid")]
+    [InverseProperty("Resourcerequirements")]
+    public virtual Simulation? Sim { get; set; }
 }

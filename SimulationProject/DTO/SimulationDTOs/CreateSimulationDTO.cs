@@ -8,5 +8,6 @@
         public string Simparams { get; set; } = "";
         public int Simcloud { get; set; }
         public int Regionid { get; set; }
+        public int Resourceid { get; set; }
     }
 }

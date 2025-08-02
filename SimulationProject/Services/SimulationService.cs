@@ -76,6 +76,7 @@ namespace SimulationProject.Services
             return await _context.Simulations.Include(sim => sim.Simexecutions)
                 .Include(sim => sim.Region)
                 .Include(sim => sim.SimcloudNavigation)
+                .Include(sim => sim.Resourcerequirements)
                 .FirstOrDefaultAsync(sim => sim.Simid == Simulation);
         }
 
@@ -85,6 +86,7 @@ namespace SimulationProject.Services
             return await _context.Simulations.Include(sim => sim.Simexecutions)
                 .Include(sim => sim.Region)
                 .Include(sim => sim.SimcloudNavigation)
+                .Include(sim => sim.Resourcerequirements)
                 .FirstOrDefaultAsync(sim => sim.Name == Simname);
         }
 

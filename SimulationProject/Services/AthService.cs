@@ -123,8 +123,8 @@ namespace SimulationProject.Services
         // Cookie with partitioned attribute for third party cookies
         public string SetPartitionedCookie(string name, string value, int maxAgeSeconds)
         {
-            //var cookieStr = $"{name}={value}; Max-Age={maxAgeSeconds}; Path=/; Secure; HttpOnly; SameSite=None; Partitioned";
-            var cookieStr = $"{name}={value}; Max-Age={maxAgeSeconds}; Path=/; Secure; HttpOnly; SameSite=None; ";
+            var cookieStr = $"{name}={value}; Max-Age={maxAgeSeconds}; Path=/; Secure; HttpOnly; SameSite=None; Partitioned";
+            //var cookieStr = $"{name}={value}; Max-Age={maxAgeSeconds}; Path=/; Secure; HttpOnly; SameSite=None; ";
             return cookieStr;
         }
         //----------------------------------------------------------

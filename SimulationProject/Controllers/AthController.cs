@@ -125,14 +125,6 @@ namespace SimulationProject.Controllers
                 return Unauthorized(new { message = "Invalid refresh token" });
             }
 
-            //// Store the new Access JWT in a cookie
-            //var cookieOptions = _athService.GetCookieOptions();
-            //Response.Cookies.Append("jwtCookie", result.AccessToken, cookieOptions);
-
-            //// Store the Refrash token in a cookie
-            //var refreshCookieOptions = _athService.GetRefreshCookieOptions();
-            //Response.Cookies.Append("RefreshTokenCookie", result.RefreshToken, refreshCookieOptions);
-
             // Store the Access JWT in partinioned cookie
             var cookieOptions = _athService.SetPartitionedCookie("jwtCookie", result.AccessToken, 900);
             Response.Headers.Append("Set-Cookie", cookieOptions);
