@@ -57,7 +57,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontEnd", builder =>
     {
-        builder.WithOrigins("https://127.0.0.1:5500")
+        builder.WithOrigins("https://127.0.0.1:5500", "https://mysimapp.dev")
                .AllowAnyMethod()
                .AllowAnyHeader()
                .AllowCredentials();

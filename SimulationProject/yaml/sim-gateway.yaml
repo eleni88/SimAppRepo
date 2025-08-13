@@ -1,0 +1,16 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: sim-gateway
+spec:
+  gatewayClassName: nginx
+  listeners:
+  - name: https
+    protocol: HTTPS
+    port: 443
+    hostname: mysimapp.dev
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - name: simtls-cert
+        kind: Secret

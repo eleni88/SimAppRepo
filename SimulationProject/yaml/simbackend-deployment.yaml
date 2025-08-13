@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simbackend
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: simbackend
+  template:
+    metadata:
+      labels:
+        app: simbackend
+    spec:
+      containers:
+      - name: simbackend
+        image: eleni88/simulation-app:latest
+        env:
+        - name: ConnectionStrings__DefaultConnection
+          valueFrom:
+            secretKeyRef:
+              name: dbconnection-secret
+              key: CONNECTION_STRING
+        - name: MSSQL_SA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: SA_PASSWORD
+        - name: ASPNETCORE_URLS
+          value: "http://0.0.0.0:5000"
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+          requests:
+            memory: "64Mi"
+            cpu: "250m"  
+        ports:
+        - containerPort: 5000

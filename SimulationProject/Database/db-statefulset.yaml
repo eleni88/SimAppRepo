@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mssql
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: mssql
+  serviceName: mssql
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mssql
+    spec:
+      containers:
+      - name: mssql
+        image: eleni88/simulation-db
+        ports:
+        - containerPort: 1433
+          name: tds
+        env:
+        - name: ACCEPT_EULA
+          value: "Y"
+        - name: MSSQL_PID
+          value: "Developer" # "Express"
+        - name: MSSQL_SA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: SA_PASSWORD
+        volumeMounts:
+        - name: mssqldata
+          mountPath: /var/opt/mssql
+        readinessProbe:
+          tcpSocket:
+            port: 1433
+          initialDelaySeconds: 20
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 1433
+          initialDelaySeconds: 40
+          periodSeconds: 10
+  volumeClaimTemplates:
+  - metadata:
+      name: mssqldata
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 8Gi
