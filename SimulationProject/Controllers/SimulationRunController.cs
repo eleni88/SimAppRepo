@@ -12,18 +12,17 @@ namespace SimulationProject.Controllers
     public class SimulationRunController : ControllerBase
     {
         private readonly ISimulationService _simulationService;
-        private readonly PollingService _PollingService;
         private readonly MinikubeDeployService _minikubeDeployService;
 
-        public SimulationRunController(ISimulationService simulationService, PollingService pollingService, MinikubeDeployService minikubeDeployService)
+        public SimulationRunController(ISimulationService simulationService, MinikubeDeployService minikubeDeployService)
         {
             _simulationService = simulationService;
-            _PollingService = pollingService;
             _minikubeDeployService = minikubeDeployService;
         }
 
+        //------------------------ Minikube test ----------------------------
         [HttpPost("minikube/run")]
-        public async Task<IActionResult> RunSimulation([FromBody] SimulationDTO request)
+        public async Task<IActionResult> RunSimulation([FromBody] SimulationRunDTO request)
         {
             var simulation = await _simulationService.GetSimulationByIdAsync(request.Simid);
             if (simulation == null)
@@ -45,6 +44,10 @@ namespace SimulationProject.Controllers
                     request.Simparams,
                     newsimexec
                 );
+                if (resultsJson == null)
+                {
+                    return BadRequest("Simulation failed");
+                }
                 newsimexec.Enddate = DateTime.UtcNow;
                 TimeSpan duration = (TimeSpan)(newsimexec.Enddate - newsimexec.Startdate);
                 newsimexec.Duration = duration.ToString(@"hh\:mm\:ss");
@@ -57,5 +60,10 @@ namespace SimulationProject.Controllers
                 return StatusCode(500, $"Simulation failed: {ex.Message}");
             }
         }
+        //--------------------- Run Simulation in Cloud Provider -----------------------
+
+
+
+
     }
 }

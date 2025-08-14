@@ -97,10 +97,17 @@ namespace SimulationProject.Services
 
         private async Task SaveResultsToDatabaseAsync(string results, Simexecution newsimexec, string phase)
         {
-            newsimexec.Execreport = results;
-            newsimexec.State = phase;
-            await Task.Delay(100); 
-            _logger.LogInformation("Results saved to database.");
+            if (results != null)
+            {
+                newsimexec.Execreport = results;
+                newsimexec.State = phase;
+                await Task.Delay(100);
+                _logger.LogInformation("Results saved to database.");
+            }
+            else
+            {
+                _logger.LogInformation("Results are empty.");
+            }
         }
     }
 }

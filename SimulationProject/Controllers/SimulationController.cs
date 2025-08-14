@@ -195,6 +195,26 @@ namespace SimulationProject.Controllers
 
             return NoContent();
         }
+
+        //--------------------- Get Simulation's Results -------------------------------
+        // DELETE /api/{Simid}/simexecutions/{Execid}/results
+        [HttpGet("{Simid}/simexecutions/{Execid}/results")]
+        public async Task<ActionResult<String>> GetResults(int Simid, int Execid)
+        {
+            string ResultsStr = "";
+            var simexec = await _simulationService.GetSimulationSimExecutionAsync(Simid, Execid);
+
+            if (simexec == null)
+            {
+                return NotFound(new { message = "Simulation execution not found." });
+            }
+            ResultsStr = simexec.Execreport;
+            if (String.IsNullOrEmpty(ResultsStr))
+            {
+                return BadRequest(new { message = "There are no results." });
+            }
+            return ResultsStr;
+        }
     }
 
 }
