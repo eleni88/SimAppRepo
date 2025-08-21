@@ -52,6 +52,7 @@ builder.Services.AddScoped<PollingService>();
 builder.Services.AddScoped<MinikubeDeployService>();
 builder.Services.AddScoped<ProviderService>();
 builder.Services.AddScoped<RegionService>();
+builder.Services.AddScoped<CloudCredentialsService>();
 
 builder.Services.AddCors(options =>
 {

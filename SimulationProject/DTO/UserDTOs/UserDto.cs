@@ -1,5 +1,4 @@
-﻿using SimulationProject.DTO.SimExecutionDTOs;
-using SimulationProject.Models;
+﻿using SimulationProject.DTO.CredentialsDTOs;
 
 namespace SimulationProject.DTO.UserDTOs
 {

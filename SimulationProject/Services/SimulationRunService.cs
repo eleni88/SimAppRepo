@@ -103,8 +103,8 @@ namespace SimulationProject.Services
                     var builder = new TerraformBuilder()
                         .UseWorkingDirectory(OutputDirectory)
                         .AddRequiredProviders(Provider)
-                        .AddAwsProvider(Region, user.Cloudcredentials.Find(prov => prov.Provider.Cloudid==Provider).Accesskey, 
-                            user.Cloudcredentials.Find(prov => prov.Provider.Cloudid == Provider).Secretkey)
+                        .AddAwsProvider(Region, user.Cloudcredentials.Find(prov => prov.Cloudid==Provider).Accesskeyid, 
+                            user.Cloudcredentials.Find(prov => prov.Cloudid == Provider).Secretaccesskey)
                         .AddEksCluster(
                             ClusterName,
                             Region,
@@ -120,10 +120,10 @@ namespace SimulationProject.Services
                     var builder = new TerraformBuilder()
                         .UseWorkingDirectory(OutputDirectory)
                         .AddRequiredProviders(Provider)
-                        .AddAzureProvider(Region, user.Cloudcredentials.Find(prov => prov.Provider.Cloudid == Provider).Subscriptionid,
-                            user.Cloudcredentials.Find(prov => prov.Provider.Cloudid == Provider).Clientid,
-                            user.Cloudcredentials.Find(prov => prov.Provider.Cloudid == Provider).Clientsecret,
-                            user.Cloudcredentials.Find(prov => prov.Provider.Cloudid == Provider).Tenantid)
+                        .AddAzureProvider(Region, user.Cloudcredentials.Find(prov => prov.Cloudid == Provider).Subscriptionid,
+                            user.Cloudcredentials.Find(prov => prov.Cloudid == Provider).Clientid,
+                            user.Cloudcredentials.Find(prov => prov.Cloudid == Provider).Clientsecret,
+                            user.Cloudcredentials.Find(prov => prov.Cloudid == Provider).Tenantid)
                         .AddAzureCluster(
                             ClusterName,
                             Region,

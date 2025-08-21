@@ -81,13 +81,17 @@ namespace SimulationProject.Services
         //get by id
         public async Task<User> GetUserByIdAsync(int Userid)
         {
-            return await _context.Users.FindAsync(Userid); 
+            return await _context.Users
+                .Include(u => u.Cloudcredentials)
+                .FirstOrDefaultAsync(u => u.Userid == Userid);
         }
 
         // get by name
         public async Task<User> GetUserByNameAsync(string Username)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Username == Username);
+            return await _context.Users
+                .Include(u => u.Cloudcredentials)
+                .FirstOrDefaultAsync(u => u.Username == Username);
         }
 
         //post
