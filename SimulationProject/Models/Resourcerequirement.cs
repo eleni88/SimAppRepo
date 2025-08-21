@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace SimulationProject.Models;
 
 [Table("RESOURCEREQUIREMENT")]
+[Index("Simid", Name = "UC_RESOURCE_SIMID", IsUnique = true)]
 public partial class Resourcerequirement
 {
     [Key]
@@ -28,6 +29,6 @@ public partial class Resourcerequirement
     public int? Simid { get; set; }
 
     [ForeignKey("Simid")]
-    [InverseProperty("Resourcerequirements")]
+    [InverseProperty("Resourcerequirement")]
     public virtual Simulation? Sim { get; set; }
 }

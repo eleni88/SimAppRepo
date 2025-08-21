@@ -60,6 +60,7 @@ namespace SimulationProject.Services
                         break;
                     }
                     else
+                    if (phase != "Pending")
                     {
                         _logger.LogWarning("Master pod terminated with phase: {Phase}. Attempting to fetch logs anyway.", phase);
                         await SaveResultsFromMasterPodAsync(newsimexec, client, masterPod.Metadata.Name, namespaceName, phase, cancellationToken);

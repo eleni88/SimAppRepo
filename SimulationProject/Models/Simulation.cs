@@ -51,7 +51,7 @@ public partial class Simulation
     public virtual Region? Region { get; set; }
 
     [InverseProperty("Sim")]
-    public virtual ICollection<Resourcerequirement> Resourcerequirements { get; set; } = new List<Resourcerequirement>();
+    public virtual Resourcerequirement? Resourcerequirement { get; set; }
 
     [ForeignKey("Simcloud")]
     [InverseProperty("Simulations")]

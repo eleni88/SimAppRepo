@@ -40,6 +40,9 @@ public partial class Simexecution
     [Unicode(false)]
     public string? Duration { get; set; }
 
+    [Column("CURRENTINSTANCES")]
+    public int? Currentinstances { get; set; }
+
     [ForeignKey("Simid")]
     [InverseProperty("Simexecutions")]
     public virtual Simulation Sim { get; set; } = null!;

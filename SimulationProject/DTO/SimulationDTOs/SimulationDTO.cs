@@ -20,7 +20,6 @@ namespace SimulationProject.DTO.SimulationDTOs
         public int Regionid { get; set; }
         public RegionDTO Region { get; set; }
         public List<SimExecutionDTO> Simexecutions { get; set; } = new();
-        public List<ResourceDTO> Resourcerequirements { get; set; } = new();
-       // public ResourceDTO Resourcerequirements { get; set; }
+        public ResourceDTO Resourcerequirement { get; set; } = new ResourceDTO();
     }
 }
