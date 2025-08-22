@@ -32,14 +32,14 @@ namespace SimulationProject.Helper.TerraformHelper
             if (Provider == 2)
             {
                 _tfBuilder.AppendLine(@"
-                                    terraform {{
-                                      required_providers {{
-                                        google = {{
+                                    terraform {
+                                      required_providers {
+                                        google = {
                                           source  = ""hashicorp/google""
                                           version = ""~> 6.0""
-                                        }}
-                                      }}
-                                    }}
+                                        }
+                                      }
+                                    }
                     ");
             }
             else
@@ -92,9 +92,17 @@ namespace SimulationProject.Helper.TerraformHelper
         }
 
         //------------------ GOOGLE Provider -----------------------------
-        public TerraformBuilder AddGooglerovider(string region, string subscriptionId, string clientId, string clientSecret, string tenantId)
+        public TerraformBuilder AddGoogleProvider(string gcpprojectId, string region, string gcpservicekeyjson)
         {
-            
+            _tfBuilder.AppendLine($@"
+                                    provider ""google"" {{
+                                    project = ""{gcpprojectId}""
+                                    region  = ""{region}""
+                                    zone    = ""{region}-c""
+                                    credentials = ""{gcpservicekeyjson}""
+                                }}
+                                ");
+
             return this;
         }
 
@@ -258,6 +266,89 @@ namespace SimulationProject.Helper.TerraformHelper
             ");
 
             return this;
+        }
+
+        public TerraformBuilder AddGkeCluster(string clusterName, string region, string gcpprojectId, int desired, int min, int max)
+        {
+            _tfBuilder.AppendLine($@"
+                                    # VPC
+                                    resource ""google_compute_network"" ""vpc"" {{
+                                      name                    = ""{gcpprojectId}-vpc""
+                                      auto_create_subnetworks = ""false""
+                                    }}
+
+                                    # Subnet
+                                    resource ""google_compute_subnetwork"" ""subnet"" {{
+                                      name          = ""{gcpprojectId}-subnet""
+                                      region        = ""{region}""
+                                      network       = google_compute_network.vpc.name
+                                      ip_cidr_range = ""10.10.0.0/24""
+
+                                    secondary_ip_range = [
+                                        {{
+                                          range_name    = ""pods""
+                                          ip_cidr_range = ""10.1.0.0/16""
+                                        }},
+                                        {{
+                                          range_name    = ""services""
+                                          ip_cidr_range = ""10.2.0.0/24""
+                                        }}
+                                      ]
+                                    }}
+
+
+                                    # GKE cluster
+                                    data ""google_container_engine_versions"" ""gke_version"" {{
+                                      location = ""{region}""
+                                      version_prefix = ""1.27.""
+                                    }}
+
+                                    resource ""google_container_cluster"" ""primary"" {{
+                                      name     = ""{gcpprojectId}-gke""
+                                      location = ""{region}""
+                                      remove_default_node_pool = true
+                                      initial_node_count       = 1
+
+                                      network    = google_compute_network.vpc.name
+                                      subnetwork = google_compute_subnetwork.subnet.name
+                                    }}
+
+                                    # Separately Managed Node Pool
+                                    resource ""google_container_node_pool"" ""primary_nodes"" {{
+                                      name       = google_container_cluster.primary.name
+                                      location   = ""{region}""
+                                      cluster    = google_container_cluster.primary.name
+  
+                                      version = data.google_container_engine_versions.gke_version.release_channel_default_version[""STABLE""]
+                                      node_count = ""{desired}""
+                                    autoscaling {{
+                                        min_node_count = {min}
+                                        max_node_count = {max}
+                                      }}
+
+                                    node_config {{
+                                                oauth_scopes = [
+                                                  ""https://www.googleapis.com/auth/cloud-platform""
+                                                ]
+
+                                                labels = {{
+                                                  environment = ""dev""
+                                                  terraform   = ""true""
+                                                }}
+
+                                                # preemptible  = true
+                                                machine_type = ""e2-standard-2""
+                                                tags         = [""gke-node"", ""${{var.project_id}}-gke""]
+                                                metadata = {{
+                                                  disable-legacy-endpoints = ""true""
+                                                }}
+                                              }}
+
+
+"
+);
+            return this;
+
         }
 
         public async Task<string> CreateTerraformFile()
