@@ -270,8 +270,7 @@ namespace SimulationProject.Helper.TerraformHelper
 
         public TerraformBuilder AddGkeCluster(string clusterName, string region, string gcpprojectId, int desired, int min, int max)
         {
-            _tfBuilder.AppendLine($@"
-                                    # VPC
+            _tfBuilder.AppendLine($@"                                  
                                     resource ""google_compute_network"" ""vpc"" {{
                                       name                    = ""{gcpprojectId}-vpc""
                                       auto_create_subnetworks = ""false""
@@ -283,21 +282,8 @@ namespace SimulationProject.Helper.TerraformHelper
                                       region        = ""{region}""
                                       network       = google_compute_network.vpc.name
                                       ip_cidr_range = ""10.10.0.0/24""
-
-                                    secondary_ip_range = [
-                                        {{
-                                          range_name    = ""pods""
-                                          ip_cidr_range = ""10.1.0.0/16""
-                                        }},
-                                        {{
-                                          range_name    = ""services""
-                                          ip_cidr_range = ""10.2.0.0/24""
-                                        }}
-                                      ]
                                     }}
 
-
-                                    # GKE cluster
                                     data ""google_container_engine_versions"" ""gke_version"" {{
                                       location = ""{region}""
                                       version_prefix = ""1.27.""
@@ -313,7 +299,6 @@ namespace SimulationProject.Helper.TerraformHelper
                                       subnetwork = google_compute_subnetwork.subnet.name
                                     }}
 
-                                    # Separately Managed Node Pool
                                     resource ""google_container_node_pool"" ""primary_nodes"" {{
                                       name       = google_container_cluster.primary.name
                                       location   = ""{region}""
@@ -336,14 +321,21 @@ namespace SimulationProject.Helper.TerraformHelper
                                                   terraform   = ""true""
                                                 }}
 
-                                                # preemptible  = true
                                                 machine_type = ""e2-standard-2""
                                                 tags         = [""gke-node"", ""${{var.project_id}}-gke""]
                                                 metadata = {{
                                                   disable-legacy-endpoints = ""true""
                                                 }}
                                               }}
+                
+                                output ""kubernetes_cluster_host"" {{
+                                          value       = google_container_cluster.primary.endpoint
+                                          description = ""GKE Cluster Host""
+                                }}
+                              
+                               data ""google_client_config"" ""default"" {{}}
 
+                               output 
 
 "
 );

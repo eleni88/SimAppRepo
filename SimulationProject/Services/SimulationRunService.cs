@@ -18,7 +18,7 @@ namespace SimulationProject.Services
             _PollingService = pollingService;
         }
 
-        public async Task<string> RunSimulationAsync(string repoUrl, string jsonParams, int Provider, string Region, string instanceType, int MinNodes, int MaxNodes, UserDto user, Simexecution newsimexec)
+        public async Task<string> RunSimulationAsync(string repoUrl, string jsonParams, int Provider, string Region, string instanceType, int MinPods, int MaxPods, UserDto user, Simexecution newsimexec)
         {
             var OutputDirectory = Path.Combine("terraform_workdir", Guid.NewGuid().ToString("N"));
             var ClusterName = $"sim-cluster-{Guid.NewGuid().ToString("N").Substring(0, 6)}";
@@ -109,8 +109,8 @@ namespace SimulationProject.Services
                             ClusterName,
                             Region,
                             DesiredNodes,
-                            MinNodes,
-                            MaxNodes
+                            MinPods,
+                            MaxPods
                         );
                     await builder.CreateTerraformFile();
                 }
@@ -128,8 +128,8 @@ namespace SimulationProject.Services
                             ClusterName,
                             Region,
                             DesiredNodes,
-                            MinNodes,
-                            MaxNodes
+                            MinPods,
+                            MaxPods
                         );
                     await builder.CreateTerraformFile();
                 }
