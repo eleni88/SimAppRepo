@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using k8s.KubeConfigModels;
 
 namespace SimulationProject.Helper.TerraformHelper
 {
@@ -289,8 +290,8 @@ namespace SimulationProject.Helper.TerraformHelper
                                       version_prefix = ""1.27.""
                                     }}
 
-                                    resource ""google_container_cluster"" ""primary"" {{
-                                      name     = ""{gcpprojectId}-gke""
+                                    resource ""google_container_cluster"" ""gke"" {{
+                                      name     = ""{clusterName}""
                                       location = ""{region}""
                                       remove_default_node_pool = true
                                       initial_node_count       = 1
@@ -299,10 +300,10 @@ namespace SimulationProject.Helper.TerraformHelper
                                       subnetwork = google_compute_subnetwork.subnet.name
                                     }}
 
-                                    resource ""google_container_node_pool"" ""primary_nodes"" {{
-                                      name       = google_container_cluster.primary.name
+                                    resource ""google_container_node_pool"" ""gke_nodes"" {{
+                                      name       = google_container_cluster.gke.name
                                       location   = ""{region}""
-                                      cluster    = google_container_cluster.primary.name
+                                      cluster    = google_container_cluster.gke.name
   
                                       version = data.google_container_engine_versions.gke_version.release_channel_default_version[""STABLE""]
                                       node_count = ""{desired}""
@@ -322,23 +323,58 @@ namespace SimulationProject.Helper.TerraformHelper
                                                 }}
 
                                                 machine_type = ""e2-standard-2""
-                                                tags         = [""gke-node"", ""${{var.project_id}}-gke""]
+                                                tags         = [""gke-node"", ""${gcpprojectId}-gke""]
                                                 metadata = {{
                                                   disable-legacy-endpoints = ""true""
                                                 }}
                                               }}
                 
                                 output ""kubernetes_cluster_host"" {{
-                                          value       = google_container_cluster.primary.endpoint
+                                          value       = google_container_cluster.gke.endpoint
                                           description = ""GKE Cluster Host""
                                 }}
                               
                                data ""google_client_config"" ""default"" {{}}
 
-                               output 
-
-"
-);
+                               output kubeconfig {{
+                                    description = ""Generated kubeconfig file""
+                                     value = yamlencode{{
+                                        apiVersion  ""v1""
+                                        kind = ""Config""
+                                        current-context = ""context-gke""
+                                        preferences = {{}}
+                                        clusters = [
+                                          cluster = {{
+                                            certificate-authority-data = google_container_cluster.gke_cluster.master_auth[0].cluster_ca_certificate
+                                            server = ""https://${{google_container_cluster.gke.endpoint}}""
+                                          }}
+                                          name = google_container_cluster.name
+                                        ]
+                                        contexts = [
+                                          context = {{
+                                            cluster = google_container_cluster.gke.name
+                                            user = ""gke""
+                                            }}
+                                          name = ""context-gke""                                            
+                                          ]
+                                        users = [
+                                          name = ""gke""
+                                          user = {{
+                                            auth-provider = {{
+                                              name   = ""gcp""
+                                              config = {{
+                                                access-token = data.google_client_config.default.access_token
+                                                cmd-path     = ""gcloud""
+                                                cmd-args     = ""config config-helper --format=json""
+                                                expiry       = data.google_client_config.default.token_expiry
+                                                token-type   = ""Bearer""
+                                              }}
+                                            }}
+                                          }}
+                                        ]
+                                    }}               
+                                }}
+                            ");
             return this;
 
         }

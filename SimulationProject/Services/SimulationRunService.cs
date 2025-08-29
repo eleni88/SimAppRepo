@@ -115,6 +115,23 @@ namespace SimulationProject.Services
                     await builder.CreateTerraformFile();
                 }
                 else
+                if (Provider == 2)
+                {
+                    var builder = new TerraformBuilder()
+                        .UseWorkingDirectory(OutputDirectory)
+                        .AddRequiredProviders(Provider)
+                        .AddGoogleProvider(user.Cloudcredentials.Find(prov => prov.Cloudid == Provider).Gcpprojectid,
+                            Region,
+                            user.Cloudcredentials.Find(prov => prov.Cloudid == Provider).Gcpservicekeyjson)
+                        .AddGkeCluster(
+                            ClusterName,
+                            Region, 
+                            user.Cloudcredentials.Find(prov => prov.Cloudid == Provider).Gcpprojectid,
+                            DesiredNodes,
+                            MinPods,
+                            MaxPods);
+                }
+                else
                 if (Provider == 3)
                 {
                     var builder = new TerraformBuilder()
