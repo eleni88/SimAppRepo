@@ -135,12 +135,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-//builder.Services.Configure<CookiePolicyOptions>(options =>
-//{
-//    options.HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always;
-//});
-
-
 //Add user secrets for local development
 if (builder.Environment.IsDevelopment())
 {
