@@ -314,7 +314,8 @@ namespace SimulationProject.Helper.TerraformHelper
 
                                     node_config {{
                                                 oauth_scopes = [
-                                                  ""https://www.googleapis.com/auth/cloud-platform""
+                                                  ""https://www.googleapis.com/auth/logging.write"",
+                                                  ""https://www.googleapis.com/auth/monitoring"",
                                                 ]
 
                                                 labels = {{

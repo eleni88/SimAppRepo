@@ -124,7 +124,6 @@ namespace SimulationProject.Services
         public string SetPartitionedCookie(string name, string value, int maxAgeSeconds)
         {
             var cookieStr = $"{name}={value}; Max-Age={maxAgeSeconds}; Path=/; Secure; HttpOnly; SameSite=None; Partitioned";
-            //var cookieStr = $"{name}={value}; Max-Age={maxAgeSeconds}; Path=/; Secure; HttpOnly; SameSite=None; ";
             return cookieStr;
         }
         //----------------------------------------------------------
