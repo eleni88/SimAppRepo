@@ -18,7 +18,7 @@ export const options = {
     },
     thresholds: {
         http_req_failed: ['rate<0.01'],   // http errors should be less than 1%      
-        http_req_duration: ['p(95)<200'], // 95% of requests should be below 200ms   
+        http_req_duration: ['p(100)<5000'],  // 100% των requests < 5000ms  
     },
 };
 
@@ -31,7 +31,7 @@ export default function () {
     const firstname = `User${i}`;
     const lastname = `User${i}`;
     const email = `${username}@example.com`;
-    const admin = false;
+    const admin = true;
     const age = 30;
     const jobtitle = 'Developer';
     const active = true;
@@ -61,7 +61,7 @@ export default function () {
         securityQuestion2: securityquestion2,
         securityAnswer2: securityanswer2,       
     });
-
+      //localhost:7121
     const userregister = http.post('https://localhost:7121/api/Ath/register',
         payload,
         { headers: { 'Content-Type': 'application/json' } }

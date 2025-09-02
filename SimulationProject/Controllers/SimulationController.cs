@@ -104,7 +104,7 @@ namespace SimulationProject.Controllers
             return CreatedAtAction(nameof(GetSimulation), new { Simid = simulation.Simid }, new { Simid = simulation.Simid });
         }
 
-        //PUT /api/simulations/{Simid}
+        //PUT /api/simulation/{Simid}
         [Authorize(Roles = "Admin,User")]
         [HttpPut("{Simid}")]
         public async Task<IActionResult> UpdateSimulation(int Simid, [FromBody] UpdateSimulationDTO updateSimulationDTO)
@@ -131,7 +131,7 @@ namespace SimulationProject.Controllers
             }
         }
 
-        // DELETE /api/simulations/{Simid}
+        // DELETE /api/simulation/{Simid}
         [Authorize(Roles = "Admin,User")]
         [HttpDelete("{Simid}")]
         public async Task<IActionResult> DeleteSimulation(int Simid)
