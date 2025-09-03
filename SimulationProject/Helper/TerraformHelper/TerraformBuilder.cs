@@ -25,6 +25,14 @@ namespace SimulationProject.Helper.TerraformHelper
                                           source  = ""hashicorp/aws""
                                           version = ""~> 6.0""
                                         }
+                                        kubernetes = {
+                                            source  = ""hashicorp/kubernetes""
+                                            version = "">= 2.20.0""
+                                        }
+                                        helm = {
+                                            source  = ""hashicorp/helm""
+                                            version = "">= 2.10.0""
+                                        }
                                       }
                                     }
                                 ");
@@ -35,9 +43,20 @@ namespace SimulationProject.Helper.TerraformHelper
                 _tfBuilder.AppendLine(@"
                                     terraform {
                                       required_providers {
+
+                                        kubernetes = {
+                                          source  = ""hashicorp/kubernetes""
+                                          version = "">= 2.0.3""
+                                        }
+
                                         google = {
                                           source  = ""hashicorp/google""
                                           version = ""~> 6.0""
+                                        }
+
+                                        helm = {
+                                              source  = ""hashicorp/helm""
+                                              version = "">= 2.1.0""
                                         }
                                       }
                                     }
@@ -49,9 +68,20 @@ namespace SimulationProject.Helper.TerraformHelper
                 _tfBuilder.AppendLine(@"
                                     terraform {
                                       required_providers {
+
+                                         kubernetes = {
+                                          source  = ""hashicorp/kubernetes""
+                                          version = "">= 2.0.3""
+                                        }
+
                                          azurerm = {
                                           source = ""hashicorp/azurerm""
                                           version = ""~> 4.0""
+                                        }
+
+                                        helm = {
+                                          source  = ""hashicorp/helm""
+                                          version = "">= 2.1.0""
                                         }
                                       }
                                     }
@@ -88,6 +118,8 @@ namespace SimulationProject.Helper.TerraformHelper
                                       client_secret   = ""{clientSecret}""
                                       tenant_id       = ""{tenantId}""
                                     }}
+
+                                    
                                 ");
             return this;
         }
@@ -102,6 +134,8 @@ namespace SimulationProject.Helper.TerraformHelper
                                     zone    = ""{region}-c""
                                     credentials = ""{gcpservicekeyjson}""
                                 }}
+
+                                                                      
                                 ");
 
             return this;
@@ -165,6 +199,20 @@ namespace SimulationProject.Helper.TerraformHelper
                                           desired_size = {desired}
                                         }}
                                       }} 
+                                    }}
+
+                                    provider ""kubernetes"" {{
+                                      host                   = data.aws_eks_cluster.eks.endpoint
+                                      cluster_ca_certificate = base64decode(data.aws_eks_cluster.eks.certificate_authority[0].data)
+                                      token                  = data.aws_eks_cluster_auth.eks.token
+                                    }}
+                             
+                                    provider ""helm"" {{
+                                      kubernetes {{
+                                        host                   = data.aws_eks_cluster.eks.endpoint
+                                        cluster_ca_certificate = base64decode(data.aws_eks_cluster.eks.certificate_authority[0].data)
+                                        token                  = data.aws_eks_cluster_auth.eks.token
+                                      }}
                                     }}
 
                                     output ""kubeconfig"" {{
@@ -252,6 +300,22 @@ namespace SimulationProject.Helper.TerraformHelper
                                     vnet_subnet_id      = azurerm_subnet.aks_subnet.id
                                   }}
 
+                                 provider ""kubernetes"" {{
+                                      host                   = data.azurerm_kubernetes_cluster.aks.kube_config.0.host
+                                      client_certificate     = base64decode(data.azurerm_kubernetes_cluster.aks.kube_config.0.client_certificate)
+                                      client_key             = base64decode(data.azurerm_kubernetes_cluster.aks.kube_config.0.client_key)
+                                      cluster_ca_certificate = base64decode(data.azurerm_kubernetes_cluster.aks.kube_config.0.cluster_ca_certificate)
+                                    }}
+
+                                    provider ""helm"" {{
+                                      kubernetes {{
+                                        host                   = data.azurerm_kubernetes_cluster.aks.kube_config.0.host
+                                        client_certificate     = base64decode(data.azurerm_kubernetes_cluster.aks.kube_config.0.client_certificate)
+                                        client_key             = base64decode(data.azurerm_kubernetes_cluster.aks.kube_config.0.client_key)
+                                        cluster_ca_certificate = base64decode(data.azurerm_kubernetes_cluster.aks.kube_config.0.cluster_ca_certificate)
+                                      }}
+                                    }}
+
                                 identity {{type = ""SystemAssigned""}}
 
                                 tags = {{
@@ -299,6 +363,25 @@ namespace SimulationProject.Helper.TerraformHelper
                                       network    = google_compute_network.vpc.name
                                       subnetwork = google_compute_subnetwork.subnet.name
                                     }}
+
+                                    provider ""kubernetes"" {{
+                                      host  = ""https://${{data.google_container_cluster.gke.endpoint}}""
+                                      token = data.google_client_config.gke.access_token
+                                      cluster_ca_certificate = base64decode(
+                                        data.google_container_cluster.gke.master_auth[0].cluster_ca_certificate,
+                                      )
+                                    }}
+
+                                    provider ""helm"" {{
+                                      kubernetes {{
+                                        host  = ""https://${{data.google_container_cluster.gke.endpoint}}""
+                                        token = data.google_client_config.gke.access_token
+                                        cluster_ca_certificate = base64decode(
+                                          data.google_container_cluster.gke.master_auth[0].cluster_ca_certificate,
+                                        )
+                                      }}
+                                    }}
+
 
                                     resource ""google_container_node_pool"" ""gke_nodes"" {{
                                       name       = google_container_cluster.gke.name
@@ -378,6 +461,19 @@ namespace SimulationProject.Helper.TerraformHelper
                             ");
             return this;
 
+        }
+
+        public TerraformBuilder AddKubernetesMetrics()
+        {
+            _tfBuilder.AppendLine($@"
+                resource ""helm_release"" ""metrics_server"" {{
+                  name       = ""metrics-server""
+                  repository = ""https://kubernetes-sigs.github.io/metrics-server/""
+                  chart      = ""metrics-server""
+                  version    = ""3.12.2"" # ενδεικτικό
+                  namespace  = ""kube-system""
+                }}
+            ");
         }
 
         public async Task<string> CreateTerraformFile()
