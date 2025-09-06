@@ -17,12 +17,14 @@ export const options = {
         },
     },
     thresholds: {
-        http_req_failed: ['rate<0.01'],   // http errors should be less than 1%      
-        http_req_duration: ['p(100)<5000'],  // 100% των requests < 5000ms  
+        'http_req_failed': ['rate<0.01'],   // http errors should be less than 1%      
+        'http_req_duration{ scenario: register_scenario }': ['p(100)<5000'],  // 100% των requests < 5000ms  
+        'http_req_waiting{scenario:register_scenario}': ['p(95)<400']
     },
 };
 
 const RUN_ID = __ENV.RUN_ID 
+
 
 export default function () {
     const i = exec.vu.idInTest;
@@ -62,9 +64,12 @@ export default function () {
         securityAnswer2: securityanswer2,       
     });
       //localhost:7121
-    const userregister = http.post('https://localhost:7121/api/Ath/register',
+    const userregister = http.post('http://127.0.0.1:8080/api/Ath/register',
         payload,
-        { headers: { 'Content-Type': 'application/json' } }
+        {
+            headers: { 'Content-Type': 'application/json' },
+            timeout: '90s',
+        }
     );
 
     if (userregister.status !== 200 && userregister.status !== 201) {

@@ -133,11 +133,15 @@ namespace SimulationProject.Services
         {
             string passwordHash = _passwordHashService.HashUserPassword(registerForm.Password);
             string securityanswerHash = _passwordHashService.HashUserPassword(registerForm.Securityanswer);
-
+            string securityanswerHash1 = _passwordHashService.HashUserPassword(registerForm.Securityanswer1);
+            string securityanswerHash2 = _passwordHashService.HashUserPassword(registerForm.Securityanswer2);
+           
             var user = registerForm.Adapt<User>();
             user.Role = FindUserRole(Convert.ToInt32(registerForm.Admin));
             user.Password = passwordHash;
             user.Securityanswer = securityanswerHash;
+            user.Securityanswer1 = securityanswerHash1;
+            user.Securityanswer2 = securityanswerHash2;
 
             await CreateUserAsync(user);
             return user;

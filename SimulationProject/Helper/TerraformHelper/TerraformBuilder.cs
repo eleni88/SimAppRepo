@@ -364,24 +364,6 @@ namespace SimulationProject.Helper.TerraformHelper
                                       subnetwork = google_compute_subnetwork.subnet.name
                                     }}
 
-                                    provider ""kubernetes"" {{
-                                      host  = ""https://${{data.google_container_cluster.gke.endpoint}}""
-                                      token = data.google_client_config.gke.access_token
-                                      cluster_ca_certificate = base64decode(
-                                        data.google_container_cluster.gke.master_auth[0].cluster_ca_certificate,
-                                      )
-                                    }}
-
-                                    provider ""helm"" {{
-                                      kubernetes {{
-                                        host  = ""https://${{data.google_container_cluster.gke.endpoint}}""
-                                        token = data.google_client_config.gke.access_token
-                                        cluster_ca_certificate = base64decode(
-                                          data.google_container_cluster.gke.master_auth[0].cluster_ca_certificate,
-                                        )
-                                      }}
-                                    }}
-
 
                                     resource ""google_container_node_pool"" ""gke_nodes"" {{
                                       name       = google_container_cluster.gke.name
@@ -418,7 +400,25 @@ namespace SimulationProject.Helper.TerraformHelper
                                           description = ""GKE Cluster Host""
                                 }}
                               
-                               data ""google_client_config"" ""default"" {{}}
+                               data ""google_client_config"" ""gke"" {{}}
+
+                                provider ""kubernetes"" {{
+                                      host  = ""https://${{data.google_container_cluster.gke.endpoint}}""
+                                      token = data.google_client_config.gke.access_token
+                                      cluster_ca_certificate = base64decode(
+                                        data.google_container_cluster.gke.master_auth[0].cluster_ca_certificate,
+                                      )
+                                    }}
+
+                                    provider ""helm"" {{
+                                      kubernetes {{
+                                        host  = ""https://${{data.google_container_cluster.gke.endpoint}}""
+                                        token = data.google_client_config.gke.access_token
+                                        cluster_ca_certificate = base64decode(
+                                          data.google_container_cluster.gke.master_auth[0].cluster_ca_certificate,
+                                        )
+                                      }}
+                                    }}
 
                                output kubeconfig {{
                                     description = ""Generated kubeconfig file""
@@ -447,10 +447,10 @@ namespace SimulationProject.Helper.TerraformHelper
                                             auth-provider = {{
                                               name   = ""gcp""
                                               config = {{
-                                                access-token = data.google_client_config.default.access_token
+                                                access-token = data.google_client_config.gke.access_token
                                                 cmd-path     = ""gcloud""
                                                 cmd-args     = ""config config-helper --format=json""
-                                                expiry       = data.google_client_config.default.token_expiry
+                                                expiry       = data.google_client_config.gke.token_expiry
                                                 token-type   = ""Bearer""
                                               }}
                                             }}
@@ -463,18 +463,21 @@ namespace SimulationProject.Helper.TerraformHelper
 
         }
 
-        public TerraformBuilder AddKubernetesMetrics()
-        {
-            _tfBuilder.AppendLine($@"
-                resource ""helm_release"" ""metrics_server"" {{
-                  name       = ""metrics-server""
-                  repository = ""https://kubernetes-sigs.github.io/metrics-server/""
-                  chart      = ""metrics-server""
-                  version    = ""3.12.2"" # ενδεικτικό
-                  namespace  = ""kube-system""
-                }}
-            ");
-        }
+        //public TerraformBuilder AddKubernetesMetrics()
+        //{
+        //    _tfBuilder.AppendLine($@"
+        //        resource ""helm_release"" ""metrics_server"" {{
+        //          name       = ""metrics-server""
+        //          chart      = ""metrics-server""
+        //          repository = ""https://kubernetes-sigs.github.io/metrics-server/""
+        //          namespace  = ""kube-system""
+        //          version    = ""3.13.0""
+        //        }}
+
+                
+
+        //    ");
+        //}
 
         public async Task<string> CreateTerraformFile()
         {
