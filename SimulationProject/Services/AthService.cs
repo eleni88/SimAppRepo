@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore;
 using Mapster;
 using SimulationProject.DTO.UserDTOs;
 using Azure;
+using System.Data;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace SimulationProject.Services
 {
@@ -143,7 +145,14 @@ namespace SimulationProject.Services
             user.Securityanswer1 = securityanswerHash1;
             user.Securityanswer2 = securityanswerHash2;
 
-            await CreateUserAsync(user);
+            try
+            {
+                await CreateUserAsync(user);
+            }
+            catch (DbUpdateException)
+            {
+                throw new DbUpdateException("Email or Username Exists.");
+            }
             return user;
         }
         //login user

@@ -1,7 +1,9 @@
-﻿using System.Security.Claims;
+﻿using System.Data.Common;
+using System.Security.Claims;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SimulationProject.DTO.UserDTOs;
 using SimulationProject.Services;
 
@@ -76,16 +78,15 @@ namespace SimulationProject.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDTO userdtto)
         {
-            
-            if (_usersService.UserNameExists(-1, userdtto.Username))
+            Models.User user;
+            try
             {
-                return BadRequest(new { message = "The username is used by another user" });
+                user = await _usersService.CreateUserAsync(userdtto);
             }
-            if (_usersService.UserEmailExists(-1, userdtto.Email))
+            catch (DbUpdateException)
             {
-                return BadRequest(new { message = "The email is used by another user" });
+                return Conflict(new { message = "Email or Username Exists." });
             }
-            var user = await _usersService.CreateUserAsync(userdtto);
             if (user is null)
             {
                 return BadRequest(new { message = "Creation failed." });
@@ -104,18 +105,15 @@ namespace SimulationProject.Controllers
             {
                 return NotFound(new { message = "User not found." });
             }
-            if (_usersService.UserNameExists(Userid, userDto.Username))
+            try
             {
-                return BadRequest(new { message = "The username is used by another user" });
+                userDto.Adapt(user);
+                await _usersService.PutUserAsync();
             }
-            if (_usersService.UserEmailExists(Userid, userDto.Email))
+            catch (DbUpdateException)
             {
-                return BadRequest(new { message = "The email is used by another user" });
+                return Conflict(new { message = "Email or Username Exists." });
             }
-
-            userDto.Adapt(user);
-            await _usersService.PutUserAsync();
-
             return NoContent();
         }
 
@@ -172,17 +170,16 @@ namespace SimulationProject.Controllers
             {
                 return NotFound(new { message = "User not found"});
             }
-            if (_usersService.UserNameExists(userId ,userDto.Username))
+            int rowsAfected = 0;
+            try
             {
-                return BadRequest(new { message = "The username is used by another user" });
+                userDto.Adapt(user);
+                rowsAfected = await _usersService.PutUserAsync();
             }
-            if (_usersService.UserEmailExists(userId, userDto.Email))
+            catch (DbUpdateException)
             {
-                return BadRequest(new { message = "The email is used by another user" });
+                return Conflict(new { message = "Email or Username Exists." });
             }
-
-            userDto.Adapt(user);
-            int rowsAfected = await _usersService.PutUserAsync();
             if (rowsAfected > 0)
             {
                 return Ok(new { message = "User updated successfully" });
@@ -191,8 +188,6 @@ namespace SimulationProject.Controllers
             {
                 return BadRequest(new { message = "Update failed" });
             }
-
-                //return NoContent();
         }
 
         // DELETE /api/users/profile

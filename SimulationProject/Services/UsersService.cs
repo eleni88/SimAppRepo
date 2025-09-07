@@ -20,8 +20,6 @@ namespace SimulationProject.Services
         Task DeleteUserAsync(User user);
         bool SecurityAnswer(User user, SecurityQuestionsAndAnswersDTO QuestionsDto);
         bool UserExists(int Userid);
-        bool UserNameExists(int Userid, string Username);
-        bool UserEmailExists(int Userid, string Email);
         string GetUserNewPassword(string newPassword, string userName, User user, string oldPassword = "", string tempPassword = "");
         Task UpdateUserPasswordAsync(string passwordHash, User user);
         Task<bool> UpdateSecurityQuestionAnsyc(string question, string question1, string question2, string answer, string answer1, string answer2, User user);
@@ -42,19 +40,9 @@ namespace SimulationProject.Services
             _passwordHashService = passwordHashService;
         }
 
-        public bool UserEmailExists(int Userid, string Email)
-        {
-            return _context.Users.Any(e => ((e.Userid != Userid) && (e.Email == Email)));
-        }
-
         public bool UserExists(int Userid)
         {
             return _context.Users.Any(e => e.Userid == Userid);
-        }
-
-        public bool UserNameExists(int Userid,string Username)
-        {
-            return _context.Users.Any(e => ((e.Userid != Userid) && (e.Username == Username)));
         }
 
         //find user role
@@ -96,7 +84,7 @@ namespace SimulationProject.Services
 
         //post
         public async Task CreateUserAsync(User user)
-        {  
+        {
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
         }

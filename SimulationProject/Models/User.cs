@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 namespace SimulationProject.Models;
 
 [Table("USER")]
+[Index("Email", Name = "UQ_USER_EMAIL", IsUnique = true)]
+[Index("Username", Name = "UQ_USER_USERNAME", IsUnique = true)]
 public partial class User
 {
     [Key]
