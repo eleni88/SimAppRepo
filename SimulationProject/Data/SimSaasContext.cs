@@ -66,7 +66,9 @@ public partial class SimSaasContext : DbContext
         {
             entity.HasKey(e => e.Resourceid).HasName("PK_RESOURCEID");
 
-            entity.HasOne(d => d.Sim).WithOne(p => p.Resourcerequirement).HasConstraintName("FK_RESOURCESIMID");
+            entity.HasOne(d => d.Sim).WithOne(p => p.Resourcerequirement)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_RESOURCESIMID");
         });
 
         modelBuilder.Entity<Simexecution>(entity =>

@@ -64,7 +64,7 @@ export default function () {
         securityAnswer2: securityanswer2,       
     });
       //localhost:7121
-    const userregister = http.post('http://127.0.0.1:8080/api/Ath/register',
+    const userregister = http.post('http://localhost:7121/api/Ath/register', // 127.0.0.1:8080
         payload,
         {
             headers: { 'Content-Type': 'application/json' },
