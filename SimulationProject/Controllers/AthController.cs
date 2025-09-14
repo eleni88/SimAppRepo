@@ -16,6 +16,7 @@ namespace SimulationProject.Controllers
     {
         private readonly IUsersService _usersService;
         private readonly AthService _athService;
+ 
         public AthController(IUsersService usersService, AthService athService)
         {
             _usersService = usersService;
@@ -28,22 +29,13 @@ namespace SimulationProject.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterForm registerForm)
         {
-            //if (_usersService.UserNameExists(-1, registerForm.Username))
-            //{
-            //    return BadRequest(new { message = "Username already exists." });
-            //}
-            //if (_usersService.UserEmailExists(-1, registerForm.Email))
-            //{
-            //    return BadRequest(new { message = "Email already exists." });
-            //}
-
             var user = await _athService.RegisterUserAsync(registerForm);        
             if (user is null)
             {
                 return BadRequest(new { message = "Registration failed." });
             }
 
-            return Ok(user);
+            return Ok();
         }
 
         //----------- Login -------------

@@ -11,7 +11,7 @@ export const options = {
 
             gracefulStop: '5s',
 
-            vus: 50,
+            vus: 20,
             iterations: 1,
             maxDuration: '2m',
         },
@@ -46,31 +46,48 @@ export default function () {
     const securityanswer2 = `Corsa${i}!@#123`;
 
     const payload = JSON.stringify({
-        username: username,
-        password: password,
-        firstname: firstname,
-        lastname: lastname, 
-        email: email,
-        admin: admin,
-        age: age,
-        jobtitle: jobtitle,
-        active: active,
-        organization: organization,
-        securityQuestion: securityquestion,
-        securityAnswer: securityanswer,
-        securityQuestion1: securityquestion1,
-        securityAnswer1: securityanswer1,
-        securityQuestion2: securityquestion2,
-        securityAnswer2: securityanswer2,       
+         username: `user${i}_${RUN_ID}`,
+         password: `User${i}Password!@#123*${RUN_ID}`,
+         firstname: `User${i}`,
+         lastname: `User${i}`,
+         email: `${username}@example.com`,
+         admin: true,
+         age: 30,
+         jobtitle: 'Developer',
+         active: true,
+         organization: 'Lotr Corp',
+         securityquestion: 'What city were you born in?',
+         securityanswer: `Athens${i}!@#123`,
+         securityquestion1: 'What was the first concert you attended?',
+         securityanswer1: `Scorpions${i}!@#123`,
+         securityquestion2: 'What was the make and model of your first car?',
+         securityanswer2: `Corsa${i}!@#123`,
+        //username: username,
+        //password: password,
+        //firstname: firstname,
+        //lastname: lastname,
+        //email: email,
+        //admin: admin,
+        //age: age,
+        //jobtitle: jobtitle,
+        //active: active,
+        //organization: organization,
+        //securityQuestion: securityquestion,
+        //securityAnswer: securityanswer,
+        //securityQuestion1: securityquestion1,
+        //securityAnswer1: securityanswer1,
+        //securityQuestion2: securityquestion2,
+        //securityAnswer2: securityanswer2,
     });
-      //localhost:7121
-    const userregister = http.post('http://localhost:7121/api/Ath/register', // 127.0.0.1:8080
-        payload,
-        {
-            headers: { 'Content-Type': 'application/json' },
-            timeout: '90s',
-        }
-    );
+    const url = 'https://localhost:7121/api/Ath/register';
+    const params = {
+        headers: { 'Content-Type': 'application/json' },
+        timeout: '90s',
+    };
+
+    //localhost:7121
+    // 127.0.0.1:8080
+    const userregister = http.post(url, payload, params);
 
     if (userregister.status !== 200 && userregister.status !== 201) {
         console.error('Register failed:', userregister.status);

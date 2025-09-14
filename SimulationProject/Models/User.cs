@@ -115,6 +115,9 @@ public partial class User
     [Column("EMAILTIMESTAMP", TypeName = "datetime")]
     public DateTime? Emailtimestamp { get; set; }
 
+    [Column("LOGINATTEMPT")]
+    public int? Loginattempt { get; set; }
+
     [InverseProperty("User")]
     public virtual ICollection<Cloudcredential> Cloudcredentials { get; set; } = new List<Cloudcredential>();
 

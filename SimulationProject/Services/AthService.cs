@@ -167,6 +167,11 @@ namespace SimulationProject.Services
             // Verify password
             if (!_passwordHashService.VerifyUserPassword(loginform.Password, user.Password))
             {
+                user.Loginattempt++;
+                if (user.Loginattempt == 3)
+                {
+                    user.Active = false;
+                }
                 return null;
             }
             var response = new TokenDTo
@@ -174,6 +179,7 @@ namespace SimulationProject.Services
                 AccessToken = await GenerateAndSaveTokenAsync(user), //CreateJWToken(user),
                 RefreshToken = await GenerateAndSaveRefreshTokenAsync(user)
             };
+            user.Loginattempt = 0;
             return response;
         }
         // login user - check Active
