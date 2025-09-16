@@ -45,12 +45,13 @@ namespace SimulationProject.Controllers
         public async Task<IActionResult> LoginUser([FromBody] LoginForm loginform)
         {
             var result = await _athService.LoginUserAsync(loginform);
-            if (result is null)
+            bool isactive = await _athService.CheckUserActiveAsync(loginform);
+            
+            if ((result is null) && (isactive))
             {
                 return BadRequest(new { message = "Invalid username or password" });
             }
 
-            bool isactive = await _athService.CheckUserActiveAsync(loginform);
             if (!isactive)
             {
                 return BadRequest(new { message = "Your account has been disabled. Please contact the admin." });

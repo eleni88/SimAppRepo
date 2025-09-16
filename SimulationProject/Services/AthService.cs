@@ -172,6 +172,7 @@ namespace SimulationProject.Services
                 {
                     user.Active = false;
                 }
+                await _context.SaveChangesAsync();
                 return null;
             }
             var response = new TokenDTo
@@ -180,6 +181,7 @@ namespace SimulationProject.Services
                 RefreshToken = await GenerateAndSaveRefreshTokenAsync(user)
             };
             user.Loginattempt = 0;
+            await _context.SaveChangesAsync();
             return response;
         }
         // login user - check Active
@@ -187,7 +189,7 @@ namespace SimulationProject.Services
         {
             // Find user by username
             var user = await GetUserByNameAsync(loginform.UserName);
-            return (user.Active || ((user.Emailtimestamp == null) || ((DateTime.UtcNow - user.Emailtimestamp) < TimeSpan.FromMinutes(10))));
+            return (user.Active || ((user.Emailtimestamp != null) && ((DateTime.UtcNow - user.Emailtimestamp) < TimeSpan.FromMinutes(10))));
         }
     }
 }
