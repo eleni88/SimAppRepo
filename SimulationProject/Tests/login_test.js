@@ -38,7 +38,7 @@ export default function () {
     const password = `User${i}Password!@#123*${RUN_ID}`;
 
     //1. Login
-    const userlogin = http.post('https://localhost:7121/api/Ath/login',  //localhost:7121 ,   127.0.0.1:8080
+    const userlogin = http.post('http://127.0.0.1:8080/api/Ath/login',  //localhost:7121 ,   127.0.0.1:8080
         JSON.stringify({ username, password }),
         {
             headers: { 'Content-Type': 'application/json' },
@@ -57,7 +57,7 @@ export default function () {
     });
 
     //2. Get Users
-    const getusers = http.get('https://localhost:7121/api/Users',
+    const getusers = http.get('http://127.0.0.1:8080/api/Users',
         { tags: { name: 'get_users' } });
 
     if (getusers.status !== 200) {
@@ -98,7 +98,7 @@ export default function () {
         }
     };
 
-    const simulationcreate = http.post('https://localhost:7121/api/Simulation/create',
+    const simulationcreate = http.post('http://127.0.0.1:8080/api/Simulation/create',
         JSON.stringify(newSimulation),
         {
             headers: { 'Content-Type': 'application/json' },

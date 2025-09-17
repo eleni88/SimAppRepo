@@ -7,19 +7,18 @@ export const options = {
     scenarios: {
         register_scenario: {
             // name of the executor to use
-            executor: 'per-vu-iterations',
+            executor: 'per-vu-iterations', // each VU executes an exact number of iterations
 
-            gracefulStop: '5s',
+            gracefulStop: '5s', // a duration that k6 will wait before forcefully interrupting an iteration
 
-            vus: 20,
+            vus: 50,
             iterations: 1,
-            maxDuration: '2m',
+            maxDuration: '2m',  // Maximum scenario duration before it’s forcibly stopped
         },
     },
     thresholds: {
         'http_req_failed': ['rate<0.01'],   // http errors should be less than 1%      
-        'http_req_duration{ scenario: register_scenario }': ['p(100)<5000'],  // 100% των requests < 5000ms  
-        'http_req_waiting{scenario:register_scenario}': ['p(95)<400']
+        'http_req_duration{ scenario: register_scenario }': ['p(100)<5000']  // 100% of requests have a response time < 5000ms  
     },
 };
 
@@ -29,21 +28,6 @@ const RUN_ID = __ENV.RUN_ID
 export default function () {
     const i = exec.vu.idInTest;
     const username = `user${i}_${RUN_ID}`;
-    const password = `User${i}Password!@#123*${RUN_ID}`;
-    const firstname = `User${i}`;
-    const lastname = `User${i}`;
-    const email = `${username}@example.com`;
-    const admin = true;
-    const age = 30;
-    const jobtitle = 'Developer';
-    const active = true;
-    const organization = 'Lotr Corp';
-    const securityquestion = 'What city were you born in?';
-    const securityanswer = `Athens${i}!@#123`;
-    const securityquestion1 = 'What was the first concert you attended?';
-    const securityanswer1 = `Scorpions${i}!@#123`;
-    const securityquestion2 = 'What was the make and model of your first car?';
-    const securityanswer2 = `Corsa${i}!@#123`;
 
     const payload = JSON.stringify({
          username: `user${i}_${RUN_ID}`,
@@ -62,24 +46,8 @@ export default function () {
          securityanswer1: `Scorpions${i}!@#123`,
          securityquestion2: 'What was the make and model of your first car?',
          securityanswer2: `Corsa${i}!@#123`,
-        //username: username,
-        //password: password,
-        //firstname: firstname,
-        //lastname: lastname,
-        //email: email,
-        //admin: admin,
-        //age: age,
-        //jobtitle: jobtitle,
-        //active: active,
-        //organization: organization,
-        //securityQuestion: securityquestion,
-        //securityAnswer: securityanswer,
-        //securityQuestion1: securityquestion1,
-        //securityAnswer1: securityanswer1,
-        //securityQuestion2: securityquestion2,
-        //securityAnswer2: securityanswer2,
     });
-    const url = 'https://localhost:7121/api/Ath/register';
+    const url = 'http://127.0.0.1:8080/api/Ath/register';
     const params = {
         headers: { 'Content-Type': 'application/json' },
         timeout: '90s',
