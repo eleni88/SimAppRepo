@@ -46,6 +46,13 @@ public partial class Simulation
     [Column("REGIONID")]
     public int? Regionid { get; set; }
 
+    [Column("INSTANCEID")]
+    public int? Instanceid { get; set; }
+
+    [ForeignKey("Instanceid")]
+    [InverseProperty("Simulations")]
+    public virtual Instancetype? Instance { get; set; }
+
     [ForeignKey("Regionid")]
     [InverseProperty("Simulations")]
     public virtual Region? Region { get; set; }

@@ -20,6 +20,8 @@ public partial class SimSaasContext : DbContext
 
     public virtual DbSet<Cloudprovider> Cloudproviders { get; set; }
 
+    public virtual DbSet<Instancetype> Instancetypes { get; set; }
+
     public virtual DbSet<Region> Regions { get; set; }
 
     public virtual DbSet<Resourcerequirement> Resourcerequirements { get; set; }
@@ -55,6 +57,15 @@ public partial class SimSaasContext : DbContext
             entity.HasKey(e => e.Cloudid).HasName("PK_CLOUDID");
         });
 
+        modelBuilder.Entity<Instancetype>(entity =>
+        {
+            entity.HasKey(e => e.Instanceid).HasName("PK_INSTANCEID");
+
+            entity.HasOne(d => d.Cloud).WithMany(p => p.Instancetypes)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_INSTANCECLOUDID");
+        });
+
         modelBuilder.Entity<Region>(entity =>
         {
             entity.HasOne(d => d.Cloud).WithMany(p => p.Regions)
@@ -82,6 +93,8 @@ public partial class SimSaasContext : DbContext
         {
             entity.HasKey(e => e.Simid).HasName("PK_SIMULID");
 
+            entity.HasOne(d => d.Instance).WithMany(p => p.Simulations).HasConstraintName("FK_INSTANCEID");
+
             entity.HasOne(d => d.Region).WithMany(p => p.Simulations).HasConstraintName("FK_REGIONID");
 
             entity.HasOne(d => d.SimcloudNavigation).WithMany(p => p.Simulations).HasConstraintName("FK_SIMCLOUD");
@@ -96,6 +109,7 @@ public partial class SimSaasContext : DbContext
             entity.HasKey(e => e.Userid).HasName("PK__USER__7B9E7F35CC9ADE84");
 
             entity.Property(e => e.Active).HasDefaultValue(true);
+            entity.Property(e => e.Loginattempt).HasDefaultValue(0);
         });
 
         OnModelCreatingPartial(modelBuilder);
