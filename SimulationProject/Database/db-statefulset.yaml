@@ -16,7 +16,8 @@ spec:
     spec:
       containers:
       - name: mssql
-        image: eleni88/simulation-db
+        image: simulation-db:latest
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 1433
           name: tds
@@ -30,9 +31,21 @@ spec:
             secretKeyRef:
               name: db-secret
               key: SA_PASSWORD
+        # -------------------------------------------
+        - name: DB_NAME
+          value: "MyDb"
+        - name: BAK_FILE
+          value: "mydb.bak"
+        - name: RESTORE_IF_ABSENT
+          value: "1"
+        # -------------------------------------------
         volumeMounts:
         - name: mssqldata
           mountPath: /var/opt/mssql
+        # -------------------------------------------
+        - name: mssqlbackup                         
+          mountPath: /var/opt/mssql/backup
+        # -------------------------------------------
         readinessProbe:
           tcpSocket:
             port: 1433
@@ -43,6 +56,10 @@ spec:
             port: 1433
           initialDelaySeconds: 40
           periodSeconds: 10
+      volumes:
+      - name: mssqlbackup
+        persistentVolumeClaim:
+          claimName: mssql-bak-pvc
   volumeClaimTemplates:
   - metadata:
       name: mssqldata
