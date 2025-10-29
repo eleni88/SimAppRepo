@@ -33,9 +33,9 @@ spec:
               key: SA_PASSWORD
         # -------------------------------------------
         - name: DB_NAME
-          value: "MyDb"
+          value: "SIM_SAAS"
         - name: BAK_FILE
-          value: "mydb.bak"
+          value: "SIM_SAAS.bak"
         - name: RESTORE_IF_ABSENT
           value: "1"
         # -------------------------------------------
