@@ -18,6 +18,7 @@ namespace SimulationProject.DTO.SimulationDTOs
         public int Simcloud { get; set; }
         public ProviderDTO SimcloudNavigation { get; set; }
         public int Regionid { get; set; }
+        public int Instanceid { get; set; }
         public RegionDTO Region { get; set; }
         public List<SimExecutionDTO> Simexecutions { get; set; } = new();
         public ResourceDTO Resourcerequirement { get; set; } = new ResourceDTO();

@@ -143,7 +143,7 @@ namespace SimulationProject.Helper.TerraformHelper
 
 
         //------------------ AWS Cluster (Using AWS Module) -----------------------------
-        public TerraformBuilder AddEksCluster(string clusterName, string region, int desired, int min, int max)
+        public TerraformBuilder AddEksCluster(string clusterName, string region, string instanceType, int desired, int min, int max)
         {
             //--------------------------------------------
             // Use of Terraform Registry modules vpc and eks
@@ -196,7 +196,7 @@ namespace SimulationProject.Helper.TerraformHelper
                                      eks_managed_node_groups = {{
                                         default = {{
                                           ami_type       = ""AL2023_x86_64_STANDARD""
-                                          instance_types = [""t3.medium""]
+                                          instance_types = [""{instanceType}""]
 
                                           min_size     = {min}
                                           max_size     = {max}
@@ -265,7 +265,7 @@ namespace SimulationProject.Helper.TerraformHelper
         }
 
         //------------------ AZURE Cluster (Official Provider) -----------------------------
-        public TerraformBuilder AddAzureCluster(string clusterName, string region, int desired, int min, int max)
+        public TerraformBuilder AddAzureCluster(string clusterName, string region, string instanceType, int desired, int min, int max)
         {
             _tfBuilder.AppendLine($@" 
                                 resource  ""azurerm_resource_group"" ""aks"" {{
@@ -296,7 +296,7 @@ namespace SimulationProject.Helper.TerraformHelper
 
                                   default_node_pool {{
                                     name                = ""general""
-                                    vm_size             = ""Standard_D2_v2""
+                                    vm_size             = ""{instanceType}""
                                     enable_auto_scaling = true
                                     min_count           = {min}
                                     max_count           = {max}
@@ -337,7 +337,7 @@ namespace SimulationProject.Helper.TerraformHelper
             return this;
         }
 
-        public TerraformBuilder AddGkeCluster(string clusterName, string region, string gcpprojectId, int desired, int min, int max)
+        public TerraformBuilder AddGkeCluster(string clusterName, string region, string instanceType, string gcpprojectId, int desired, int min, int max)
         {
             _tfBuilder.AppendLine($@"                                  
                                     resource ""google_compute_network"" ""vpc"" {{
@@ -392,7 +392,7 @@ namespace SimulationProject.Helper.TerraformHelper
                                                   terraform   = ""true""
                                                 }}
 
-                                                machine_type = ""e2-standard-2""
+                                                machine_type = ""{instanceType}""
                                                 tags         = [""gke-node"", ""${gcpprojectId}-gke""]
                                                 metadata = {{
                                                   disable-legacy-endpoints = ""true""

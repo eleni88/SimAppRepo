@@ -197,7 +197,7 @@ namespace SimulationProject.Controllers
         }
 
         //--------------------- Get Simulation's Results -------------------------------
-        // DELETE /api/{Simid}/simexecutions/{Execid}/results
+        // GET /api/{Simid}/simexecutions/{Execid}/results
         [HttpGet("{Simid}/simexecutions/{Execid}/results")]
         public async Task<ActionResult<String>> GetResults(int Simid, int Execid)
         {

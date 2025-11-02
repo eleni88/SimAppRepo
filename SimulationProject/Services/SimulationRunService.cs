@@ -108,6 +108,7 @@ namespace SimulationProject.Services
                         .AddEksCluster(
                             ClusterName,
                             Region,
+                            instanceType,
                             DesiredNodes,
                             MinPods,
                             MaxPods
@@ -125,7 +126,8 @@ namespace SimulationProject.Services
                             user.Cloudcredentials.Find(prov => prov.Cloudid == Provider).Gcpservicekeyjson)
                         .AddGkeCluster(
                             ClusterName,
-                            Region, 
+                            Region,
+                            instanceType,
                             user.Cloudcredentials.Find(prov => prov.Cloudid == Provider).Gcpprojectid,
                             DesiredNodes,
                             MinPods,
@@ -144,6 +146,7 @@ namespace SimulationProject.Services
                         .AddAzureCluster(
                             ClusterName,
                             Region,
+                            instanceType,
                             DesiredNodes,
                             MinPods,
                             MaxPods
