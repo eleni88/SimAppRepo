@@ -1,0 +1,6 @@
+*
+**
+
+!Dockerfile
+!mssql-entrypoint.sh
+!restore-database.sh
