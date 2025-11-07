@@ -13,13 +13,17 @@ ENV MSSQL_BACKUP_DIR=/var/opt/mssql/backup \
 USER root
 
 # copy the entrypoint script
-COPY --chown=mssql:mssql mssql-entrypoint.sh /bin
-RUN chmod +x /bin/mssql-entrypoint.sh
+COPY --chown=mssql:mssql mssql-entrypoint.sh /bin/
+RUN sed -i 's/\r$//' /bin/mssql-entrypoint.sh \
+    && sed -i '1 s/^\xEF\xBB\xBF//' /bin/mssql-entrypoint.sh \
+    && chmod +x /bin/mssql-entrypoint.sh
 
 # create db_restore folder and copy the db_restore script
 RUN mkdir -p ${SCRIPTS}
-COPY --chown=mssql:mssql restore-database.sh ${SCRIPTS}
-RUN chmod +x ${SCRIPTS}/restore-database.sh
+COPY --chown=mssql:mssql restore-database.sh ${SCRIPTS}/
+RUN sed -i 's/\r$//' ${SCRIPTS}/restore-database.sh \
+    && sed -i '1 s/^\xEF\xBB\xBF//' ${SCRIPTS}/restore-database.sh \
+    && chmod +x ${SCRIPTS}/restore-database.sh
 
 ENV SCRIPTS=${SCRIPTS}
 
@@ -27,4 +31,4 @@ ENV SCRIPTS=${SCRIPTS}
 USER mssql
 
 EXPOSE 1433
-ENTRYPOINT ["/bin/mssql-entrypoint.sh"]
+ENTRYPOINT ["/usr/bin/bash","/bin/mssql-entrypoint.sh"]
