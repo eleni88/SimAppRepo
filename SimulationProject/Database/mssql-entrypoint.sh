@@ -36,12 +36,13 @@ LOG_FILE=output.log
 if [ ! -f "${SCRIPTS}/${LOG_FILE}" ]; then
     for script in "${SCRIPTS}/"*.sh; do
         echo "Executing: ${script}" >> "${SCRIPTS}/${LOG_FILE}"
-        if [ -x "script" ]; then
+        if [ -x "$script" ]; then
             "${script}"
         else 
             echo "Ignoring : ${script}" >> "${SCRIPTS}/${LOG_FILE}"
         fi
     done
+fi
 
 # trap SIGTERM and send same to sqlservr process for clean shutdown
 trap "kill -15 $pid" SIGTERM
