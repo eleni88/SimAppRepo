@@ -11,7 +11,7 @@ pid=$!
 
 # Wait for it to be available
 echo "Waiting for MS SQL to be available"
-count=0
+count=0 
 is_up=1
 while [ "$is_up" -ne 0 ] && [ "$count" -lt 30 ] ; do
     "$SQLCMD" -l 30 -S localhost -U sa -P "$MSSQL_SA_PASSWORD" -C -Q "SELECT 1" >/dev/null 2>&1;
@@ -25,10 +25,10 @@ done
 
 if [ "$is_up" -ne 0 ] && [ "$count" -eq 30 ] ; then
     echo "SQL Server did not become ready."
-    wait $pid
+    kill -15 "$pid"
+    wait "$pid"
     exit 1
 fi
-
 echo "SQL Server is ready."
 
 LOG_FILE=output.log
@@ -47,4 +47,4 @@ fi
 # trap SIGTERM and send same to sqlservr process for clean shutdown
 trap "kill -15 $pid" SIGTERM
 # Wait on the sqlserver process
-wait $pid
+wait "$pid"
