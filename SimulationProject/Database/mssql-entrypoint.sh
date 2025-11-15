@@ -13,17 +13,19 @@ pid="$!"
 echo "Waiting for MS SQL to be available"
 count=0 
 is_up=1
-while [[ "$is_up" -ne 0 && "$count" -lt 30 ]]; do
-    "$SQLCMD" -l 30 -S localhost -U sa -P "$MSSQL_SA_PASSWORD" -C -Q "SELECT 1" >/dev/null 2>&1;
-    is_up=$?
-    if [ "$is_up" -ne 0 ]; then
+while [[ "$is_up" -ne 0 && "$count" -lt 40 ]]; do
+    if  "$SQLCMD" -l 30 -S localhost -U sa -P "$MSSQL_SA_PASSWORD" -C -Q "SELECT 1" >/dev/null 2>&1 ; then
+        is_up=0
+        break
+    else
+        is_up=$?
         echo "SQL Server not ready."
         ((count++))
-        sleep 5
+        sleep 10
     fi
 done
 
-if [[ "$is_up" -ne 0 && "$count" -eq 30 ]]; then
+if [[ "$is_up" -ne 0 && "$count" -eq 40 ]]; then
     echo "SQL Server did not become ready."
     kill -15 "$pid"
     wait "$pid"
@@ -35,9 +37,11 @@ LOG_FILE=output.log
 
 if [[ ! -f "${SCRIPTS}/${LOG_FILE}" ]]; then
     for script in "${SCRIPTS}/"*.sh; do
-        echo "Executing: ${script}" >> "${SCRIPTS}/${LOG_FILE}"
+        echo "Executing: ${script}" >> "${SCRIPTS}/${LOG_FILE}" 2>&1
         if [[ -x "$script" ]]; then
-            "$script"
+            if ! "$script" >> "${SCRIPTS}/${LOG_FILE}" 2>&1; then
+                echo "Script failed: ${script}" >> "${SCRIPTS}/${LOG_FILE}"
+            fi
         else 
             echo "Ignoring : ${script}" >> "${SCRIPTS}/${LOG_FILE}"
         fi

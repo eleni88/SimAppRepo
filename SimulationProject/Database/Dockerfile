@@ -1,4 +1,4 @@
-ARG SCRIPTS=/var/opt/mssql/scripts
+ARG SCRIPTS=/usr/src/scripts
 
 # Use the official Microsoft SQL Server 2022 Linux base image
 FROM mcr.microsoft.com/mssql/server:2022-latest
@@ -19,11 +19,16 @@ RUN sed -i 's/\r$//' /bin/mssql-entrypoint.sh \
     && chmod +x /bin/mssql-entrypoint.sh
 
 # create db_restore folder and copy the db_restore script
-RUN mkdir -p ${SCRIPTS}
+RUN mkdir -p ${SCRIPTS} \
+    && chown -R mssql:mssql ${SCRIPTS}
 COPY --chown=mssql:mssql restore-database.sh ${SCRIPTS}/
 RUN sed -i 's/\r$//' ${SCRIPTS}/restore-database.sh \
     && sed -i '1 s/^\xEF\xBB\xBF//' ${SCRIPTS}/restore-database.sh \
     && chmod +x ${SCRIPTS}/restore-database.sh
+
+# create backup folder and copy the .bak file
+RUN mkdir -p ${MSSQL_BACKUP_DIR}
+COPY --chown=mssql:mssql SIM_SAAS.bak ${MSSQL_BACKUP_DIR}/
 
 ENV SCRIPTS=${SCRIPTS}
 

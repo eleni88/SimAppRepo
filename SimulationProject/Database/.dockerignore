@@ -4,3 +4,4 @@
 !Dockerfile
 !mssql-entrypoint.sh
 !restore-database.sh
+!SIM_SAAS.bak

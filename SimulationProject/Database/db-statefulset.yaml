@@ -41,10 +41,10 @@ spec:
         # -------------------------------------------
         volumeMounts:
         - name: mssqldata
-          mountPath: /var/opt/mssql
+          mountPath: /var/opt/mssql/data
         # -------------------------------------------
-        - name: mssqlbackup                         
-          mountPath: /var/opt/mssql/backup
+      #  - name: mssqlbackup                         
+      #    mountPath: /var/opt/mssql/backup
         # -------------------------------------------
         readinessProbe:
           tcpSocket:
@@ -56,10 +56,10 @@ spec:
             port: 1433
           initialDelaySeconds: 40
           periodSeconds: 10
-      volumes:
-      - name: mssqlbackup
-        persistentVolumeClaim:
-          claimName: mssql-bak-pvc
+     # volumes:
+     # - name: mssqlbackup
+     #   persistentVolumeClaim:
+     #     claimName: mssql-bak-pvc
   volumeClaimTemplates:
   - metadata:
       name: mssqldata
