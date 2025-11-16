@@ -1,5 +1,4 @@
 #!/bin/bash
-set -euo pipefail
 
 : "${ACCEPT_EULA:?ACCEPT_EULA must be set to Y}"
 : "${MSSQL_SA_PASSWORD:?MSSQL_SA_PASSWORD is required}"
@@ -31,6 +30,7 @@ if [[ "$is_up" -ne 0 && "$count" -eq 40 ]]; then
     wait "$pid"
     exit 1
 fi
+
 echo "SQL Server is ready."
 
 LOG_FILE=output.log
