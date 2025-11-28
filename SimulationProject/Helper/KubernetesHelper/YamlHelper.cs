@@ -23,7 +23,7 @@ namespace SimulationProject.Helper.KubernetesHelper
             {
                 var content = File.ReadAllText(yamlFile);
 
-                if ((content.Contains("master") && content.Contains("Deployment")) ||
+                if ((content.Contains("master") && content.Contains("Job")) ||
                     (content.Contains("master") && content.Contains("Service")))// || (content.Contains("slave") && content.Contains("Pod")))
                 {
                     var dest = Path.Combine(tempDir, Path.GetFileName(yamlFile));
@@ -83,7 +83,7 @@ namespace SimulationProject.Helper.KubernetesHelper
                     // Robust detection
                     if ((role?.Contains("master") ?? false) || (name?.Contains("master") ?? false))
                     {
-                        if (kind == "Deployment")
+                        if (kind == "Job")
                             result.HasMaster = true;
                     }
 

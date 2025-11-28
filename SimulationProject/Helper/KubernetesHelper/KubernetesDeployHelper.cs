@@ -38,6 +38,9 @@ namespace SimulationProject.Helper.KubernetesHelper
                         case V1ConfigMap configMap:
                             await _client.CoreV1.CreateNamespacedConfigMapAsync(configMap, configMap.Metadata.NamespaceProperty ?? "default");
                             break;
+                        case V1Job job:
+                            await _client.BatchV1.CreateNamespacedJobAsync(job, job.Metadata.NamespaceProperty ?? "default");
+                            break;
                         default:
                             Console.WriteLine($"Unsupported resource type: {resource.GetType().Name}");
                             break;

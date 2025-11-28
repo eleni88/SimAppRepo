@@ -1,4 +1,6 @@
-﻿using k8s;
+﻿using System.Net;
+using k8s;
+using k8s.Autorest;
 using SimulationProject.DTO.SimExecutionDTOs;
 using SimulationProject.Models;
 
@@ -22,8 +24,10 @@ namespace SimulationProject.Services
             int expectedSlaves,
             CancellationToken cancellationToken = default)
         {
-            const int pollingIntervalSeconds = 10;
+            const int pollingIntervalSeconds = 5;
             const string namespaceName = "default";
+            string resultsJson = "";
+            var address = "";
 
             _logger.LogInformation("Waiting for simulation to complete. Monitoring master pod...");
 
@@ -48,22 +52,62 @@ namespace SimulationProject.Services
                     _logger.LogInformation("Master pod status: {Phase}", phase);
 
                     if (phase == "Running")
-                    {
+                    {                       
+                        // Fetch results from master service
+                        try
+                        {
+                            var httpClient = new HttpClient();
+
+                            //------ for localhost test and debug -------
+                            //var nodes = await client.CoreV1.ListNodeAsync();
+                            //var minikubeNode = nodes.Items.FirstOrDefault(n => n.Metadata.Name.Contains("minikube", StringComparison.OrdinalIgnoreCase));
+                            //if (minikubeNode != null)
+                            //{
+                            //    address = minikubeNode.Status.Addresses.FirstOrDefault(a => a.Type == "InternalIP").Address;
+                            //}
+                            //var response = await httpClient.GetAsync($"http://{address}:30080/results"); //  NodePort                           
+                            //--------------------------------------------
+
+                            //------- for localhost test and debug with port-forward --------------
+                            var response = await httpClient.GetAsync("http://localhost:30080/results", cancellationToken); //  NodePort 
+                            //--------------------------------------------
+
+                            // when the Web API runs on minikube too -------------------
+                            //var response = await httpClient.GetAsync("http://master/results");
+                            //var response = await httpClient.GetAsync("http://master.default.svc.cluster.local/results");
+                            //--------------------------------------------
+                            if (response.IsSuccessStatusCode)
+                            {
+                                resultsJson = await response.Content.ReadAsStringAsync();
+                                _logger.LogInformation("Simulation Results (JSON):\n{Results}", resultsJson);
+                            }
+                            else
+                            {
+                                _logger.LogWarning("Failed to fetch results. Status: {Status}", response.StatusCode);
+                                resultsJson = $"Error: Failed to fetch results. Status {response.StatusCode}";
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Error retrieving results from master service");
+                            resultsJson = $"Exception: {ex.Message}";                       
+                        }
                         // Keep polling
                         await Task.Delay(TimeSpan.FromSeconds(pollingIntervalSeconds), cancellationToken);
                         continue;
                     }
-                    else if (phase == "Succeeded")
+                    else
+                    if (phase == "Succeeded")
                     {
                         _logger.LogInformation("Master pod completed successfully. Fetching results...");
-                        await SaveResultsFromMasterPodAsync(newsimexec, client, masterPod.Metadata.Name, namespaceName, phase, cancellationToken);
+                        await SaveResultsFromMasterPodAsync(newsimexec, client, masterPod.Metadata.Name, namespaceName, phase, resultsJson, cancellationToken);
                         break;
                     }
                     else
                     if (phase != "Pending")
                     {
                         _logger.LogWarning("Master pod terminated with phase: {Phase}. Attempting to fetch logs anyway.", phase);
-                        await SaveResultsFromMasterPodAsync(newsimexec, client, masterPod.Metadata.Name, namespaceName, phase, cancellationToken);
+                        await SaveResultsFromMasterPodAsync(newsimexec, client, masterPod.Metadata.Name, namespaceName, phase, resultsJson, cancellationToken);
                         break;
                     }
                 }
@@ -72,8 +116,9 @@ namespace SimulationProject.Services
             }
         }
 
-        private async Task SaveResultsFromMasterPodAsync(Simexecution newsimexec, IKubernetes client, string podName, string namespaceName, string phase, CancellationToken cancellationToken)
+        private async Task SaveResultsFromMasterPodAsync(Simexecution newsimexec, IKubernetes client, string podName, string namespaceName, string phase, string jsonresults, CancellationToken cancellationToken)
         {
+            string logresults = string.Empty;
             try
             {
                 var logsStream = await client.CoreV1.ReadNamespacedPodLogAsync(
@@ -86,9 +131,29 @@ namespace SimulationProject.Services
                     var logs = await reader.ReadToEndAsync();
                     _logger.LogInformation("Collected logs from master pod:\n{Logs}", logs);
 
+                    if (jsonresults != null)
+                    {
+                        logresults = jsonresults;
+                    }
+                    else
+                    {
+                        logresults = logs;
+                    }
                     // Save to DB
-                    await SaveResultsToDatabaseAsync(logs, newsimexec, phase);
+                    if (logresults != null)
+                    {
+                        await SaveResultsToDatabaseAsync(logresults, newsimexec, phase);
+                    }
                 }
+            }
+            catch (HttpOperationException ex)
+            {
+                var status = ex.Response?.StatusCode;
+                var content = ex.Response?.Content;
+
+                _logger.LogError(ex,
+                    "K8s API error while collecting logs from pod {PodName}. Status: {Status}. Response: {Content}",
+                    podName, status, content);
             }
             catch (Exception ex)
             {
@@ -102,6 +167,10 @@ namespace SimulationProject.Services
             {
                 newsimexec.Execreport = results;
                 newsimexec.State = phase;
+                newsimexec.Enddate = DateTime.UtcNow;
+                System.DateTime dt = (DateTime)newsimexec.Startdate;
+                newsimexec.Duration = ((DateTime.UtcNow.Minute - dt.Minute)).ToString();
+                await _simulationService.PutSimuExecutionAsync();
                 await Task.Delay(100);
                 _logger.LogInformation("Results saved to database.");
             }

@@ -1,4 +1,5 @@
 ﻿using k8s;
+using k8s.Models;
 using SimulationProject.Helper.GitCloneHelper;
 using SimulationProject.Helper.KubernetesHelper;
 using SimulationProject.Models;
@@ -34,7 +35,7 @@ namespace SimulationProject.Services
                 throw new Exception("No YAML files found in repository.");
             var parsed = YamlHelper.ParseYamlFiles(allYamlFiles);
             if (!parsed.HasMaster)
-                throw new Exception("No master deployment found in repo YAMLs.");
+                throw new Exception("No master Job found in repo YAMLs.");
 
             // 3. Copy YAMLs to temp folder
             var tempDir = Path.Combine("/tmp/sim-mk", Guid.NewGuid().ToString("N"));
@@ -48,7 +49,7 @@ namespace SimulationProject.Services
             foreach (var yaml in yamlFilesToDeploy)
             {
                 var content = File.ReadAllText(yaml);
-                if (content.Contains("master") && content.Contains("Deployment"))
+                if (content.Contains("master") && content.Contains("Job"))
                     YamlHelper.AddConfigMapToDeploymentYaml(yaml);
                 else
                 if (content.Contains("master") && content.Contains("Service"))
@@ -93,7 +94,7 @@ namespace SimulationProject.Services
             {
                 var content = File.ReadAllText(yaml);
                 return content.Contains("master") &&
-                       (content.Contains("Deployment") || content.Contains("Service"));
+                       (content.Contains("Job") || content.Contains("Service"));
             }).ToList();
 
             // 7. Deploy configMap YAML
@@ -102,36 +103,18 @@ namespace SimulationProject.Services
             await RBACHelper.ApplyRbacAsync(kubeClient.GetClient());
             // 9. Deploy  master YAML
             await kubeClient.DeployYamlFilesAsync(masterYamlOnly);
-
             // 8. Poll master
             await _PollingService.WaitForSimulationToFinishAsync(newsimexec, kubeClient.GetClient(), "app=master", 0);
 
-            // 9.Fetch results from master service
             try
             {
-                var httpClient = new HttpClient();
-                var response = await httpClient.GetAsync("http://localhost:30080/results"); //  NodePort 
-                if (response.IsSuccessStatusCode)
-                {
-                    resultsJson = await response.Content.ReadAsStringAsync();
-                    _logger.LogInformation("Simulation Results (JSON):\n{Results}", resultsJson);
-                }
-                else
-                {
-                    _logger.LogWarning("Failed to fetch results. Status: {Status}", response.StatusCode);
-                    resultsJson = $"Error: Failed to fetch results. Status {response.StatusCode}";
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving results from master service");
-                resultsJson = $"Exception: {ex.Message}";
-            }
+                // 9. Cleanup
 
-            // 10. Cleanup
-            try
-            {
-                await kubeClient.GetClient().AppsV1.DeleteNamespacedDeploymentAsync("master", "default");
+                var deleteOptions = new V1DeleteOptions
+                {
+                    PropagationPolicy = "Foreground"
+                };
+                await kubeClient.GetClient().BatchV1.DeleteNamespacedJobAsync("master", "default", deleteOptions);
                 await kubeClient.GetClient().CoreV1.DeleteNamespacedServiceAsync("master", "default");
                 await kubeClient.GetClient().CoreV1.DeleteNamespacedConfigMapAsync("simulation-config", "default");
             }
@@ -140,6 +123,9 @@ namespace SimulationProject.Services
                 _logger.LogWarning(ex, "Cleanup warning");
             }
 
+
+            //}
+            resultsJson = newsimexec.Execreport;
             return resultsJson;
         }
     }

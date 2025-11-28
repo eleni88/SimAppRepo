@@ -34,6 +34,7 @@ namespace SimulationProject.Controllers
         [HttpPost("minikube/run")]
         public async Task<IActionResult> RunSimulation([FromBody] SimulationRunDTO request)
         {
+            
             var simulation = await _simulationService.GetSimulationByIdAsync(request.Simid);
             if (simulation == null)
             {
@@ -63,7 +64,7 @@ namespace SimulationProject.Controllers
                 newsimexec.Duration = duration.ToString(@"hh\:mm\:ss");
                 await _simulationService.CreateSimExecutionAsync(newsimexec);
 
-                return Ok(new { message = "Simulation succeed" });
+                return Ok(new { message = "Simulation succeeded" });
             }
             catch (Exception ex)
             {
@@ -122,8 +123,7 @@ namespace SimulationProject.Controllers
                 TimeSpan duration = (TimeSpan)(newsimexec.Enddate - newsimexec.Startdate);
                 newsimexec.Duration = duration.ToString(@"hh\:mm\:ss");
                 await _simulationService.CreateSimExecutionAsync(newsimexec);
-
-                return Ok(new { message = "Simulation succeed" });
+                return Ok(new { message = "Simulation succeeded" });
 
             }
             catch (Exception ex)
