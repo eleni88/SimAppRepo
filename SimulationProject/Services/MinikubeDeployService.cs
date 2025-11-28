@@ -78,7 +78,7 @@ namespace SimulationProject.Services
                         }
 
                         firstPort.Children["port"] = new YamlScalarNode("80");
-                        firstPort.Children["targetPort"] = new YamlScalarNode("80");
+                        firstPort.Children["targetPort"] = new YamlScalarNode("8080");
                         firstPort.Children["nodePort"] = new YamlScalarNode("30080");
                         firstPort.Children["protocol"] = new YamlScalarNode("TCP");
 
@@ -94,7 +94,7 @@ namespace SimulationProject.Services
             {
                 var content = File.ReadAllText(yaml);
                 return content.Contains("master") &&
-                       (content.Contains("Job") || content.Contains("Service"));
+                       (content.Contains("Job") || (content.Contains("Service") && (!content.Contains("ServiceAccount"))));
             }).ToList();
 
             // 7. Deploy configMap YAML
