@@ -62,7 +62,7 @@ namespace SimulationProject.Controllers
                 newsimexec.Enddate = DateTime.UtcNow;
                 TimeSpan duration = (TimeSpan)(newsimexec.Enddate - newsimexec.Startdate);
                 newsimexec.Duration = duration.ToString(@"hh\:mm\:ss");
-                await _simulationService.CreateSimExecutionAsync(newsimexec);
+                await _simulationService.PutSimuExecutionAsync();
 
                 return Ok(new { message = "Simulation succeeded" });
             }

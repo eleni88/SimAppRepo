@@ -58,16 +58,6 @@ namespace SimulationProject.Services
                         {
                             var httpClient = new HttpClient();
 
-                            //------ for localhost test and debug -------
-                            //var nodes = await client.CoreV1.ListNodeAsync();
-                            //var minikubeNode = nodes.Items.FirstOrDefault(n => n.Metadata.Name.Contains("minikube", StringComparison.OrdinalIgnoreCase));
-                            //if (minikubeNode != null)
-                            //{
-                            //    address = minikubeNode.Status.Addresses.FirstOrDefault(a => a.Type == "InternalIP").Address;
-                            //}
-                            //var response = await httpClient.GetAsync($"http://{address}:30080/results"); //  NodePort                           
-                            //--------------------------------------------
-
                             //------- for localhost test and debug with port-forward --------------
                             var response = await httpClient.GetAsync("http://localhost:30080/results", cancellationToken); //  NodePort 
                             //--------------------------------------------
@@ -167,10 +157,10 @@ namespace SimulationProject.Services
             {
                 newsimexec.Execreport = results;
                 newsimexec.State = phase;
-                newsimexec.Enddate = DateTime.UtcNow;
-                System.DateTime dt = (DateTime)newsimexec.Startdate;
-                newsimexec.Duration = ((DateTime.UtcNow.Minute - dt.Minute)).ToString();
-                await _simulationService.PutSimuExecutionAsync();
+                //newsimexec.Enddate = DateTime.UtcNow;
+                //System.DateTime dt = (DateTime)newsimexec.Startdate;
+                //newsimexec.Duration = ((DateTime.UtcNow.Minute - dt.Minute)).ToString();
+               // await _simulationService.PutSimuExecutionAsync();
                 await Task.Delay(100);
                 _logger.LogInformation("Results saved to database.");
             }
