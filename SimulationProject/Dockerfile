@@ -4,6 +4,7 @@
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 ENV ASPNETCORE_ENVIRONMENT=Development
 USER $APP_UID
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
