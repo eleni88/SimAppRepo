@@ -34,7 +34,7 @@ export default function () {
          password: `User${i}Password!@#123*${RUN_ID}`,
          firstname: `User${i}`,
          lastname: `User${i}`,
-         email: `${username}@example.com`,
+         email: `${i}user${RUN_ID}@example.com`,
          admin: true,
          age: 30,
          jobtitle: 'Developer',

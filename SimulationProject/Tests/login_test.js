@@ -11,7 +11,7 @@ export const options = {
 
             gracefulStop: '5s',
 
-            vus: 10,
+            vus: 50,
             iterations: 1,
             maxDuration: '2m',
         },
