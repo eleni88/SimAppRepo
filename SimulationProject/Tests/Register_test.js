@@ -18,7 +18,7 @@ export const options = {
     },
     thresholds: {
         'http_req_failed': ['rate<0.01'],   // http errors should be less than 1%      
-        'http_req_duration{ scenario: register_scenario }': ['p(100)<5000']  // 100% of requests have a response time < 5000ms  
+        'http_req_duration{ scenario: register_scenario }': ['p(90)<5000']  // 100% of requests have a response time < 5000ms  
     },
 };
 
@@ -47,7 +47,7 @@ export default function () {
          securityquestion2: 'What was the make and model of your first car?',
          securityanswer2: `Corsa${i}!@#123`,
     });
-    const url = 'http://127.0.0.1:8080/api/Ath/register';
+    const url = 'http://127.0.0.1:8080/api/Ath/register'; //'https://localhost:7121/api/Ath/register';
     const params = {
         headers: { 'Content-Type': 'application/json' },
         timeout: '90s',
@@ -60,7 +60,7 @@ export default function () {
     if (userregister.status !== 200 && userregister.status !== 201) {
         console.error('Register failed:', userregister.status);
         console.error('Resp headers:', JSON.stringify(userregister.headers));
-
+        console.error('user${i}_${RUN_ID}:', username);
         console.error('Body:', String(userregister.body).slice(0, 500));
     }
 

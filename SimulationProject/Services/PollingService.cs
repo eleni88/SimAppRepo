@@ -59,12 +59,12 @@ namespace SimulationProject.Services
                             var httpClient = new HttpClient();
 
                             //------- for localhost test and debug with port-forward --------------
-                            var response = await httpClient.GetAsync("http://localhost:30080/results", cancellationToken); //  NodePort 
+                            //var response = await httpClient.GetAsync("http://localhost:30080/results", cancellationToken); //  NodePort 
                             //--------------------------------------------
 
                             // when the Web API runs on minikube too -------------------
                             //var response = await httpClient.GetAsync("http://master/results");
-                            //var response = await httpClient.GetAsync("http://master.default.svc.cluster.local/results");
+                            var response = await httpClient.GetAsync("http://master.default.svc.cluster.local/results");
                             //--------------------------------------------
                             if (response.IsSuccessStatusCode)
                             {
@@ -157,10 +157,6 @@ namespace SimulationProject.Services
             {
                 newsimexec.Execreport = results;
                 newsimexec.State = phase;
-                //newsimexec.Enddate = DateTime.UtcNow;
-                //System.DateTime dt = (DateTime)newsimexec.Startdate;
-                //newsimexec.Duration = ((DateTime.UtcNow.Minute - dt.Minute)).ToString();
-               // await _simulationService.PutSimuExecutionAsync();
                 await Task.Delay(100);
                 _logger.LogInformation("Results saved to database.");
             }
