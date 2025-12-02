@@ -19,10 +19,17 @@ namespace SimulationProject.Services
         }
         public async Task<string> RunSimulationToMinikubeAsync(string repoUrl, string jsonParams, Simexecution newsimexec)
         {
+            string kubeConfigContent = "";
             var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            var kubeConfigPath = Path.Combine(userProfile, ".kube", "config");
-            var kubeConfigContent = await File.ReadAllTextAsync(kubeConfigPath);
-            KubeConfigValidator.ValidateKubeConfig(kubeConfigContent);
+            if (userProfile != null)
+            {
+                var kubeConfigPath = Path.Combine(userProfile, ".kube", "config");
+                if (File.Exists(kubeConfigPath))
+                {
+                    kubeConfigContent = await File.ReadAllTextAsync(kubeConfigPath);
+                    KubeConfigValidator.ValidateKubeConfig(kubeConfigContent);
+                }
+            }           
             var kubeClient = new KubernetesDeployerHelper(kubeConfigContent);
 
             string resultsJson = "";
