@@ -13,8 +13,15 @@ namespace SimulationProject.Helper.KubernetesHelper
         // Creation of KubernetesClient
         public KubernetesDeployerHelper(string kubeConfig)
         {
-            var config = KubernetesClientConfiguration.BuildConfigFromConfigFile(
+            KubernetesClientConfiguration config;
+            if (KubernetesClientConfiguration.IsInCluster()) {
+               config = KubernetesClientConfiguration.InClusterConfig();
+            }
+            else
+            {
+               config = KubernetesClientConfiguration.BuildConfigFromConfigFile(
                 new MemoryStream(Encoding.UTF8.GetBytes(kubeConfig)));
+            }             
             _client = new Kubernetes(config);
         }
 

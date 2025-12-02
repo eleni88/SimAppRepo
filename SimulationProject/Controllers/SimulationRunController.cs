@@ -21,23 +21,19 @@ namespace SimulationProject.Controllers
         private readonly MinikubeDeployService _minikubeDeployService;
         private readonly SimulationRunService _simulationRunService;
         private readonly IUsersService _usersService;
-        private readonly ILogger<ISimulationService> _logger;
 
-        public SimulationRunController(ISimulationService simulationService, MinikubeDeployService minikubeDeployService, SimulationRunService simulationRunService, IUsersService usersService, ILogger<ISimulationService> logger)
+        public SimulationRunController(ISimulationService simulationService, MinikubeDeployService minikubeDeployService, SimulationRunService simulationRunService, IUsersService usersService)
         {
             _simulationService = simulationService;
             _minikubeDeployService = minikubeDeployService;
             _simulationRunService = simulationRunService;
             _usersService = usersService;
-            _logger = logger;
         }
 
         //------------------------ Minikube test ----------------------------
         [HttpPost("minikube/run")]
         public async Task<IActionResult> RunSimulation([FromBody] SimulationRunDTO request)
         {
-            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            _logger.LogInformation("RunMinikube: Name={userIdStr}", userIdStr);
             var simulation = await _simulationService.GetSimulationByIdAsync(request.Simid);
             if (simulation == null)
             {
