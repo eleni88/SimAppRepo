@@ -2,9 +2,10 @@
 
 # This stage is used when running from VS in fast mode (Default for Debug configuration)
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+RUN apt-get -y update
+RUN apt-get -y install git
 ENV ASPNETCORE_ENVIRONMENT=Development
 USER $APP_UID
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
