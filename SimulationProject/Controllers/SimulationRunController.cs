@@ -54,16 +54,19 @@ namespace SimulationProject.Controllers
                     request.Simparams,
                     newsimexec
                 );
-                if (resultsJson == null)
-                {
-                    return BadRequest("Simulation failed");
-                }
+                
                 newsimexec.Enddate = DateTime.UtcNow;
                 TimeSpan duration = (TimeSpan)(newsimexec.Enddate - newsimexec.Startdate);
                 newsimexec.Duration = duration.ToString(@"hh\:mm\:ss");
                 await _simulationService.PutSimuExecutionAsync();
 
-                return Ok(new { message = "Simulation succeeded" });
+                if (resultsJson == null)
+                {
+                    return BadRequest($"Simulation failed. simExec: {newsimexec.Execid}");
+                }
+
+                //return Ok(new { message = "Simulation succeeded" });
+                return Ok(newsimexec.Execid);
             }
             catch (Exception ex)
             {
