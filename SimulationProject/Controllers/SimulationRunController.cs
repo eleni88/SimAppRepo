@@ -117,15 +117,16 @@ namespace SimulationProject.Controllers
                     userdto,
                     newsimexec
                 );
-                if (resultsJson == null)
-                {
-                    return BadRequest(new { message = "Simulation failed" } );
-                }
+                
                 newsimexec.Enddate = DateTime.UtcNow;
                 TimeSpan duration = (TimeSpan)(newsimexec.Enddate - newsimexec.Startdate);
                 newsimexec.Duration = duration.ToString(@"hh\:mm\:ss");
-                await _simulationService.CreateSimExecutionAsync(newsimexec);
-                return Ok(new { message = "Simulation succeeded" });
+                await _simulationService.PutSimuExecutionAsync();
+                if (resultsJson == null)
+                {
+                    return BadRequest(new { message = "Simulation failed" });
+                }
+                return Ok(newsimexec.Execid);
 
             }
             catch (Exception ex)
